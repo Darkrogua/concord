@@ -20,8 +20,23 @@
               "icon": "lucide-file",
               "title": "Блок согласования"
             }
+          },
+          {
+            "id": "c7103239a3068751",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Документы/Ссылки.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Ссылки"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -94,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Терминология/Блок согласования.md",
+                "file": "Документы/Ссылки.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Обратные ссылки для Блок согласования"
+              "title": "Обратные ссылки для Ссылки"
             }
           },
           {
@@ -113,12 +128,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Терминология/Блок согласования.md",
+                "file": "Документы/Ссылки.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Исходящие ссылки из Блок согласования"
+              "title": "Исходящие ссылки из Ссылки"
             }
           },
           {
@@ -142,13 +157,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Терминология/Блок согласования.md",
+                "file": "Документы/Ссылки.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Структура Блок согласования"
+              "title": "Структура Ссылки"
             }
           },
           {
@@ -179,12 +194,15 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "c4d59f363acb6fda",
+  "active": "c7103239a3068751",
   "lastOpenFiles": [
+    "Терминология/Блок согласования.md",
+    "Документы/Ссылки.md",
+    "assets/links",
+    "Документы",
     "Терминология/Информационный блок.md",
     "Терминология/Подпись - Голос.md",
     "Терминология/Раздел - Контейнер.md",
-    "Терминология/Блок согласования.md",
     "Терминология/Согласование.md",
     "Роли/Согласователь.md",
     "Роли/Автор.md",
