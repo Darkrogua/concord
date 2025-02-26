@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Роли/Согласователь.md",
+                "file": "Терминология/Согласование.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Согласователь"
+              "title": "Согласование"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Роли/Согласователь.md",
+                "file": "Терминология/Согласование.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Обратные ссылки для Согласователь"
+              "title": "Обратные ссылки для Согласование"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Роли/Согласователь.md",
+                "file": "Терминология/Согласование.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Исходящие ссылки из Согласователь"
+              "title": "Исходящие ссылки из Согласование"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Роли/Согласователь.md",
+                "file": "Терминология/Согласование.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Структура Согласователь"
+              "title": "Структура Согласование"
             }
           },
           {
@@ -166,7 +166,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -181,10 +181,12 @@
   },
   "active": "c4d59f363acb6fda",
   "lastOpenFiles": [
+    "Роли/Автор.md",
+    "Терминология/Согласование.md",
+    "Терминология",
+    "Роли/Согласующее лицо - Согласователь.md",
     "Добро пожаловать.md",
     "создайте ссылку.md",
-    "Роли/Согласователь.md",
-    "Роли/Автор согласования.md",
     "Роли"
   ]
 }
