@@ -20,23 +20,8 @@
               "icon": "lucide-file",
               "title": "Мульти-подпись"
             }
-          },
-          {
-            "id": "d56f678105ad6ace",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "conflict-files-obsidian-git.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "conflict-files-obsidian-git"
-            }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -194,7 +179,7 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "d56f678105ad6ace",
+  "active": "6be5f5d276d1c859",
   "lastOpenFiles": [
     "Фичи/Мульти-подпись.md",
     "conflict-files-obsidian-git.md",
