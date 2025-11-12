@@ -1,0 +1,14 @@
+{
+  "enabledCssSnippets": [
+    "checklists-fix",
+    "code-clocks-style",
+    "code-line",
+    "file-manager-style",
+    "full-width-pages",
+    "hr-line",
+    "images-fix",
+    "quote",
+    "strike-muted-style",
+    "table-fixes"
+  ]
+}
