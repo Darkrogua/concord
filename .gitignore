@@ -1,3 +1,33 @@
+# Backend
+backend/vendor/
+backend/node_modules/
+backend/.env
+backend/.env.backup
+backend/.phpunit.result.cache
+backend/storage/*.key
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# IDE
 .idea/
-/concord/.obsidian/workspace.json
-/concord/.obsidian/plugins/obsidian-git/data.json
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
