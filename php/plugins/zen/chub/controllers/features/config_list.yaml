@@ -1,0 +1,16 @@
+list: $/zen/chub/models/feature/columns.yaml
+modelClass: Zen\Chub\Models\Feature
+title: Фичлист
+noRecordsMessage: 'backend::lang.list.no_records'
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 50
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'
+recordUrl: 'zen/chub/features/update/:id'
+filter: $/zen/chub/models/feature/scopes.yaml
+structure:
+    showTree: true
+    showReorder: true

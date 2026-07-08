@@ -1,0 +1,10 @@
+name: Commands
+form: $/zen/chub/models/command/fields.yaml
+modelClass: Zen\Chub\Models\Command
+defaultRedirect: zen/chub/commands
+create:
+    redirect: 'zen/chub/commands/update/:id'
+    redirectClose: zen/chub/commands
+update:
+    redirect: zen/chub/commands
+    redirectClose: zen/chub/commands

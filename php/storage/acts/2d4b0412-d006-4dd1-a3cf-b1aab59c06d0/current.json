@@ -1,0 +1,56 @@
+{
+    "id": "2d4b0412-d006-4dd1-a3cf-b1aab59c06d0",
+    "name": "Ещё один акт",
+    "description": null,
+    "owner_id": 5,
+    "activate_at": null,
+    "stop_at": null,
+    "created_at": "2026-06-03T00:43:17+04:00",
+    "updated_at": "2026-06-03T00:43:17+04:00",
+    "blocks": [
+        {
+            "id": "465aaab5-d206-45a3-a751-ab33f1498506",
+            "name": "Текст",
+            "data": {
+                "text": "",
+                "type": "text"
+            },
+            "sort_order": 1,
+            "created_at": "2026-06-19 12:18:46",
+            "updated_at": "2026-06-19 12:18:46",
+            "hash": "552512ee8b5998d43b9823833231ed231e015d1ad4651c76fe6b7c1f31a98aae"
+        },
+        {
+            "id": "3a14589e-ab73-4416-b13a-e41dd7dcd03c",
+            "name": "Web-приложение",
+            "data": {
+                "html": "",
+                "type": "webapp"
+            },
+            "sort_order": 2,
+            "created_at": "2026-06-26 08:56:34",
+            "updated_at": "2026-06-26 08:56:34",
+            "hash": "6af1c5ff739d43efc069deb55cfc8d672807265c1fc703d8c0fe99cd9b3ef525"
+        }
+    ],
+    "access": {
+        "meta": {
+            "owner_login": "zen",
+            "schema_version": "1"
+        },
+        "grants": [
+            {
+                "resource_type": "act",
+                "resource_id": "2d4b0412-d006-4dd1-a3cf-b1aab59c06d0",
+                "login": "@public",
+                "role": "viewer"
+            }
+        ]
+    },
+    "owner_user_tags": [],
+    "format_version": 2,
+    "written_at": "2026-06-29T09:31:18+00:00",
+    "envelope_hash": "39e576dd654c69c36ad7b68dcfc2418c4e2ec82c1adb46f7db2431cef78b5d79",
+    "log_head_id": 2,
+    "owner_login": "zen"
+}

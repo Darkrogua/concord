@@ -1,0 +1,7 @@
+scopes:
+    type:
+        label: Тип лога
+        type: dropdown
+        emptyOption: Все типы
+        options: getTypeOptions
+        conditions: type = :value

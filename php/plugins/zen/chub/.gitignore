@@ -1,0 +1,6 @@
+node_modules/
+assets/build/*
+!assets/build/
+!assets/build/main/
+!assets/build/main/**
+!controllers/logs

@@ -1,0 +1,10 @@
+name: ShipSpecifications
+form: $/zen/chub/models/shipspecification/fields.yaml
+modelClass: Zen\Chub\Models\ShipSpecification
+defaultRedirect: zen/chub/shipspecifications
+create:
+    redirect: 'zen/chub/shipspecifications/update/:id'
+    redirectClose: zen/chub/shipspecifications
+update:
+    redirect: zen/chub/shipspecifications
+    redirectClose: zen/chub/shipspecifications

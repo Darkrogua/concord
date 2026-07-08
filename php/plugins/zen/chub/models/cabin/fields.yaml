@@ -1,0 +1,34 @@
+fields:
+    deck_id:
+        label: Палуба
+        type: dropdown
+        span: auto
+        emptyOption: '-- Выберите палубу --'
+        options: getDeckIdOptions
+    ship_id:
+        label: Теплоход
+        type: dropdown
+        span: auto
+        emptyOption: '-- Любой (все категории) --'
+        options: getShipIdOptions
+    grade_id:
+        label: Категория каюты
+        type: dropdown
+        span: auto
+        emptyOption: '-- Выберите категорию --'
+        options: getGradeIdOptions
+        dependsOn: ship_id
+    active:
+        label: Активно
+        span: full
+        default: 1
+        type: switch
+    name:
+        label: Название
+        span: auto
+        type: text
+    description:
+        label: Описание
+        size: large
+        span: full
+        type: richeditor

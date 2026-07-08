@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SHAKTI_SCRIPTS="$REPO_ROOT/.cursor/skills/os3-shakti/scripts"
+
+usage() {
+  cat <<EOF
+OS3 — прокси на Shakti VPS (root@193.168.48.146).
+
+Использование:
+  ./bin/shakti status
+  ./bin/shakti bootstrap          # первичная настройка (Traefik, /opt/os3)
+  ./bin/shakti deploy             # vite-build + деплой (storage/acts не трогается)
+  ./bin/shakti deploy --reset-acts  # + очистка storage/acts и zen_act_acts на Shakti
+  make deploy RESET_ACTS=1        # то же через Make
+  ./bin/shakti run '<команда>'
+  ./bin/shakti logs [-n N] journal|file|docker ...
+  ./bin/shakti docs-pull
+  ./bin/shakti help
+
+Креды: ~/bin/shakti-root или .cursor/skills/os3-shakti/config.env
+
+Подробнее: .cursor/skills/os3-shakti/SKILL.md
+EOF
+}
+
+cmd="${1:-help}"
+shift || true
+
+case "$cmd" in
+  help|-h|--help)
+    usage
+    ;;
+  status)
+    exec "$SHAKTI_SCRIPTS/status.sh" "$@"
+    ;;
+  bootstrap)
+    exec "$SHAKTI_SCRIPTS/bootstrap.sh" "$@"
+    ;;
+  deploy)
+    exec "$SHAKTI_SCRIPTS/deploy.sh" "$@"
+    ;;
+  run)
+    exec "$SHAKTI_SCRIPTS/run.sh" "$@"
+    ;;
+  logs)
+    exec "$SHAKTI_SCRIPTS/logs.sh" "$@"
+    ;;
+  docs-pull)
+    exec "$SHAKTI_SCRIPTS/docs-pull.sh" "$@"
+    ;;
+  *)
+    exec "$SHAKTI_SCRIPTS/run.sh" "$cmd" "$@"
+    ;;
+esac

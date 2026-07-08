@@ -1,0 +1,10 @@
+name: States
+form: $/zen/chub/models/state/fields.yaml
+modelClass: Zen\Chub\Models\State
+defaultRedirect: zen/chub/states
+create:
+    redirect: 'zen/chub/states/update/:id'
+    redirectClose: zen/chub/states
+update:
+    redirect: zen/chub/states
+    redirectClose: zen/chub/states

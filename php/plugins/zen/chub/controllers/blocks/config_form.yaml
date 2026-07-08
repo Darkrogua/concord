@@ -1,0 +1,10 @@
+name: Blocks
+form: $/zen/chub/models/block/fields.yaml
+modelClass: Zen\Chub\Models\Block
+defaultRedirect: zen/chub/blocks
+create:
+    redirect: 'zen/chub/blocks/update/:id'
+    redirectClose: zen/chub/blocks
+update:
+    redirect: zen/chub/blocks
+    redirectClose: zen/chub/blocks

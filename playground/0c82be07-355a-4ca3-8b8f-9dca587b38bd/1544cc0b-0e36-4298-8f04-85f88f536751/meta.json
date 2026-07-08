@@ -1,0 +1,10 @@
+{
+    "format_version": 1,
+    "act_id": "0c82be07-355a-4ca3-8b8f-9dca587b38bd",
+    "block_id": "1544cc0b-0e36-4298-8f04-85f88f536751",
+    "name": "Web-приложение",
+    "type": "webapp",
+    "pulled_at": "2026-06-22T12:38:17+00:00",
+    "block_hash": "d2f4ba774b6cf31c9b9845c2c738c95330b2ce4ca5cbb6243e85fbdf2da977ac",
+    "content_sha256": "a2e891257afa2190b857ca86398713ffc7f45630aec3eeb7050e36b2d3bf5c38"
+}

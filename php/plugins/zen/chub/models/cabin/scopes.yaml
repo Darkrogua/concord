@@ -1,0 +1,23 @@
+# ===================================
+# Filter scopes (October v4: group + :filtered)
+# ===================================
+
+scopes:
+    deck_id:
+        label: Палуба
+        modelClass: Zen\Chub\Models\Deck
+        nameFrom: name
+        optionsScope: filterRootsOnly
+        conditions: deck_id in (:filtered)
+
+    grade_id:
+        label: Категория каюты
+        modelClass: Zen\Chub\Models\Grade
+        nameFrom: name
+        conditions: grade_id in (:filtered)
+
+    ship:
+        label: Теплоход
+        modelClass: Zen\Chub\Models\Ship
+        nameFrom: name
+        conditions: grade_id in (SELECT id FROM zen_chub_grades WHERE ship_id in (:filtered))

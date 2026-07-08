@@ -1,0 +1,22 @@
+columns:
+    id:
+        label: id
+        type: text
+    name:
+        label: name
+        type: text
+    extra_name:
+        label: extra_name
+        type: text
+    waterway_id:
+        label: waterway_id
+        type: text
+    volga_id:
+        label: volga_id
+        type: text
+    gama_id:
+        label: gama_id
+        type: text
+    germes_id:
+        label: germes_id
+        type: text

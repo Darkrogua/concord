@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1,
+        "code": "demo",
+        "parent_id": null,
+        "name": "Демонстрационные настройки",
+        "description": "<p>Это тестовые настройки, то как они работают можно посмотреть <a href=\"\/chub.api\/Dev.StatesDevelop%3AtestSetting\">тут<\/a><\/p>",
+        "active": 1,
+        "sort_order": 1,
+        "created_at": "2026-02-20 17:50:50",
+        "updated_at": "2026-02-20 21:25:52"
+    },
+    {
+        "id": 2,
+        "code": "logs-rotation",
+        "parent_id": null,
+        "name": "Ротация логов chub",
+        "description": "<h3>Данная настройка создана для установления периода ротации логов<\/h3><p>Период ротации chub-логов в днях - Сколько хранить логи основной системы логирования CHub, которая находится тут: <a href=\"\/console\/zen\/chub\/logs\">\/console\/zen\/chub\/logs<\/a><\/p>",
+        "active": 1,
+        "sort_order": 2,
+        "created_at": "2026-03-20 15:22:04",
+        "updated_at": "2026-03-20 15:44:26"
+    },
+    {
+        "id": 3,
+        "code": "notify-settings",
+        "parent_id": null,
+        "name": "Настройки уведомлений",
+        "description": "<p>Настройки автоматизаций в плане уведомлений<\/p>",
+        "active": 1,
+        "sort_order": 3,
+        "created_at": "2026-04-14 23:45:02",
+        "updated_at": "2026-04-14 23:45:02"
+    }
+]

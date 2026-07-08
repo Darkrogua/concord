@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ACT_ASSETS_DIR="${ACT_ASSETS_DIR:-$REPO_ROOT/php/plugins/zen/act/assets}"
+APP_URL="${APP_URL:-http://localhost:8083}"
+CHECK_HTTP="${VITE_CHECK_HTTP:-0}"
+
+usage() {
+    cat <<'EOF'
+OS3 — проверка prod-сборки Zen.Act (Vite + PWA).
+
+Использование:
+  ./bin/vite-check              файлы и manifest на диске
+  ./bin/vite-check --http       + HTTP-проверка через nginx (если стек поднят)
+  VITE_CHECK_HTTP=1 ./bin/vite-check
+
+Переменные:
+  ACT_ASSETS_DIR   каталог assets (по умолчанию php/plugins/zen/act/assets)
+  APP_URL          базовый URL приложения для --http
+EOF
+}
+
+if [[ "${1:-}" == "help" || "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    usage
+    exit 0
+fi
+
+if [[ "${1:-}" == "--http" ]]; then
+    CHECK_HTTP=1
+fi
+
+errors=0
+
+fail() {
+    echo "FAIL: $*" >&2
+    errors=$((errors + 1))
+}
+
+ok() {
+    echo "OK: $*"
+}
+
+require_file() {
+    local path="$1"
+    local label="${2:-$path}"
+    if [[ -f "$path" ]]; then
+        ok "$label"
+    else
+        fail "нет файла: $label ($path)"
+    fi
+}
+
+if [[ ! -d "$ACT_ASSETS_DIR" ]]; then
+    fail "каталог assets не найден: $ACT_ASSETS_DIR"
+    echo "Сначала: make vite-build" >&2
+    exit 1
+fi
+
+echo "Проверка сборки Zen.Act: $ACT_ASSETS_DIR"
+
+require_file "$ACT_ASSETS_DIR/.vite/manifest.json" "Vite manifest"
+require_file "$ACT_ASSETS_DIR/manifest.webmanifest" "PWA manifest"
+require_file "$ACT_ASSETS_DIR/sw.js" "service worker"
+require_file "$ACT_ASSETS_DIR/build-info.json" "build-info.json"
+require_file "$ACT_ASSETS_DIR/pwa/web-app-manifest-192x192.png" "PWA icon 192"
+require_file "$ACT_ASSETS_DIR/pwa/web-app-manifest-512x512.png" "PWA icon 512"
+require_file "$ACT_ASSETS_DIR/pwa/apple-touch-icon.png" "apple-touch-icon"
+require_file "$ACT_ASSETS_DIR/pwa/favicon.ico" "favicon.ico"
+
+workbox_count="$(find "$ACT_ASSETS_DIR" -maxdepth 1 -name 'workbox-*.js' | wc -l | tr -d ' ')"
+if [[ "$workbox_count" -ge 1 ]]; then
+    ok "workbox bundle ($workbox_count)"
+else
+    fail "нет workbox-*.js в assets/"
+fi
+
+python3 - "$ACT_ASSETS_DIR" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+assets = Path(sys.argv[1])
+errors = []
+
+def fail(msg: str) -> None:
+    errors.append(msg)
+    print(f"FAIL: {msg}", file=sys.stderr)
+
+manifest_path = assets / ".vite" / "manifest.json"
+try:
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+except Exception as exc:
+    fail(f"не читается Vite manifest: {exc}")
+    manifest = {}
+
+entry = manifest.get("act_app/js/act_app.js")
+if not entry:
+    fail("в Vite manifest нет entry act_app/js/act_app.js")
+else:
+    js_file = assets / entry["file"]
+    if js_file.is_file() and js_file.stat().st_size > 0:
+        print(f"OK: entry JS ({entry['file']}, {js_file.stat().st_size} bytes)")
+    else:
+        fail(f"entry JS отсутствует или пуст: {entry['file']}")
+
+    for css in entry.get("css", []):
+        css_file = assets / css
+        if css_file.is_file() and css_file.stat().st_size > 0:
+            print(f"OK: entry CSS ({css})")
+        else:
+            fail(f"entry CSS отсутствует или пуст: {css}")
+
+pwa_path = assets / "manifest.webmanifest"
+try:
+    pwa = json.loads(pwa_path.read_text(encoding="utf-8"))
+except Exception as exc:
+    fail(f"не читается PWA manifest: {exc}")
+    pwa = {}
+
+for key in ("name", "short_name", "start_url", "display", "icons"):
+    if key not in pwa:
+        fail(f"PWA manifest: нет поля {key}")
+
+if pwa.get("start_url") != "/app":
+    fail(f"PWA start_url должен быть /app, получено: {pwa.get('start_url')!r}")
+
+build_info_path = assets / "build-info.json"
+try:
+    build_info = json.loads(build_info_path.read_text(encoding="utf-8"))
+except Exception as exc:
+    fail(f"не читается build-info.json: {exc}")
+    build_info = {}
+
+build_id = str(build_info.get("buildId", "")).strip()
+if not build_id or build_id == "dev":
+    fail("build-info.json: buildId должен быть непустым prod-id")
+else:
+    print(f"OK: build id ({build_id})")
+
+icons = pwa.get("icons") or []
+if len(icons) < 2:
+    fail("PWA manifest: нужно минимум 2 иконки")
+else:
+    for icon in icons:
+        src = icon.get("src", "")
+        icon_path = assets / src
+        if icon_path.is_file():
+            print(f"OK: PWA icon ({src})")
+        else:
+            fail(f"PWA icon не найдена: {src}")
+
+sw = (assets / "sw.js").read_text(encoding="utf-8", errors="replace")
+if "workbox" not in sw:
+    fail("sw.js не похож на Workbox-сборку (нет workbox)")
+
+if errors:
+    sys.exit(2)
+PY
+
+py_status=$?
+if [[ "$py_status" -ne 0 ]]; then
+    errors=$((errors + 1))
+fi
+
+if [[ "$CHECK_HTTP" == "1" ]]; then
+    echo "HTTP-проверка: $APP_URL"
+    if ! command -v curl >/dev/null 2>&1; then
+        fail "curl не найден для --http"
+    else
+        http_check() {
+            local url="$1"
+            local label="$2"
+            local code
+            code="$(curl -s -o /dev/null -w '%{http_code}' "$url" || true)"
+            if [[ "$code" == "200" ]]; then
+                ok "HTTP 200 $label"
+            else
+                fail "HTTP $code $label ($url)"
+            fi
+        }
+
+        http_check "$APP_URL/plugins/zen/act/assets/manifest.webmanifest" "PWA manifest"
+        http_check "$APP_URL/plugins/zen/act/assets/sw.js" "service worker"
+        http_check "$APP_URL/app" "SPA /app"
+    fi
+fi
+
+if [[ "$errors" -gt 0 ]]; then
+    echo "" >&2
+    echo "Проверка не пройдена ($errors ошибок). Запустите: make vite-build" >&2
+    exit 1
+fi
+
+echo "Проверка пройдена."

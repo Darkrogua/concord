@@ -1,0 +1,41 @@
+fields:
+    active:
+        label: Активно
+        span: full
+        type: switch
+    name:
+        label: Название
+        span: full
+        type: text
+    description:
+        label: Описание
+        size: giant
+        span: full
+        type: richeditor
+    planners:
+        label: Планировщики
+        prompt: 'Добавить расписание'
+        displayMode: accordion
+        showReorder: 1
+        span: full
+        type: repeater
+        form:
+            fields:
+                active:
+                    label: Активно
+                    span: full
+                    default: 1
+                    type: switch
+                title:
+                    label: Название
+                    span: full
+                    type: text
+                cron_command:
+                    label: 'Команда CRON'
+                    span: auto
+                    type: text
+                method_code:
+                    label: 'Код метода'
+                    span: auto
+                    type: text
+                    comment: 'Код метода менеджера процессов (или код команды начинающийся с run:)'

@@ -1,0 +1,10 @@
+name: Ships
+form: $/zen/chub/models/ship/fields.yaml
+modelClass: Zen\Chub\Models\Ship
+defaultRedirect: zen/chub/ships
+create:
+    redirect: 'zen/chub/ships/update/:id'
+    redirectClose: zen/chub/ships
+update:
+    redirect: zen/chub/ships
+    redirectClose: zen/chub/ships

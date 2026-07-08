@@ -1,0 +1,10 @@
+{
+    "format_version": 1,
+    "act_id": "1cfa6d9d-2f86-4b09-9a97-f7af57bc5e4b",
+    "block_id": "74d78e13-92c0-4a7b-bfb3-832f0f215ad4",
+    "name": "Miworld",
+    "type": "webapp",
+    "pulled_at": "2026-06-22T13:17:23+00:00",
+    "block_hash": "5b7d941690eb5a110bf83ff623a3f21650ac346f33a0b3b9d5e4348926aa8b8f",
+    "content_sha256": "23e613e95bf7ff5e558e73742c1a3e04680fb111513a707656b3e6f407cd29cb"
+}

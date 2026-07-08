@@ -1,0 +1,10 @@
+name: GradeAliases
+form: $/zen/chub/models/gradealias/fields.yaml
+modelClass: Zen\Chub\Models\GradeAlias
+defaultRedirect: zen/chub/gradealiases
+create:
+    redirect: 'zen/chub/gradealiases/update/:id'
+    redirectClose: zen/chub/gradealiases
+update:
+    redirect: zen/chub/gradealiases
+    redirectClose: zen/chub/gradealiases

@@ -1,0 +1,12 @@
+columns:
+    id:
+        label: id
+        type: number
+        sortable: true
+        width: 50px
+    request_id:
+        label: request_id
+        type: text
+        searchable: true
+        sortable: true
+        cssClass: test

@@ -1,0 +1,10 @@
+name: Bases
+form: $/zen/chub/models/base/fields.yaml
+modelClass: Zen\Chub\Models\Base
+defaultRedirect: zen/chub/bases
+create:
+    redirect: 'zen/chub/bases/update/:id'
+    redirectClose: zen/chub/bases
+update:
+    redirect: zen/chub/bases
+    redirectClose: zen/chub/bases

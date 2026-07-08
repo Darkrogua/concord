@@ -1,0 +1,6 @@
+# Ignore everything by default (runtime or ad-hoc files may appear here).
+*
+!.gitignore
+# Track the documentation tree: directories and markdown files.
+!**/
+!**/*.md

@@ -1,0 +1,19 @@
+columns:
+    uid:
+        label: uid
+        type: text
+        searchable: true
+        sortable: true
+    order_id:
+        label: Договор
+        type: text
+        searchable: true
+        sortable: true
+    is_primary:
+        label: Первичка
+        type: switch
+        sortable: true
+    created_at:
+        label: Создано
+        type: datetime
+        sortable: true

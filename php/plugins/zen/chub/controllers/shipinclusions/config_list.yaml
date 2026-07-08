@@ -1,0 +1,15 @@
+list: $/zen/chub/models/shipinclusion/columns.yaml
+modelClass: Zen\Chub\Models\ShipInclusion
+title: ShipInclusions
+noRecordsMessage: 'backend::lang.list.no_records'
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'
+recordUrl: 'zen/chub/shipinclusions/update/:id'
+structure:  
+    showTree: false  
+    showReorder: true

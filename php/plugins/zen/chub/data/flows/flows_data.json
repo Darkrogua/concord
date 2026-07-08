@@ -1,0 +1,156 @@
+[
+    {
+        "id": 12,
+        "parent_id": 11,
+        "is_folder": 0,
+        "code": "parser-all",
+        "name": "Парсеры: все источники (параллельно)",
+        "description": "Один Stream запускает оркестраторы volga, gama, germes, infoflot, waterway параллельно; прогресс 0\/N–N\/N в state процесса.",
+        "sort_order": 0,
+        "created_at": "2026-04-22 15:30:13",
+        "updated_at": "2026-04-22 15:30:32"
+    },
+    {
+        "id": 11,
+        "parent_id": null,
+        "is_folder": 1,
+        "code": "axis-parsers",
+        "name": "Парсеры",
+        "description": "",
+        "sort_order": 1,
+        "created_at": "2026-04-22 15:30:13",
+        "updated_at": "2026-05-08 14:37:10"
+    },
+    {
+        "id": 5,
+        "parent_id": 11,
+        "is_folder": 0,
+        "code": "parser-volga",
+        "name": "Парсер ВолгаWolga (volga)",
+        "description": "",
+        "sort_order": 2,
+        "created_at": "2026-04-01 20:25:49",
+        "updated_at": "2026-04-22 15:30:32"
+    },
+    {
+        "id": 14,
+        "parent_id": null,
+        "is_folder": 1,
+        "code": "support_dir",
+        "name": "Обслуживание",
+        "description": "",
+        "sort_order": 2,
+        "created_at": "2026-05-08 14:37:00",
+        "updated_at": "2026-05-08 14:37:10"
+    },
+    {
+        "id": 6,
+        "parent_id": 11,
+        "is_folder": 0,
+        "code": "parser-gama",
+        "name": "Парсер Gama (raw payload)",
+        "description": "Атомарный парсинг payload Gama в сырой SQLite через Flow\/Stream",
+        "sort_order": 3,
+        "created_at": "2026-04-02 15:13:30",
+        "updated_at": "2026-04-22 15:30:32"
+    },
+    {
+        "id": 1,
+        "parent_id": null,
+        "is_folder": 0,
+        "code": "test.pipeline",
+        "name": "Тестовые методы",
+        "description": "<p>Тут описание того что тут происходит, в основном используется тестовый обработчик Zen.Chub.Classes.Tests.HandlersTests.<strong>handlerPathTest<\/strong> в котором используются стартовые и финишные хуки.<\/p><h2>Какие указывать вызовы для тестирования<\/h2><p><br><\/p>",
+        "sort_order": 3,
+        "created_at": "2026-01-27 15:53:23",
+        "updated_at": "2026-05-08 14:37:10"
+    },
+    {
+        "id": 2,
+        "parent_id": null,
+        "is_folder": 0,
+        "code": "deadline_notifications",
+        "name": "Оповещения о наступлении дедлайна",
+        "description": "<p>Задача описана тут:&nbsp;<a href=\"https:\/\/docs.google.com\/document\/d\/1zcypH4Ek281Vm6iJ5YHtHKsdX2uvfNGUvUIXG8tcGRE\/edit?tab=t.0#heading=h.pxahlqey4g72\">https:\/\/docs.google.com\/document\/d\/1zcypH4Ek281Vm6iJ5YHtHKsdX2uvfNGUvUIXG8tcGRE\/edit?tab=t.0#heading=h.pxahlqey4g72<\/a><\/p><p>Поставлена тут: <a href=\"https:\/\/azimuth-tour.kaiten.ru\/60763172\">https:\/\/azimuth-tour.kaiten.ru\/60763172<\/a><\/p>",
+        "sort_order": 4,
+        "created_at": "2026-02-06 15:37:15",
+        "updated_at": "2026-05-08 14:37:10"
+    },
+    {
+        "id": 8,
+        "parent_id": 11,
+        "is_folder": 0,
+        "code": "parser-germes",
+        "name": "Парсер Спутник-Гермес (germes)",
+        "description": "<p>Flow for Germes payload parser<\/p>",
+        "sort_order": 4,
+        "created_at": "2026-04-20 19:07:30",
+        "updated_at": "2026-04-22 15:30:32"
+    },
+    {
+        "id": 9,
+        "parent_id": 11,
+        "is_folder": 0,
+        "code": "parser-infoflot",
+        "name": "Парсер Инфофлот - Infoflot",
+        "description": "<p>Flow for Infoflot payload parser<\/p>",
+        "sort_order": 5,
+        "created_at": "2026-04-20 20:23:02",
+        "updated_at": "2026-04-22 15:30:32"
+    },
+    {
+        "id": 3,
+        "parent_id": null,
+        "is_folder": 0,
+        "code": "uon-payments",
+        "name": "Система обработки платежей",
+        "description": "<p>uon-payments-retry - Был отключён и скорее всего он будет удалён так как не понадобиться<\/p>",
+        "sort_order": 5,
+        "created_at": "2026-02-16 01:37:12",
+        "updated_at": "2026-05-08 14:37:10"
+    },
+    {
+        "id": 10,
+        "parent_id": 11,
+        "is_folder": 0,
+        "code": "parser-waterway",
+        "name": "Парсер ВодоходЪ (waterway)",
+        "description": "Атомарный парсинг API ВодоходЪ в сырой SQLite через Flow\/Stream",
+        "sort_order": 6,
+        "created_at": "2026-04-21 00:47:47",
+        "updated_at": "2026-04-22 15:30:32"
+    },
+    {
+        "id": 4,
+        "parent_id": null,
+        "is_folder": 0,
+        "code": "data-import",
+        "name": "Импорт данных",
+        "description": "<p>Набор методов для переноса данных<\/p>",
+        "sort_order": 6,
+        "created_at": "2026-03-24 15:07:37",
+        "updated_at": "2026-05-08 14:37:10"
+    },
+    {
+        "id": 7,
+        "parent_id": null,
+        "is_folder": 0,
+        "code": "morning-notify",
+        "name": "Утреннее уведомление",
+        "description": "",
+        "sort_order": 7,
+        "created_at": "2026-04-15 23:55:17",
+        "updated_at": "2026-05-08 14:37:10"
+    },
+    {
+        "id": 13,
+        "parent_id": 14,
+        "is_folder": 0,
+        "code": "system.checks",
+        "name": "Аудит системы",
+        "description": "",
+        "sort_order": 8,
+        "created_at": "2026-05-08 14:36:27",
+        "updated_at": "2026-05-08 14:37:04"
+    }
+]

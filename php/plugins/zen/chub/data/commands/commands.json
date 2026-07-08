@@ -1,0 +1,344 @@
+{
+    "test": {
+        "id": 1,
+        "code": "test",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_1.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 0
+    },
+    "logs-rotate": {
+        "id": 4,
+        "code": "logs-rotate",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_4.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 1
+    },
+    "check-base": {
+        "id": 5,
+        "code": "check-base",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_5.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 0,
+        "api_enabled": 1
+    },
+    "streams-clear": {
+        "id": 7,
+        "code": "streams-clear",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_7.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 0,
+        "api_enabled": 1
+    },
+    "deploy": {
+        "id": 8,
+        "code": "deploy",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_8.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 0
+    },
+    "migrations": {
+        "id": 9,
+        "code": "migrations",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_9.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "geo-objects": {
+        "id": 10,
+        "code": "geo-objects",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_10.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-geo-aliases": {
+        "id": 11,
+        "code": "restart-migration-geo-aliases",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_11.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ships": {
+        "id": 12,
+        "code": "restart-migration-ships",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_12.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ship-aliases": {
+        "id": 13,
+        "code": "restart-migration-ship-aliases",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_13.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ship-classes": {
+        "id": 14,
+        "code": "restart-migration-ship-classes",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_14.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-decks": {
+        "id": 15,
+        "code": "restart-migration-decks",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_15.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 0
+    },
+    "restart-migration-deck-aliases": {
+        "id": 16,
+        "code": "restart-migration-deck-aliases",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_16.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-grades": {
+        "id": 17,
+        "code": "restart-migration-grades",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_17.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-grade-aliases": {
+        "id": 18,
+        "code": "restart-migration-grade-aliases",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_18.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-amenities": {
+        "id": 19,
+        "code": "restart-migration-amenities",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_19.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ship-amenity-pivot": {
+        "id": 20,
+        "code": "restart-migration-ship-amenity-pivot",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_20.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-inclusions": {
+        "id": 21,
+        "code": "restart-migration-inclusions",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_21.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ship-inclusion-pivot": {
+        "id": 22,
+        "code": "restart-migration-ship-inclusion-pivot",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_22.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ship-surcharge": {
+        "id": 23,
+        "code": "restart-migration-ship-surcharge",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_23.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ship-surcharge-pivot": {
+        "id": 24,
+        "code": "restart-migration-ship-surcharge-pivot",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_24.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ship-specifications": {
+        "id": 25,
+        "code": "restart-migration-ship-specifications",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_25.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-ship-specification-pivot": {
+        "id": 26,
+        "code": "restart-migration-ship-specification-pivot",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_26.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-deck-grade-pivot": {
+        "id": 27,
+        "code": "restart-migration-deck-grade-pivot",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_27.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-cabin-equipments": {
+        "id": 28,
+        "code": "restart-migration-cabin-equipments",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_28.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-cabins": {
+        "id": 29,
+        "code": "restart-migration-cabins",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_29.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-providers": {
+        "id": 30,
+        "code": "restart-migration-providers",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_30.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "restart-migration-checkins": {
+        "id": 31,
+        "code": "restart-migration-checkins",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_31.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 0
+    },
+    "migration.add.zen_chub_bases.preview_table": {
+        "id": 32,
+        "code": "migration.add.zen_chub_bases.preview_table",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_32.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "migration.restart.zen_chub_prices": {
+        "id": 34,
+        "code": "migration.restart.zen_chub_prices",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_34.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 0
+    },
+    "migration.restart.zen_chub_tariffs": {
+        "id": 35,
+        "code": "migration.restart.zen_chub_tariffs",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_35.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "migration.restart.zen_chub_documents": {
+        "id": 36,
+        "code": "migration.restart.zen_chub_documents",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_36.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "uon-now-reset": {
+        "id": 37,
+        "code": "uon-now-reset",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_37.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 0
+    },
+    "migration.restart.zen_chub_flows": {
+        "id": 38,
+        "code": "migration.restart.zen_chub_flows",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_38.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "support.bot": {
+        "id": 39,
+        "code": "support.bot",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_39.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 1
+    },
+    "vite.build": {
+        "id": 40,
+        "code": "vite.build",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_40.php",
+        "active": 1,
+        "count_enabled": 1,
+        "output_log": 1,
+        "api_enabled": 0
+    },
+    "migration.restart.zen_chub_blocks": {
+        "id": 41,
+        "code": "migration.restart.zen_chub_blocks",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_41.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    },
+    "migration.restart.zen_chub_features": {
+        "id": 42,
+        "code": "migration.restart.zen_chub_features",
+        "path": "plugins\/zen\/chub\/data\/commands\/command_42.php",
+        "active": 1,
+        "count_enabled": 0,
+        "output_log": 0,
+        "api_enabled": 0
+    }
+}

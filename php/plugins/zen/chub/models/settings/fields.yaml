@@ -1,0 +1,8 @@
+tabs:
+    fields:
+        php_path:
+            label: 'Путь до php'
+            span: full
+            type: text
+            comment: 'По умолчанию php, но можно указать явно `/usr/bin/php`'
+            tab: Потоки

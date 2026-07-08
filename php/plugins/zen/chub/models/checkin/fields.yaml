@@ -1,0 +1,69 @@
+fields:
+    active:
+        label: Активно
+        span: auto
+        default: 1
+        type: switch
+    ship_id:
+        label: Теплоход
+        span: auto
+        type: dropdown
+        options: getShipIdOptions
+        showSearch: true
+    date_start:
+        label: Дата и время отправления
+        span: auto
+        mode: datetime
+        type: datepicker
+    date_end:
+        label: Дата и время прибытия
+        span: auto
+        mode: datetime
+        type: datepicker
+    description:
+        label: Комментарий
+        size: large
+        span: full
+        type: richeditor
+tabs:
+    fields:
+        route_points_repeater:
+            label: Точки маршрута
+            prompt: Добавить точку
+            displayMode: accordion
+            span: full
+            type: repeater
+            tab: Маршрут
+            form:
+                fields:
+                    geo_object_id:
+                        label: Гео-объект
+                        type: dropdown
+                        options: getGeoObjectIdOptions
+                        showSearch: true
+                        span: auto
+                    point_type:
+                        label: Тип точки
+                        type: dropdown
+                        options: getPointTypeOptions
+                        span: auto
+                    arrival_at:
+                        label: Прибытие
+                        type: datepicker
+                        mode: datetime
+                        span: auto
+                    departure_at:
+                        label: Отправление
+                        type: datepicker
+                        mode: datetime
+                        span: auto
+                    is_highlight:
+                        label: Важная точка
+                        type: switch
+                        default: 0
+                        span: auto
+                    note:
+                        label: Примечание
+                        type: textarea
+                        size: small
+                        span: full

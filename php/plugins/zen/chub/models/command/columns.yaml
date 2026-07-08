@@ -1,0 +1,58 @@
+columns:
+    id:
+        label: id
+        type: number
+        invisible: true
+        sortable: true
+    icon:
+        label: Иконка
+        type: partial
+        path: $/zen/chub/controllers/commands/_icon_column.php
+        width: 50px
+        cssClass: text-center
+        sortable: false
+    name:
+        label: Название
+        type: text
+        searchable: true
+        sortable: true
+    code:
+        label: Код
+        type: text
+        searchable: true
+        sortable: true
+    active:
+        label: Активно
+        type: switch
+        sortable: true
+    api_enabled:
+        label: API
+        type: switch
+        valueFrom: api_enabled_tree
+        sortable: false
+    calls_count:
+        label: Вызовы
+        type: number
+        sortable: false
+    last_call_at:
+        label: 'Время вызова'
+        type: datetime
+        format: 'd.m.Y H:i:s'
+        sortable: false
+    sort_order:
+        label: Порядок
+        type: number
+        invisible: true
+        sortable: true
+    created_at:
+        label: Создано
+        type: datetime
+        invisible: true
+        sortable: true
+        format: 'd.m.Y H:i'
+    updated_at:
+        label: Обновлено
+        type: datetime
+        invisible: true
+        sortable: true
+        format: 'd.m.Y H:i'

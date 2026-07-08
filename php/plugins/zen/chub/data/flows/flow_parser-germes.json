@@ -1,0 +1,71 @@
+[
+    {
+        "name": "Germes: orchestrator",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.run",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Germes.GermesParser.importOrchestrator",
+        "code": "parser-germes-orchestrator"
+    },
+    {
+        "name": "Germes: prepare session",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.processPrepareSession",
+        "code": "parser-germes-prepare-session"
+    },
+    {
+        "name": "Germes: parse ships",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.processParseShipsData",
+        "code": "parser-germes-parse-ships"
+    },
+    {
+        "name": "Germes: parse cabin categories",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.processParseCabinCategoriesData",
+        "code": "parser-germes-parse-cabin-categories"
+    },
+    {
+        "name": "Germes: parse cabins",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.processParseCabinsData",
+        "code": "parser-germes-parse-cabins"
+    },
+    {
+        "name": "Germes: parse cruises meta",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.processParseCruisesMetaData",
+        "code": "parser-germes-parse-cruises-meta"
+    },
+    {
+        "name": "Germes: parse cruise details batch",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.handleCruiseBatch",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Germes.GermesParser.createCruiseBatches",
+        "code": "parser-germes-parse-cruise-details"
+    },
+    {
+        "name": "Germes: sync category ship ids",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.processSyncCabinCategoriesShipIds",
+        "code": "parser-germes-sync-category-ships"
+    },
+    {
+        "name": "Germes: clean cruises without prices",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.processCleanCruisesWithoutPrices",
+        "code": "parser-germes-clean-cruises-without-prices"
+    },
+    {
+        "name": "Germes: finish session",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.processFinishSession",
+        "code": "parser-germes-finish-session"
+    },
+    {
+        "name": "Germes: push raw data to production DB",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Germes.GermesParser.prodTransit",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Germes.GermesParser.prodBatches",
+        "code": "germes-db-push"
+    }
+]

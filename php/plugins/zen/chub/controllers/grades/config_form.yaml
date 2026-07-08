@@ -1,0 +1,10 @@
+name: Grades
+form: $/zen/chub/models/grade/fields.yaml
+modelClass: Zen\Chub\Models\Grade
+defaultRedirect: zen/chub/grades
+create:
+    redirect: 'zen/chub/grades/update/:id'
+    redirectClose: zen/chub/grades
+update:
+    redirect: zen/chub/grades
+    redirectClose: zen/chub/grades

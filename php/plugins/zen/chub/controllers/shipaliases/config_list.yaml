@@ -1,0 +1,12 @@
+list: $/zen/chub/models/shipalias/columns.yaml
+modelClass: Zen\Chub\Models\ShipAlias
+title: ShipAliases
+noRecordsMessage: 'backend::lang.list.no_records'
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'
+recordUrl: 'zen/chub/shipaliases/update/:id'

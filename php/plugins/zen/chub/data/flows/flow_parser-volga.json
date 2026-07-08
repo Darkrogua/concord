@@ -1,0 +1,116 @@
+[
+    {
+        "name": "Volga: оркестратор парсинга сырого слоя",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.run",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.importOrchestrator",
+        "handler_path_target": null,
+        "code": "parser-volga-orchestrator"
+    },
+    {
+        "name": "Volga: подготовка сессии",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processPrepareSession",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-prepare-session"
+    },
+    {
+        "name": "Volga: загрузка XML",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processDownloadXml",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-download-xml"
+    },
+    {
+        "name": "Volga: парсинг ships",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processParseShips",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-parse-ships"
+    },
+    {
+        "name": "Volga: парсинг decks",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processParseDecks",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-parse-decks"
+    },
+    {
+        "name": "Volga: парсинг cabin categories",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processParseCabinCategories",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-parse-cabin-categories"
+    },
+    {
+        "name": "Volga: парсинг cabins",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processParseCabins",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-parse-cabins"
+    },
+    {
+        "name": "Volga: батч-парсинг cruises",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.handleCruiseBatch",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.createCruiseBatches",
+        "handler_path_target": null,
+        "code": "parser-volga-parse-cruises"
+    },
+    {
+        "name": "Volga: парсинг prices",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processParsePrices",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-parse-prices"
+    },
+    {
+        "name": "Volga: очистка круизов без цен",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processCleanCruisesWithoutPrices",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-clean-cruises-without-prices"
+    },
+    {
+        "name": "Volga: парсинг free (свободные каюты)",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processParseFree",
+        "code": "parser-volga-parse-free"
+    },
+    {
+        "name": "Volga: завершение сессии",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.processFinishSession",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-volga-finish-session"
+    },
+    {
+        "active": true,
+        "name": "Volga: Добавление заездов в базу данных",
+        "code": "volga-db-push",
+        "handler_path": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.prodTransit",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Volga.VolgaParser.prodBatches",
+        "handler_path_target": null,
+        "handler_start_path": null,
+        "handler_start_path_source": null,
+        "handler_start_path_target": null,
+        "handler_finish_path": null,
+        "handler_finish_path_source": null,
+        "handler_finish_path_target": null,
+        "handler_error_path": null,
+        "handler_error_path_source": null,
+        "handler_error_path_target": null,
+        "handler_stop_path": null,
+        "handler_stop_path_source": null,
+        "handler_stop_path_target": null
+    }
+]

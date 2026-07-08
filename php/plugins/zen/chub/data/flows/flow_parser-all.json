@@ -1,0 +1,10 @@
+[
+    {
+        "name": "Все парсеры: мета-оркестратор (параллельные импорты)",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.AllParsersMeta.run",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "code": "parser-all-orchestrators"
+    }
+]

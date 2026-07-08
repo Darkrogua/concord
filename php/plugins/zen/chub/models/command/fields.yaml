@@ -1,0 +1,103 @@
+tabs:
+    fields:
+        count_enabled:
+            label: 'Включить счётчик вызовов'
+            span: auto
+            type: switch
+            tab: Настройки
+            trigger:
+                action: hide
+                field: is_folder
+                condition: checked
+        output_log:
+            label: 'Логировать выходные данные'
+            span: auto
+            type: switch
+            tab: Настройки
+            trigger:
+                action: hide
+                field: is_folder
+                condition: checked
+        name:
+            label: Название
+            span: auto
+            type: text
+            tab: Настройки
+        code:
+            label: 'Код запуска'
+            span: auto
+            type: text
+            tab: Настройки
+        parent_id:
+            label: Родитель
+            span: auto
+            emptyOption: '-- Верхний уровень --'
+            showSearch: true
+            type: dropdown
+            tab: Настройки
+        data:
+            label: 'Исполняемый код'
+            size: giant
+            language: php
+            span: full
+            type: codeeditor
+            tab: Выполнение
+            trigger:
+                action: hide
+                field: is_folder
+                condition: checked
+        api_enabled:
+            label: 'Активировать api'
+            span: full
+            type: switch
+            tab: Выполнение
+            trigger:
+                action: hide
+                field: is_folder
+                condition: checked
+        api_exec_link:
+            label: ''
+            type: partial
+            span: full
+            tab: Выполнение
+            path: $/zen/chub/controllers/commands/_api_exec_link.php
+            context:
+                - update
+            dependsOn:
+                - api_enabled
+                - is_folder
+                - code
+        command_log:
+            label: ''
+            type: partial
+            span: full
+            tab: Лог
+            path: $/zen/chub/controllers/commands/_log_tab.php
+            context:
+                - update
+fields:
+    run_button:
+        label: ''
+        type: partial
+        span: full
+        path: $/zen/chub/controllers/commands/_run_button.php
+        context:
+            - update
+        trigger:
+            action: hide
+            field: is_folder
+            condition: checked
+    active:
+        label: Активно
+        span: full
+        default: 1
+        type: switch
+    is_folder:
+        label: 'Это каталог'
+        span: auto
+        type: switch
+    description:
+        label: Описание
+        size: large
+        span: full
+        type: richeditor

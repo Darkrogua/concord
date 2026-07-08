@@ -1,0 +1,17 @@
+fields:
+    type:
+        label: Слой
+        showSearch: true
+        span: auto
+        type: dropdown
+    key:
+        label: Ключ
+        span: auto
+        type: text
+    data:
+        label: Данные
+        span: full
+        size: giant
+        language: javascript
+        theme: tomorrow_night_blue
+        type: codeeditor

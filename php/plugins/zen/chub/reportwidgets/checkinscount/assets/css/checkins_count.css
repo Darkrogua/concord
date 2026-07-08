@@ -1,0 +1,14 @@
+.report-widget.widget-checkins-count .checkins-count-value {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0.5rem 0 0.25rem;
+}
+
+.report-widget.widget-checkins-count .checkins-count-caption {
+    margin-bottom: 0.75rem;
+}
+
+.report-widget.widget-checkins-count .checkins-count-actions {
+    margin-bottom: 0;
+}

@@ -1,0 +1,27 @@
+columns:
+    id:
+        label: ID
+        type: text
+        invisible: true
+        searchable: true
+    name:
+        label: Название
+        type: text
+        searchable: true
+        sortable: true
+    description:
+        label: Описание
+        type: text
+        searchable: true
+    activate_at:
+        label: Активация
+        type: datetime
+        sortable: true
+    stop_at:
+        label: Остановка
+        type: datetime
+        sortable: true
+    updated_at:
+        label: Обновлён
+        type: datetime
+        sortable: true

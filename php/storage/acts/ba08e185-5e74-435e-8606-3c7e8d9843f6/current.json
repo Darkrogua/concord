@@ -1,0 +1,188 @@
+{
+    "id": "ba08e185-5e74-435e-8606-3c7e8d9843f6",
+    "name": "act-2026-06-29-1940",
+    "description": null,
+    "owner_id": 5,
+    "activate_at": null,
+    "stop_at": null,
+    "created_at": "2026-06-29T19:40:40+04:00",
+    "updated_at": "2026-06-29T19:40:40+04:00",
+    "blocks": [
+        {
+            "id": "2a5b26c3-6f56-4a38-989d-75bcc69d78aa",
+            "name": "Фотогалерея",
+            "data": {
+                "items": [
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_1.jpeg",
+                        "height": 768,
+                        "id": "ac193231-ba4e-4041-adc1-12d002f49efe",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 112908,
+                        "sort_order": 0,
+                        "width": 512
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_2.jpeg",
+                        "height": 768,
+                        "id": "d204afd4-787b-4b54-8214-9443d75c5e6e",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 87505,
+                        "sort_order": 1,
+                        "width": 512
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_3.jpeg",
+                        "height": 768,
+                        "id": "42eba63e-8b6b-41e1-a8c8-f9d35cc73fb7",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 84376,
+                        "sort_order": 2,
+                        "width": 512
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_4.jpeg",
+                        "height": 768,
+                        "id": "281db60e-453d-4fec-b053-16ad600f2da9",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 96941,
+                        "sort_order": 3,
+                        "width": 512
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_5.jpeg",
+                        "height": 768,
+                        "id": "f296bce4-de89-4f6c-8984-2aa02e03a5ab",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 92570,
+                        "sort_order": 4,
+                        "width": 512
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_6.jpeg",
+                        "height": 768,
+                        "id": "b98bca9b-e971-433f-9b4c-536d64259333",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 82657,
+                        "sort_order": 5,
+                        "width": 512
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_7.jpeg",
+                        "height": 768,
+                        "id": "bee90279-8d2b-4766-b985-253d60177ac4",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 66793,
+                        "sort_order": 6,
+                        "width": 512
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_8.jpeg",
+                        "height": 512,
+                        "id": "a6c15a00-93f3-4838-844c-3f5aecaf5f25",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 142396,
+                        "sort_order": 7,
+                        "width": 768
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_9.jpeg",
+                        "height": 512,
+                        "id": "c25f786c-6547-40f7-8d57-9b0822d5dde6",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 142905,
+                        "sort_order": 8,
+                        "width": 768
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_10.jpeg",
+                        "height": 512,
+                        "id": "b847290b-184d-423a-b219-9b99af49a6ce",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 158675,
+                        "sort_order": 9,
+                        "width": 768
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_11.jpeg",
+                        "height": 512,
+                        "id": "db1bd6ef-6d5a-477d-8830-054d0740040e",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 175461,
+                        "sort_order": 10,
+                        "width": 768
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_12.jpeg",
+                        "height": 512,
+                        "id": "690f6ccb-746c-4939-ad52-5659879b8d84",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 184796,
+                        "sort_order": 11,
+                        "width": 768
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "anime_13.jpeg",
+                        "height": 512,
+                        "id": "6fdb2ee4-5b29-44cc-b2e9-280415854822",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 110939,
+                        "sort_order": 12,
+                        "width": 768
+                    }
+                ],
+                "type": "gallery"
+            },
+            "sort_order": 1,
+            "created_at": "2026-06-29 15:41:43",
+            "updated_at": "2026-06-29 15:42:05",
+            "hash": "b73348e6681dd7aa192cf491fc4d7a407e8a4f79f24a9a77fdb07f0de6bac138"
+        }
+    ],
+    "access": {
+        "meta": {
+            "owner_login": "zen",
+            "schema_version": "1"
+        },
+        "grants": [
+            {
+                "resource_type": "act",
+                "resource_id": "ba08e185-5e74-435e-8606-3c7e8d9843f6",
+                "login": "@public",
+                "role": "viewer"
+            }
+        ]
+    },
+    "owner_user_tags": [],
+    "format_version": 2,
+    "written_at": "2026-06-29T15:42:05+00:00",
+    "envelope_hash": "2beb10966203bafc667b257ff41a77ee034a56e1415845d3a63d5cc3a5defb93",
+    "log_head_id": 5,
+    "owner_login": "zen"
+}

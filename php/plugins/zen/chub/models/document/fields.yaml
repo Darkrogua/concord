@@ -1,0 +1,47 @@
+fields:
+    active:
+        label: Активно
+        span: full
+        default: 1
+        type: switch
+    is_folder:
+        label: 'Создать как папку'
+        span: full
+        default: 0
+        context:
+            - create
+        type: switch
+    name:
+        label: Название
+        span: auto
+        type: text
+    code:
+        label: Код
+        span: auto
+        type: text
+        comment: 'Используется в имени markdown-файла или папки (буквы, цифры, _, -, поддерживается кириллица)'
+    parent_id:
+        label: Родитель
+        emptyOption: '-- Верхний уровень --'
+        showSearch: true
+        span: full
+        hidden: true
+        type: dropdown
+    props:
+        label: 'Свойства документа'
+        span: full
+        type: partial
+        path: $/zen/chub/controllers/documents/document_props_editor.php
+        trigger:
+            action: hide
+            field: is_folder
+            condition: checked
+    data:
+        label: ''
+        span: full
+        type: partial
+        path: $/zen/chub/controllers/documents/document_editor.php
+        trigger:
+            action: hide
+            field: is_folder
+            condition: checked

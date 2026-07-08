@@ -1,0 +1,10 @@
+name: Cabins
+form: $/zen/chub/models/cabin/fields.yaml
+modelClass: Zen\Chub\Models\Cabin
+defaultRedirect: zen/chub/cabins
+create:
+    redirect: 'zen/chub/cabins/update/:id'
+    redirectClose: zen/chub/cabins
+update:
+    redirect: zen/chub/cabins
+    redirectClose: zen/chub/cabins

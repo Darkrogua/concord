@@ -1,0 +1,138 @@
+# docker/docker-compose.local.yaml
+name: os3
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "5"
+    compress: "true"
+
+# --- Общие якоря для PHP-сервисов
+x-os3-env: &os3-env
+  APP_ENV: local
+  DEPLOY_SCRIPT: /var/www/project/scripts/deploy.sh
+  APP_URL: http://os3.megan
+  BACKEND_URI: console
+  DB_CONNECTION: pgsql
+  DB_HOST: os3-db
+  DB_PORT: "5432"
+  DB_DATABASE: os3
+  DB_USERNAME: os3
+  DB_PASSWORD: os3
+  TZ: Europe/Saratov
+
+x-os3-volumes: &os3-volumes
+  - ../php:/var/www/html
+  # Локальный workbench webapp-блоков (act:playground pull/push)
+  - ../playground:/var/www/playground:rw
+  # Для виджета Деплой на Dashboard (нужен scripts/ в корне репозитория)
+  - ..:/var/www/project:ro
+
+x-os3-networks: &os3-networks
+  - os3_internal
+  - web
+
+x-os3-build: &os3-build
+  context: ./app
+  dockerfile: Dockerfile
+  args:
+    UID: ${UID}
+    GID: ${GID}
+
+services:
+  os3-php:
+    build: *os3-build
+    container_name: os3-php
+    restart: unless-stopped
+    working_dir: /var/www/html
+    user: "${UID}:${GID}"
+    logging: *default-logging
+    volumes: *os3-volumes
+    environment: *os3-env
+    networks: *os3-networks
+
+  os3-scheduler:
+    build: *os3-build
+    container_name: os3-scheduler
+    restart: unless-stopped
+    working_dir: /var/www/html
+    user: "${UID}:${GID}"
+    logging: *default-logging
+    volumes: *os3-volumes
+    environment: *os3-env
+    command: ["supercronic", "/var/www/html/.scheduler/crontab"]
+    depends_on:
+      os3-db:
+        condition: service_healthy
+    networks:
+      - os3_internal
+
+  os3-nginx:
+    image: nginx:stable-alpine
+    container_name: os3-nginx
+    restart: unless-stopped
+    depends_on:
+      - os3-php
+    ports:
+      - "8083:8083"
+    logging: *default-logging
+    volumes:
+      - ../php:/var/www/html:ro
+      - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - os3_internal
+      - web
+
+  os3-db:
+    image: postgres:16-alpine
+    container_name: os3-db
+    restart: unless-stopped
+    logging: *default-logging
+    environment:
+      POSTGRES_DB: os3
+      POSTGRES_USER: os3
+      POSTGRES_PASSWORD: os3
+      TZ: Europe/Moscow
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U os3 -d os3"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - os3_db_data:/var/lib/postgresql/data
+    networks:
+      - os3_internal
+      # Чтобы Adminer и другие сервисы Megan (сеть web) видели хост os3-db
+      - web
+
+  os3-node:
+    image: node:20-alpine
+    container_name: os3-vite
+    restart: unless-stopped
+    working_dir: /var/www/html
+    user: "${UID}:${GID}"
+    command: sh -c "sleep infinity"
+    ports:
+      - "5174:5173"
+    logging: *default-logging
+    volumes:
+      - ../php:/var/www/html
+    labels:
+      - traefik.enable=false
+    networks:
+      - os3_internal
+      - web
+
+volumes:
+  os3_db_data:
+    name: os3_db_data
+    external: true
+
+networks:
+  os3_internal:
+    name: os3_internal
+    external: true
+  web:
+    external: true

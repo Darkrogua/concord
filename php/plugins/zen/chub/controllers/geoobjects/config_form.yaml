@@ -1,0 +1,10 @@
+name: GeoObjects
+form: $/zen/chub/models/geoobject/fields.yaml
+modelClass: Zen\Chub\Models\GeoObject
+defaultRedirect: zen/chub/geoobjects
+create:
+    redirect: 'zen/chub/geoobjects/update/:id'
+    redirectClose: zen/chub/geoobjects
+update:
+    redirect: zen/chub/geoobjects
+    redirectClose: zen/chub/geoobjects

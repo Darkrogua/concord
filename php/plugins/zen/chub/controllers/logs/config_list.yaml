@@ -1,0 +1,17 @@
+title: Logs
+modelClass: Zen\Chub\Models\Log
+list: $/zen/chub/models/log/columns.yaml
+recordUrl: 'zen/chub/logs/update/:id'
+noRecordsMessage: 'backend::lang.list.no_records'
+recordsPerPage: 20
+showSetup: true
+showCheckboxes: true
+defaultSort:
+    column: id
+    direction: desc
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'
+        scope: searchLogs
+filter: config_filter.yaml

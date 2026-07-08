@@ -1,0 +1,56 @@
+{
+    "id": "686efc55-2e17-413d-b40c-9b9206bed0e8",
+    "name": "Тестовый акт",
+    "description": null,
+    "owner_id": 5,
+    "activate_at": null,
+    "stop_at": null,
+    "created_at": "2026-06-26T12:58:58+04:00",
+    "updated_at": "2026-06-26T12:58:58+04:00",
+    "blocks": [
+        {
+            "id": "3e425b2e-e749-4d99-8287-72906090bb17",
+            "name": "Web-приложение",
+            "data": {
+                "html": "test",
+                "type": "webapp"
+            },
+            "sort_order": 1,
+            "created_at": "2026-06-26 08:59:01",
+            "updated_at": "2026-06-26 08:59:10",
+            "hash": "7e97f47039766a35f991d333e7f19cbb98cc00a96772b34f8688b1378dd33e1c"
+        },
+        {
+            "id": "26a24f58-7f2f-4fa8-b286-716cd6ff3f25",
+            "name": "Markdown",
+            "data": {
+                "markdown": "",
+                "type": "markdown"
+            },
+            "sort_order": 2,
+            "created_at": "2026-06-29 13:05:15",
+            "updated_at": "2026-06-29 13:05:15",
+            "hash": "cd8525b70135ba85b5228705303cf78525949a8710419ae803fe6e45b6c2b032"
+        }
+    ],
+    "access": {
+        "meta": {
+            "owner_login": "zen",
+            "schema_version": "1"
+        },
+        "grants": [
+            {
+                "resource_type": "act",
+                "resource_id": "686efc55-2e17-413d-b40c-9b9206bed0e8",
+                "login": "@public",
+                "role": "viewer"
+            }
+        ]
+    },
+    "owner_user_tags": [],
+    "format_version": 2,
+    "written_at": "2026-06-29T13:05:15+00:00",
+    "envelope_hash": "f492bef7ef0d9298d24093f39f2cf3e14003f29a86f714900bccea6a06161eef",
+    "log_head_id": 3,
+    "owner_login": "zen"
+}

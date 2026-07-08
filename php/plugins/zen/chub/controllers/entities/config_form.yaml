@@ -1,0 +1,10 @@
+name: Entities
+form: $/zen/chub/models/entity/fields.yaml
+modelClass: Zen\Chub\Models\Entity
+defaultRedirect: zen/chub/entities
+create:
+    redirect: 'zen/chub/entities/update/:id'
+    redirectClose: zen/chub/entities
+update:
+    redirect: zen/chub/entities
+    redirectClose: zen/chub/entities

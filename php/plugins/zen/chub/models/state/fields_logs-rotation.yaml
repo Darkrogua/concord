@@ -1,0 +1,5 @@
+fields:
+    logs_period:
+        label: 'Период ротации chub-логов в днях'
+        span: left
+        type: number

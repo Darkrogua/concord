@@ -1,0 +1,18 @@
+<?php
+    $logs_db_path = storage_path('chub/bases/logs.sqlite');
+    $logs_db_size_bytes = file_exists($logs_db_path) ? filesize($logs_db_path) : 0;
+    $logs_db_size_mb = $logs_db_size_bytes / (1024 * 1024);
+    $logs_db_size_gb = $logs_db_size_bytes / (1024 * 1024 * 1024);
+
+    if ($logs_db_size_gb >= 1) {
+        $logs_db_size_label = number_format($logs_db_size_gb, 1, '.', '') . ' Gb';
+    } else {
+        $logs_db_size_label = ($logs_db_size_mb >= 1
+            ? number_format($logs_db_size_mb, 0, '.', '')
+            : number_format($logs_db_size_mb, 1, '.', '')
+        ) . ' Mb';
+    }
+?>
+<div id="logs-db-size-info" style="color:#667085;font-size:13px;white-space:nowrap;">
+    Размер БД логов: <strong><?= e($logs_db_size_label) ?></strong>
+</div>

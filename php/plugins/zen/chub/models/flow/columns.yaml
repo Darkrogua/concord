@@ -1,0 +1,36 @@
+columns:
+    id:
+        label: id
+        type: number
+        invisible: true
+        sortable: true
+    icon:
+        label: Иконка
+        type: partial
+        path: $/zen/chub/controllers/flows/_flow_icon_column.php
+        width: 50px
+        cssClass: text-center
+        sortable: false
+    name:
+        label: Название
+        type: text
+        searchable: true
+        sortable: true
+    code:
+        label: Код
+        type: text
+        searchable: true
+        sortable: true
+    is_folder:
+        label: Папка
+        type: switch
+        sortable: true
+    sort_order:
+        label: Порядок
+        type: number
+        sortable: true
+    updated_at:
+        label: Обновлено
+        type: datetime
+        sortable: true
+        format: 'd.m.Y H:i'

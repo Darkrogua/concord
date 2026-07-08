@@ -1,0 +1,46 @@
+fields:
+    is_folder:
+        label: 'Создать как папку'
+        span: full
+        default: 0
+        context:
+            - create
+        type: switch
+    name:
+        label: Название
+        span: auto
+        type: text
+    code:
+        label: Код
+        span: auto
+        required: true
+        type: text
+        comment: 'Для потока совпадает с именем файла flow_{код}.json. Должен быть уникален среди всех записей (включая папки).'
+    parent_id:
+        label: Родитель
+        span: auto
+        emptyOption: '-- Верхний уровень --'
+        showSearch: true
+        type: dropdown
+    flow_app:
+        label: ''
+        span: full
+        path: $/zen/chub/controllers/flows/flow_app.php
+        trigger:
+            action: hide
+            field: is_folder
+            condition: checked
+        type: partial
+    description:
+        label: Описание
+        span: full
+        size: large
+        type: richeditor
+    process_app:
+        label: ''
+        span: full
+        path: $/zen/chub/controllers/flows/process_app.php
+        context:
+            - update
+            - preview
+        type: partial

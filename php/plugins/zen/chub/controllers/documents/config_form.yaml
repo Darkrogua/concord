@@ -1,0 +1,10 @@
+name: Documents
+form: $/zen/chub/models/document/fields.yaml
+modelClass: Zen\Chub\Models\Document
+defaultRedirect: zen/chub/documents
+create:
+    redirect: 'zen/chub/documents/update/:id'
+    redirectClose: zen/chub/documents
+update:
+    redirect: zen/chub/documents
+    redirectClose: zen/chub/documents

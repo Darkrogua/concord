@@ -1,0 +1,47 @@
+[
+    {
+        "name": "Waterway: orchestrator raw parser",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.run",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.importOrchestrator",
+        "code": "parser-waterway-orchestrator"
+    },
+    {
+        "name": "Waterway: prepare session",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.processPrepareSession",
+        "code": "parser-waterway-prepare-session"
+    },
+    {
+        "name": "Waterway: parse ships and cruise catalog",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.processParseShips",
+        "code": "parser-waterway-parse-ships"
+    },
+    {
+        "name": "Waterway: batch parse cruise details (routes, prices)",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.handleCruiseBatch",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.createCruiseBatches",
+        "code": "parser-waterway-parse-cruise-details"
+    },
+    {
+        "name": "Waterway: clean cruises without prices",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.processCleanCruisesWithoutPrices",
+        "code": "parser-waterway-clean-cruises-without-prices"
+    },
+    {
+        "name": "Waterway: finish session",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.processFinishSession",
+        "code": "parser-waterway-finish-session"
+    },
+    {
+        "name": "Waterway: push raw data to production DB",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.prodTransit",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Waterway.WaterwayParser.prodBatches",
+        "code": "waterway-db-push"
+    }
+]

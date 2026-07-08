@@ -1,0 +1,54 @@
+[
+    {
+        "name": "Infoflot: orchestrator",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.run",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.importOrchestrator",
+        "code": "parser-infoflot-orchestrator"
+    },
+    {
+        "name": "Infoflot: prepare session",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.processPrepareSession",
+        "code": "parser-infoflot-prepare-session"
+    },
+    {
+        "name": "Infoflot: parse ships",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.processParseShipsData",
+        "code": "parser-infoflot-parse-ships"
+    },
+    {
+        "name": "Infoflot: parse cruises meta batch",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.handleShipCruisesBatch",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.createShipsBatches",
+        "code": "parser-infoflot-parse-cruises-meta"
+    },
+    {
+        "name": "Infoflot: parse cruise cabins batch",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.handleCruiseCabinsBatch",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.createCruiseBatches",
+        "code": "parser-infoflot-parse-cruise-cabins"
+    },
+    {
+        "name": "Infoflot: clean cruises without prices",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.processCleanCruisesWithoutPrices",
+        "code": "parser-infoflot-clean-cruises-without-prices"
+    },
+    {
+        "name": "Infoflot: finish session",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.processFinishSession",
+        "code": "parser-infoflot-finish-session"
+    },
+    {
+        "name": "Infoflot: push raw data to production DB",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.prodTransit",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Infoflot.InfoflotParser.prodBatches",
+        "code": "infoflot-db-push"
+    }
+]

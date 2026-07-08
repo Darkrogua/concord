@@ -1,0 +1,25 @@
+description = "Default layout"
+==
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ this.page.meta_description }}">
+    <title>{{ this.page.title }} — OS3</title>
+    <link rel="icon" type="image/png" href="/plugins/zen/act/assets/pwa/favicon-96x96.png" sizes="96x96">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
+    <link rel="stylesheet" href="{{ 'assets/css/landing.css'|theme }}">
+    {% styles %}
+</head>
+<body class="landing">
+    {% partial 'site-header' %}
+    <main>
+        {% page %}
+    </main>
+    {% partial 'site-footer' %}
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
+    <script src="{{ 'assets/js/landing.js'|theme }}" defer></script>
+    {% scripts %}
+</body>
+</html>

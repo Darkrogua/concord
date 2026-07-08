@@ -1,0 +1,38 @@
+columns:
+    id:
+        label: id
+        type: text
+        invisible: true
+        sortable: false
+    icon:
+        label: Иконка
+        type: partial
+        path: $/zen/chub/controllers/features/_icon_column.php
+        width: 50px
+        cssClass: text-center
+        sortable: false
+    name:
+        label: Название
+        type: text
+        searchable: true
+        sortable: true
+    feature_group:
+        label: Слой
+        type: text
+        searchable: true
+        sortable: true
+    workflow_status:
+        label: Статус
+        type: partial
+        path: $/zen/chub/controllers/features/_workflow_status_column.php
+        sortable: true
+    sort_order:
+        label: Порядок
+        type: number
+        invisible: true
+        sortable: true
+    active:
+        label: Активно
+        type: switch
+        invisible: true
+        sortable: true

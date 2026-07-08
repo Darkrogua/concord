@@ -1,0 +1,23 @@
+v1.0.1:
+    - 'Initialize plugin'
+v1.0.2:
+    - 'Created table zen_act_acts'
+    - builder_table_create_zen_act_acts.php
+v1.0.3:
+    - 'Acts table UUID primary key, owner_id as uuid'
+    - builder_table_recreate_zen_act_acts_uuid.php
+v1.0.4:
+    - 'Drop data column; owner_id bigint for RainLab.User'
+    - builder_table_alter_zen_act_acts_owner_and_drop_data.php
+v1.0.5:
+    - 'User profile: name column, nullable email for login-only registration'
+    - builder_table_alter_users_act_profile.php
+v1.0.6:
+    - 'User profile: timezone column for SPA date display'
+    - builder_table_alter_users_act_timezone.php
+v1.0.7:
+    - 'Viewer index for paginated acts list with filters'
+    - builder_table_create_zen_act_viewer_index.php
+v1.0.8:
+    - 'User tags index for act list filtering'
+    - builder_table_create_zen_act_user_tags.php

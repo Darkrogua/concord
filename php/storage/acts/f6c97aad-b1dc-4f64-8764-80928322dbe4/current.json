@@ -1,0 +1,100 @@
+{
+    "id": "f6c97aad-b1dc-4f64-8764-80928322dbe4",
+    "name": "Тестирую фото",
+    "description": null,
+    "owner_id": 5,
+    "activate_at": null,
+    "stop_at": null,
+    "created_at": "2026-06-29T19:43:16+04:00",
+    "updated_at": "2026-06-29T19:43:16+04:00",
+    "blocks": [
+        {
+            "id": "09fb3b0d-ae08-40fb-8430-b98107580424",
+            "name": "Фотогалерея",
+            "data": {
+                "items": [
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "Duck-ai-image-2026-02-20-12-06.jpeg",
+                        "height": 1024,
+                        "id": "a6280dc0-0d8b-4e8a-bb5f-d9d34ebdc5b8",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 336751,
+                        "sort_order": 0,
+                        "width": 1024
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "Duck-ai-image-2026-02-20-13-03.jpeg",
+                        "height": 1024,
+                        "id": "b1943df4-29cb-475d-9f03-1074559e4e30",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 374987,
+                        "sort_order": 1,
+                        "width": 1024
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "Duck-ai-image-2026-04-09-14-51.jpeg",
+                        "height": 1024,
+                        "id": "41d56c78-116a-4a0f-a770-15d42811dd05",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 378127,
+                        "sort_order": 2,
+                        "width": 1536
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "painterly_anime_artwork_A_team.jpeg",
+                        "height": 768,
+                        "id": "689a4a25-ba85-473a-86a2-299ee1bcb807",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 258015,
+                        "sort_order": 3,
+                        "width": 768
+                    },
+                    {
+                        "active": true,
+                        "alt": "",
+                        "filename": "Sexy_athletic_Harley_Quinn_is_.jpeg",
+                        "height": 512,
+                        "id": "f93f16a0-f259-4997-a3e7-d3c70e151947",
+                        "mime": "image\/jpeg",
+                        "size_bytes": 97171,
+                        "sort_order": 4,
+                        "width": 768
+                    }
+                ],
+                "type": "gallery"
+            },
+            "sort_order": 1,
+            "created_at": "2026-06-29 15:43:19",
+            "updated_at": "2026-06-29 15:48:08",
+            "hash": "ce76f09d02171c456a7e80e5cebf3e598eec92dbf7d0019ebc620d69e95cd1b7"
+        }
+    ],
+    "access": {
+        "meta": {
+            "owner_login": "zen",
+            "schema_version": "1"
+        },
+        "grants": [
+            {
+                "resource_type": "act",
+                "resource_id": "f6c97aad-b1dc-4f64-8764-80928322dbe4",
+                "login": "@public",
+                "role": "viewer"
+            }
+        ]
+    },
+    "owner_user_tags": [],
+    "format_version": 2,
+    "written_at": "2026-06-29T15:48:08+00:00",
+    "envelope_hash": "71aa2f104dbb4f04a345ec498386b451470964a03045fd149294036cb238385d",
+    "log_head_id": 3,
+    "owner_login": "zen"
+}

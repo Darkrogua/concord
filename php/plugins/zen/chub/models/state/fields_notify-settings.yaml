@@ -1,0 +1,9 @@
+fields:
+    atm_telegram_bot_enabled:
+        label: 'Уведомление в телеграм бота'
+        span: full
+        type: checkbox
+    atm_rocket_chat_bot_enabled:
+        label: 'Уведомление в Rocket.Chat бота'
+        span: full
+        type: checkbox

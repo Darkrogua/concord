@@ -1,0 +1,11 @@
+fields:
+    active:
+        label: Активно
+        span: full
+        default: 1
+        type: switch
+    description:
+        label: Описание
+        size: large
+        span: full
+        type: richeditor

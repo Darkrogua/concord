@@ -1,0 +1,7 @@
+fields:
+    data:
+        label: Данные
+        size: giant
+        language: javascript
+        span: full
+        type: codeeditor

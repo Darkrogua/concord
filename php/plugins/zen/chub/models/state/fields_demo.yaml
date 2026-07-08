@@ -1,0 +1,16 @@
+fields:
+    setting1:
+        label: 'Настройка 1'
+        span: full
+        type: text
+        comment: 'Код: setting1'
+    setting2:
+        label: 'Настройка 2'
+        options:
+            1: 'Значение 1'
+            2: 'Значение 2'
+            3: 'Значение 3'
+        showSearch: true
+        span: full
+        type: dropdown
+        comment: 'Код: setting2'

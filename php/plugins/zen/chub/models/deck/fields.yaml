@@ -1,0 +1,21 @@
+fields:
+    active:
+        label: Активно
+        span: full
+        default: 1
+        type: switch
+    name:
+        label: Название
+        span: auto
+        type: text
+    parent_id:
+        label: Родитель
+        span: auto
+        emptyOption: '-- Верхний уровень --'
+        showSearch: true
+        type: dropdown
+    description:
+        label: Описание
+        size: large
+        span: full
+        type: richeditor

@@ -1,0 +1,10 @@
+name: Providers
+form: $/zen/chub/models/provider/fields.yaml
+modelClass: Zen\Chub\Models\Provider
+defaultRedirect: zen/chub/providers
+create:
+    redirect: 'zen/chub/providers/update/:id'
+    redirectClose: zen/chub/providers
+update:
+    redirect: zen/chub/providers
+    redirectClose: zen/chub/providers

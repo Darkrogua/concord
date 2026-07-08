@@ -1,0 +1,10 @@
+name: Decks
+form: $/zen/chub/models/deck/fields.yaml
+modelClass: Zen\Chub\Models\Deck
+defaultRedirect: zen/chub/decks
+create:
+    redirect: 'zen/chub/decks/update/:id'
+    redirectClose: zen/chub/decks
+update:
+    redirect: zen/chub/decks
+    redirectClose: zen/chub/decks

@@ -1,0 +1,5 @@
+<?php
+
+\Zen\Chub\Console\RefreshCommand::restartMigration('builder_table_create_zen_chub_ship_classes.php');
+
+return \DB::table('zen_chub_ship_classes')->count() ? 'Произошла ошибка' : 'Миграция успешно перезапущена';

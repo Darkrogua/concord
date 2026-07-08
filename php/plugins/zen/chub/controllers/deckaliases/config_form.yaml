@@ -1,0 +1,10 @@
+name: DeckAliases
+form: $/zen/chub/models/deckalias/fields.yaml
+modelClass: Zen\Chub\Models\DeckAlias
+defaultRedirect: zen/chub/deckaliases
+create:
+    redirect: 'zen/chub/deckaliases/update/:id'
+    redirectClose: zen/chub/deckaliases
+update:
+    redirect: zen/chub/deckaliases
+    redirectClose: zen/chub/deckaliases

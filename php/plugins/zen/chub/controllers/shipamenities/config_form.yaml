@@ -1,0 +1,10 @@
+name: ShipAmenities
+form: $/zen/chub/models/shipamenity/fields.yaml
+modelClass: Zen\Chub\Models\ShipAmenity
+defaultRedirect: zen/chub/shipamenities
+create:
+    redirect: 'zen/chub/shipamenities/update/:id'
+    redirectClose: zen/chub/shipamenities
+update:
+    redirect: zen/chub/shipamenities
+    redirectClose: zen/chub/shipamenities

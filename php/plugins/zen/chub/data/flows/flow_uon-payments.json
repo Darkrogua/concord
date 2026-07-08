@@ -1,0 +1,42 @@
+[
+    {
+        "active": false,
+        "name": "Обработка платежей (попытки отправки)",
+        "code": "uon-payments-retry",
+        "handler_path": "Zen.Chub.Classes.Automations.RequestNotifications.retry",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "handler_start_path": null,
+        "handler_start_path_source": null,
+        "handler_start_path_target": null,
+        "handler_finish_path": null,
+        "handler_finish_path_source": null,
+        "handler_finish_path_target": null,
+        "handler_error_path": null,
+        "handler_error_path_source": null,
+        "handler_error_path_target": null,
+        "handler_stop_path": null,
+        "handler_stop_path_source": null,
+        "handler_stop_path_target": null
+    },
+    {
+        "active": true,
+        "name": "Обработка ежедневных платежей из U-ON",
+        "code": "daily-uon-payments",
+        "handler_path": "Zen.Chub.Classes.Automations.UonPaymentsAutomation.handle",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "handler_start_path": null,
+        "handler_start_path_source": null,
+        "handler_start_path_target": null,
+        "handler_finish_path": null,
+        "handler_finish_path_source": null,
+        "handler_finish_path_target": null,
+        "handler_error_path": null,
+        "handler_error_path_source": null,
+        "handler_error_path_target": null,
+        "handler_stop_path": null,
+        "handler_stop_path_source": null,
+        "handler_stop_path_target": null
+    }
+]

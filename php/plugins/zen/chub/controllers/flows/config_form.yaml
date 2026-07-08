@@ -1,0 +1,10 @@
+name: Flows
+form: $/zen/chub/models/flow/fields.yaml
+modelClass: Zen\Chub\Models\Flow
+defaultRedirect: zen/chub/flows
+create:
+    redirect: 'zen/chub/flows/update/:id'
+    redirectClose: zen/chub/flows
+update:
+    redirect: zen/chub/flows
+    redirectClose: zen/chub/flows

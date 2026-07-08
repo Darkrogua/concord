@@ -1,0 +1,10 @@
+name: Tariffs
+form: $/zen/chub/models/tariff/fields.yaml
+modelClass: Zen\Chub\Models\Tariff
+defaultRedirect: zen/chub/tariffs
+create:
+    redirect: 'zen/chub/tariffs/update/:id'
+    redirectClose: zen/chub/tariffs
+update:
+    redirect: zen/chub/tariffs
+    redirectClose: zen/chub/tariffs

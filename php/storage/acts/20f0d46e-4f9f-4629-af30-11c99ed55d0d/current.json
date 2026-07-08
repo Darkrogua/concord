@@ -1,0 +1,94 @@
+{
+    "id": "20f0d46e-4f9f-4629-af30-11c99ed55d0d",
+    "name": "Акт первый",
+    "description": null,
+    "owner_id": 7,
+    "activate_at": null,
+    "stop_at": null,
+    "created_at": "2026-06-22T17:46:01+04:00",
+    "updated_at": "2026-06-22T17:46:01+04:00",
+    "blocks": [
+        {
+            "id": "353a4df2-63ae-4ae5-8157-266f3467d5f1",
+            "name": "Текст",
+            "data": {
+                "text": "тут какой-то текст, может быть даже очень важный",
+                "type": "text"
+            },
+            "sort_order": 1,
+            "created_at": "2026-06-22 13:46:06",
+            "updated_at": "2026-06-22 13:46:21",
+            "hash": "96fd7a68d03248ac44c703eb6492b3f6652a5b63e68555740e4a5fd6512fb525"
+        },
+        {
+            "id": "e332edf7-9bbc-44e9-9744-14a07291165f",
+            "name": "Чеклист",
+            "data": {
+                "description": "Я в офисе",
+                "items": [
+                    {
+                        "id": "item-1782141081156-mmomtqw1bos",
+                        "signature": null,
+                        "signer": {
+                            "login": "testuser_mvp2",
+                            "display_name": "Тест Иванов"
+                        },
+                        "text": "Я"
+                    },
+                    {
+                        "id": "item-1782141099208-z2jw03bjds9",
+                        "signature": null,
+                        "signer": {
+                            "login": "testuser_mvp2",
+                            "display_name": "Тест Иванов"
+                        },
+                        "text": ""
+                    }
+                ],
+                "type": "checklist"
+            },
+            "sort_order": 2,
+            "created_at": "2026-06-22 15:10:57",
+            "updated_at": "2026-06-24 13:01:52",
+            "hash": "e4e800255561a2316c020b711c530228069d896d43654d3109e0061ce1aafc86"
+        }
+    ],
+    "access": {
+        "meta": {
+            "owner_login": "cursor",
+            "schema_version": "1"
+        },
+        "grants": [
+            {
+                "resource_type": "act",
+                "resource_id": "20f0d46e-4f9f-4629-af30-11c99ed55d0d",
+                "login": "@public",
+                "role": "viewer"
+            },
+            {
+                "resource_type": "block",
+                "resource_id": "e332edf7-9bbc-44e9-9744-14a07291165f",
+                "login": "testuser_mvp2",
+                "role": "viewer"
+            },
+            {
+                "resource_type": "item",
+                "resource_id": "e332edf7-9bbc-44e9-9744-14a07291165f:item-1782141081156-mmomtqw1bos",
+                "login": "testuser_mvp2",
+                "role": "signer"
+            },
+            {
+                "resource_type": "item",
+                "resource_id": "e332edf7-9bbc-44e9-9744-14a07291165f:item-1782141099208-z2jw03bjds9",
+                "login": "testuser_mvp2",
+                "role": "signer"
+            }
+        ]
+    },
+    "owner_user_tags": [],
+    "format_version": 2,
+    "written_at": "2026-06-29T09:31:18+00:00",
+    "envelope_hash": "48b5db6d43a77f4dcc1689725615719902b4af9ff9ef2fac5a3d1585ee693e0d",
+    "log_head_id": 6,
+    "owner_login": "cursor"
+}

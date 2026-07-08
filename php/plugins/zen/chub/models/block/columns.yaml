@@ -1,0 +1,45 @@
+columns:
+    id:
+        label: id
+        type: number
+        invisible: true
+        sortable: true
+    icon:
+        label: Иконка
+        type: partial
+        path: $/zen/chub/controllers/blocks/_icon_column.php
+        width: 50px
+        cssClass: text-center
+        sortable: false
+    name:
+        label: Название
+        type: text
+        searchable: true
+        sortable: true
+    code:
+        label: Код
+        type: text
+        searchable: true
+        sortable: true
+    is_folder:
+        label: Каталог
+        type: switch
+        invisible: true
+        sortable: true
+    sort_order:
+        label: Порядок
+        type: number
+        invisible: true
+        sortable: true
+    created_at:
+        label: Создано
+        type: datetime
+        invisible: true
+        sortable: true
+        format: 'd.m.Y H:i'
+    updated_at:
+        label: Обновлено
+        type: datetime
+        invisible: true
+        sortable: true
+        format: 'd.m.Y H:i'

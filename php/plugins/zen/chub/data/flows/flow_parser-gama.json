@@ -1,0 +1,59 @@
+[
+    {
+        "name": "Gama: orchestrator raw parser",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.run",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Gama.GamaParser.importOrchestrator",
+        "code": "parser-gama-orchestrator"
+    },
+    {
+        "name": "Gama: prepare session",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.processPrepareSession",
+        "code": "parser-gama-prepare-session"
+    },
+    {
+        "name": "Gama: download source archive",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.processDownloadArchive",
+        "code": "parser-gama-download-archive"
+    },
+    {
+        "name": "Gama: parse navigation data",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.processParseNavigationData",
+        "code": "parser-gama-parse-navigation"
+    },
+    {
+        "name": "Gama: parse ships\/decks\/cabins",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.processParseShipsData",
+        "code": "parser-gama-parse-ships"
+    },
+    {
+        "name": "Gama: batch parse cruise prices",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.handleCruiseBatch",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Gama.GamaParser.createCruiseBatches",
+        "code": "parser-gama-parse-cruises"
+    },
+    {
+        "name": "Gama: clean cruises without prices",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.processCleanCruisesWithoutPrices",
+        "code": "parser-gama-clean-cruises-without-prices"
+    },
+    {
+        "name": "Gama: finish session",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.processFinishSession",
+        "code": "parser-gama-finish-session"
+    },
+    {
+        "name": "Gama: push raw data to production DB",
+        "active": true,
+        "handler_path": "Zen.Chub.Classes.Parsers.Gama.GamaParser.prodTransit",
+        "handler_path_source": "Zen.Chub.Classes.Parsers.Gama.GamaParser.prodBatches",
+        "code": "gama-db-push"
+    }
+]

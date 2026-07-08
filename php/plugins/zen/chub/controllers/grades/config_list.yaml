@@ -1,0 +1,17 @@
+list: $/zen/chub/models/grade/columns.yaml
+modelClass: Zen\Chub\Models\Grade
+title: Grades
+noRecordsMessage: 'backend::lang.list.no_records'
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'
+recordUrl: 'zen/chub/grades/update/:id'
+structure:  
+    showTree: false  
+    showReorder: true
+    showPagination: true
+    includeReferencePool: true

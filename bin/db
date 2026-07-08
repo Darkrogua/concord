@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DB_CONTAINER="${DB_CONTAINER:-os3-db}"
+PGUSER="${PGUSER:-os3}"
+PGDATABASE="${PGDATABASE:-os3}"
+PGPASSWORD="${PGPASSWORD:-os3}"
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BACKUPS_DIR="${BACKUPS_DIR:-$REPO_ROOT/backups}"
+
+if ! command -v docker >/dev/null 2>&1; then
+    echo "docker не найден в PATH" >&2
+    exit 1
+fi
+
+DOCKER_EXEC_FLAGS=(-i)
+if [[ -t 0 && -t 1 ]]; then
+    DOCKER_EXEC_FLAGS+=(-t)
+fi
+
+db_exec() {
+    docker exec "${DOCKER_EXEC_FLAGS[@]}" \
+        -e "PGPASSWORD=$PGPASSWORD" \
+        "$DB_CONTAINER" \
+        "$@"
+}
+
+usage() {
+    cat <<'EOF'
+OS3 — прокси PostgreSQL (контейнер os3-db по умолчанию).
+
+Использование:
+  ./bin/db [аргументы psql]     интерактивная сессия или любые флаги psql
+  ./bin/db -c "SQL"             один запрос
+  ./bin/db -f script.sql        выполнить файл (путь внутри контейнера)
+  ./bin/db dump [имя.sql.gz]    логический дамп в backups/ (по умолчанию os3_db_<timestamp>.sql.gz)
+  ./bin/db restore <файл>       восстановить из backups/<файл> (.sql.gz или .sql)
+  ./bin/db help                 эта справка
+
+Переменные: DB_CONTAINER, PGUSER, PGDATABASE, PGPASSWORD, BACKUPS_DIR.
+
+Примеры:
+  ./bin/db -c "\dt"
+  ./bin/db -Atc "select count(*) from zen_act_acts"
+  cat query.sql | ./bin/db          # SQL со stdin (psql -f -)
+  ./bin/db dump
+  ./bin/db restore os3_db_020620261200.sql.gz
+EOF
+}
+
+cmd_dump() {
+    local name="${1:-}"
+    mkdir -p "$BACKUPS_DIR"
+    if [[ -z "$name" ]]; then
+        name="os3_db_$(date +%d%m%Y%H%M).sql.gz"
+    fi
+    case "$name" in
+        */*) ;;
+        *) name="$BACKUPS_DIR/$name" ;;
+    esac
+    case "$name" in
+        *.sql.gz) ;;
+        *.sql) name="${name}.gz" ;;
+        *) name="${name}.sql.gz" ;;
+    esac
+    echo "Дамп → $name" >&2
+    db_exec pg_dump -U "$PGUSER" -d "$PGDATABASE" | gzip >"$name"
+    echo "Готово: $name" >&2
+}
+
+cmd_restore() {
+    local backup="${1:-}"
+    if [[ -z "$backup" ]]; then
+        echo "Укажите файл: ./bin/db restore <имя в backups/>" >&2
+        exit 1
+    fi
+    local path="$backup"
+    if [[ ! -f "$path" ]]; then
+        path="$BACKUPS_DIR/$backup"
+    fi
+    if [[ ! -f "$path" ]]; then
+        echo "Файл не найден: $backup (искали также $path)" >&2
+        exit 1
+    fi
+    echo "Восстановление из $path (DROP SCHEMA public CASCADE)…" >&2
+    db_exec psql -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -q \
+        -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
+    if [[ "$path" == *.gz ]]; then
+        gunzip -c "$path" | db_exec psql -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -q
+    else
+        cat "$path" | db_exec psql -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -q
+    fi
+    echo "База восстановлена." >&2
+}
+
+case "${1:-}" in
+    help|--help|-h)
+        usage
+        ;;
+    dump)
+        shift
+        cmd_dump "${1:-}"
+        ;;
+    restore)
+        shift
+        cmd_restore "${1:-}"
+        ;;
+    "")
+        if [[ ! -t 0 ]]; then
+            db_exec psql -U "$PGUSER" -d "$PGDATABASE" -v ON_ERROR_STOP=1 -f -
+        else
+            db_exec psql -U "$PGUSER" -d "$PGDATABASE"
+        fi
+        ;;
+    *)
+        db_exec psql -U "$PGUSER" -d "$PGDATABASE" "$@"
+        ;;
+esac

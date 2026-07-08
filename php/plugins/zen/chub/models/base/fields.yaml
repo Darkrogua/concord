@@ -1,0 +1,32 @@
+fields:
+    name:
+        label: Название
+        span: auto
+        type: text
+    code:
+        label: 'Код базы'
+        span: auto
+        type: text
+    preview_table:
+        label: 'Таблица для интерактива'
+        span: auto
+        type: dropdown
+        options: getPreviewTableOptions
+        changeHandler: onPreviewTableChanged
+        comment: 'Таблица, которая отображается в блоке "Записи таблицы"'
+    info:
+        label: ''
+        span: full
+        path: $/zen/chub/controllers/bases/info.php
+        type: partial
+    description:
+        label: Описание
+        span: full
+        size: large
+        type: richeditor
+    schema:
+        label: 'Схема данных'
+        size: giant
+        language: php
+        span: full
+        type: codeeditor

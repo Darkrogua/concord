@@ -1,0 +1,15 @@
+list: $/zen/chub/models/block/columns.yaml
+modelClass: Zen\Chub\Models\Block
+title: Blocks
+noRecordsMessage: 'backend::lang.list.no_records'
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 20
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'
+recordUrl: 'zen/chub/blocks/update/:id'
+structure:
+    showTree: true
+    showReorder: true

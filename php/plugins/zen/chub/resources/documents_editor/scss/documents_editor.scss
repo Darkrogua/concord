@@ -1,0 +1,103 @@
+.toastui-editor-defaultUI {
+  font-size: 17px;
+}
+
+.toastui-editor-contents {
+  font-size: 17px !important;
+  line-height: 1.7;
+}
+
+[data-documents-markdown-editor] .toastui-editor-ww-container .ProseMirror {
+  font-size: 17px !important;
+  line-height: 1.7;
+}
+
+.toastui-editor-defaultUI-toolbar button {
+  min-width: 30px;
+  min-height: 30px;
+}
+
+[data-documents-markdown-editor] .toastui-editor-main,
+[data-documents-markdown-editor] .toastui-editor-ww-container,
+[data-documents-markdown-editor] .toastui-editor-md-container {
+  overflow: visible !important;
+}
+
+.document-props-editor {
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: rgba(127, 127, 127, 0.06);
+  font-size: 13px;
+}
+
+.document-props-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.document-props-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 140px) 108px minmax(0, 1fr) 28px;
+  gap: 8px;
+  align-items: start;
+}
+
+@media (max-width: 920px) {
+  .document-props-row {
+    grid-template-columns: 1fr 100px;
+    grid-auto-rows: auto;
+  }
+
+  .document-props-row .document-props-value {
+    grid-column: 1 / -1;
+  }
+
+  .document-props-remove {
+    justify-self: end;
+  }
+}
+
+.document-props-key,
+.document-props-mode,
+.document-props-input {
+  font-size: 13px !important;
+  line-height: 1.35;
+  padding: 5px 8px !important;
+  min-height: 30px;
+}
+
+.document-props-input-grow {
+  min-height: 30px;
+  resize: vertical;
+  max-height: 220px;
+}
+
+.document-props-remove {
+  border: none;
+  background: transparent;
+  color: rgba(127, 127, 127, 0.95);
+  font-size: 20px;
+  line-height: 1;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.document-props-remove:hover {
+  color: #d33;
+}
+
+.document-props-add {
+  margin-top: 10px;
+  padding: 5px 10px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px dashed rgba(127, 127, 127, 0.55);
+  background: transparent;
+  cursor: pointer;
+}
+
+.document-props-add:hover {
+  border-style: solid;
+}

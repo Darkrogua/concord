@@ -1,0 +1,36 @@
+columns:
+    id:
+        label: id
+        type: number
+        sortable: true
+    active:
+        label: Активно
+        type: switch
+        sortable: true
+    target_id:
+        label: Цель
+        type: text
+        sortable: true
+        relation: grade
+        valueFrom: name
+    ship_name:
+        label: Теплоход
+        type: text
+        sortable: true
+        sqlSelect: "(SELECT zen_chub_ships.name FROM zen_chub_ships INNER JOIN zen_chub_grades ON zen_chub_grades.ship_id = zen_chub_ships.id WHERE zen_chub_grades.id = @target_id LIMIT 1)"
+    provider_id:
+        label: Источник
+        type: text
+        sortable: true
+        relation: provider
+        valueFrom: name
+    created_at:
+        label: Создано
+        type: datetime
+        sortable: true
+        format: 'd.m.Y H:i'
+    updated_at:
+        label: Обновлено
+        type: datetime
+        sortable: true
+        format: 'd.m.Y H:i'

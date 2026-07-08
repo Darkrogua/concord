@@ -1,368 +1,269 @@
-# Трекер Привычек - PWA приложение
+# OS3
 
-**Версия:** 1.0.7  
-**Последнее обновление:** январь 2025
+Веб-приложение на [October CMS 4](https://octobercms.com) (Laravel 12, PHP 8.2+) для работы с **контрактами и актами**. Основной пользовательский интерфейс — SPA-плагин **Zen.Act** (Vue 3 + Vite); администрирование — через бэкенд October (`/console`).
 
-Приложение для отслеживания привычек с персонажами-мотиваторами. Все данные хранятся локально на устройстве пользователя в IndexedDB. Поддерживает работу в режиме офлайн, интеграцию с Telegram Mini App и уведомления через Telegram Bot API.
+Репозиторий организован как монорепозиторий: код приложения в `php/`, локальная инфраструктура — в `docker/`.
 
-## 🚀 Быстрый старт
+**CLI с хоста:** из корня репозитория не вызывайте `php artisan` и `psql` напрямую — используйте прокси [`bin/artisan`](bin/artisan) и [`bin/db`](bin/db) (команды выполняются в Docker-контейнерах). Для AI-агентов в Cursor описаны правила [`.cursor/rules/ai_artisan.mdc`](.cursor/rules/ai_artisan.mdc) и [`.cursor/rules/ai_db.mdc`](.cursor/rules/ai_db.mdc) (`alwaysApply: true`).
 
-### Установка зависимостей
+## Стек
+
+| Слой | Технологии |
+|------|------------|
+| CMS / API | October CMS 4, Laravel 12, PHP 8.4 (FPM в Docker) |
+| БД | PostgreSQL 16 |
+| Фронт (Zen.Act) | Vue 3, Vite 5, SCSS |
+| Веб-сервер | Nginx (порт **8083** в compose) |
+| Планировщик | `supercronic` + `php artisan schedule:run` |
+| Dev-фронт | Node 20 (`os3-vite`), порт **5174** на хосте |
+
+## Структура репозитория
+
+```
+os3/
+├── bin/
+│   ├── artisan             # Прокси: php artisan → os3-php
+│   └── db                  # Прокси: psql, dump, restore → os3-db
+├── .cursor/rules/
+│   ├── ai_artisan.mdc      # Правило Cursor: как пользоваться bin/artisan
+│   └── ai_db.mdc           # Правило Cursor: как пользоваться bin/db
+├── docker/                 # Docker Compose, Nginx, образ PHP-FPM
+│   ├── docker-compose.local.yaml
+│   ├── app/Dockerfile
+│   └── web/nginx.conf
+├── docs/                   # Внутренняя документация проекта
+│   └── zen-act-microfrontend.md
+└── php/                    # Корень October CMS (artisan, plugins, themes)
+    ├── plugins/zen/act/    # SPA «Акт», API, Vite-сборка
+    ├── plugins/zen/robots/ # robots.txt
+    ├── themes/os3/         # Тема сайта
+    └── .scheduler/         # Crontab для os3-scheduler
+```
+
+Стандартный README October лежит в [`php/README.md`](php/README.md) — это шаблон дистрибутива, не описание этого проекта.
+
+## Плагины и тема
+
+| Компонент | Назначение |
+|-----------|------------|
+| **Zen.Act** | Страница `GET /app` (Vue SPA), JSON API ` /act.api/{class}:{method}` |
+| **Zen.Robots** | Управление `robots.txt` из бэкенда |
+| **RainLab.User** | Пользователи и авторизация |
+| **RainLab.Builder** | Генерация схем и плагинов |
+| **Тема `os3`** | Фронтенд-тема October CMS |
+
+Миграция плагина Act создаёт таблицу `zen_act_acts` (черновик модели контракта/акта).
+
+## Требования
+
+- Docker и Docker Compose
+- Внешняя Docker-сеть **`web`** (общая с окружением Megan / Traefik)
+- Запись в `/etc/hosts` (или аналог): `os3.megan` → хост, с которого открываете сайт
+- Для фронтенда Zen.Act в dev: Node 20 (локально или в контейнере `os3-vite`)
+
+## Быстрый старт (Docker)
+
+1. Скопируйте и настройте окружение приложения:
+
+   ```bash
+   cp php/.env.example php/.env
+   # Для compose уже заданы DB_* и APP_URL в docker-compose; синхронизируйте php/.env
+   ```
+
+   Минимально для Zen.Act в `php/.env`:
+
+   ```env
+   APP_URL=http://os3.megan
+   BACKEND_URI=console
+   DB_CONNECTION=pgsql
+   DB_HOST=os3-db
+   DB_PORT=5432
+   DB_DATABASE=os3
+   DB_USERNAME=os3
+   DB_PASSWORD=os3
+
+   ACT_VITE_ORIGIN=http://localhost:5174
+   ACT_VITE_DEV_HOST=os3-vite
+   ACT_VITE_DEV_PORT=5173
+   ```
+
+2. При необходимости задайте UID/GID в `docker/.env` (по умолчанию `1000:1000`).
+
+3. Поднимите стек из **корня репозитория**:
+
+   ```bash
+   make up
+   ```
+
+   (или вручную: `cd docker && docker compose -f docker-compose.local.yaml up -d --build`)
+
+4. Установите зависимости и инициализируйте October (из корня репозитория, через `./bin/artisan`):
+
+   ```bash
+   docker exec -it os3-php composer install
+   ./bin/artisan key:generate
+   ./bin/artisan october:migrate
+   ```
+
+5. Откройте в браузере:
+
+   - Сайт / SPA: [http://os3.megan:8083/app](http://os3.megan:8083/app) (или через прокси Megan, если настроен)
+   - Бэкенд: `http://os3.megan:8083/console`
+
+### Сервисы Compose
+
+| Сервис | Контейнер | Назначение |
+|--------|-----------|------------|
+| `os3-php` | `os3-php` | PHP-FPM, рабочая копия `php/` |
+| `os3-nginx` | `os3-nginx` | Nginx, `:8083` |
+| `os3-db` | `os3-db` | PostgreSQL |
+| `os3-scheduler` | `os3-scheduler` | Cron через supercronic |
+| `os3-node` | `os3-vite` | Node для `npm run serve` / `build` |
+
+Том `../php` монтируется в PHP и Node; корень репозитория — в `/var/www/project` (read-only) для виджета деплоя на Dashboard, если появится `scripts/deploy.sh`.
+
+## Разработка Zen.Act (Vite)
+
+Подробности — в [`docs/zen-act-microfrontend.md`](docs/zen-act-microfrontend.md).
+
+Кратко (из **корня репозитория**, через контейнер `os3-vite`):
 
 ```bash
-npm install
+make vite-install   # npm install
+make vite-serve     # HMR, dev-сервер (порт 5174 на хосте)
+make vite-build     # прод: assets/ + Vite manifest + PWA (sw.js, manifest.webmanifest)
+make vite-check     # проверить сборку без пересборки
+./bin/vite-check --http   # + HTTP 200 для manifest, sw.js, /app
 ```
 
-### Разработка
+Вручную в контейнере:
 
 ```bash
-npm run dev
+docker exec -it -w /var/www/html/plugins/zen/act os3-vite sh
+npm ci && npm run serve   # или npm run build
 ```
 
-Приложение будет доступно по адресу `http://localhost:5173`
+**Важно:** маршрут `/app` в Nginx обрабатывается отдельным `location ^~ /app`, иначе запрос уходит в каталог `php/app/` (Laravel) и отдаёт 403 — см. [`docker/web/nginx.conf`](docker/web/nginx.conf).
 
-### Сборка для продакшена
+## API Zen.Act
+
+Динамические маршруты (классы в `Zen\Act\Api\…`):
+
+| Метод | Путь | Описание |
+|-------|------|----------|
+| `GET` | `/app` | HTML-оболочка SPA |
+| `GET`, `POST` | `/act.api/{class}:{method}` | JSON API (точка в `class` → namespace) |
+
+Пример отладки: добавьте `?debug=1` к запросу API.
+
+## Makefile
+
+Из корня репозитория (`make help`):
+
+| Команда | Действие |
+|---------|----------|
+| `make up` | Запуск Docker-стека (сеть `web`, compose из `docker/`) |
+| `make down` | Остановка стека |
+| `make restart` | Перезапуск контейнеров без пересборки (`docker compose restart`) |
+| `make bash` | Интерактивный bash в `os3-php` (`/var/www/html`, `php artisan …`) |
+| `make shell-db` | Интерактивный `psql` (`./bin/db`) |
+| `make db-dump` | Дамп PostgreSQL в `backups/*.sql.gz` |
+| `make db-restore <файл>` | Восстановление из `backups/` |
+
+Модули: `makefiles/common.mk`, `makefiles/docker.mk`, `makefiles/shell.mk`.
+
+## CLI-прокси (`bin/`)
+
+Обёртки запускают команды **внутри Docker** с хоста (нужны `make up` и `docker` в PATH). В CI без TTY используется `docker exec -i` без `-t`. Референс по паттерну — проект **axis** (`bin/artisan`).
+
+| Скрипт | Контейнер | Назначение |
+|--------|-----------|------------|
+| [`./bin/artisan`](bin/artisan) | `os3-php` | October / Laravel CLI (`php artisan` в `/var/www/html`) |
+| [`./bin/db`](bin/db) | `os3-db` | PostgreSQL: `psql`, дамп, восстановление |
+| [`./bin/shakti`](bin/shakti) | Shakti VPS | SSH-прокси: команды, логи, статус (`193.168.48.146`) |
+
+### `./bin/artisan`
 
 ```bash
-npm run build
+./bin/artisan <command>
+./bin/artisan october:migrate
+./bin/artisan list
+./bin/artisan chub:entity help    # Zen.Chub, если нужен доменный CLI
 ```
 
-Собранные файлы будут в папке `dist/`
+Переменные: `PHP_CONTAINER` (по умолчанию `os3-php`), `APP_DIR` (`/var/www/html`).
 
-### Предпросмотр сборки
+### `./bin/db`
 
 ```bash
-npm run preview
+./bin/db                          # интерактивный psql
+./bin/db -c "SELECT version();"
+./bin/db -Atc "\dt"               # компактный вывод для скриптов / AI
+cat query.sql | ./bin/db          # SQL со stdin
+./bin/db dump                     # → backups/os3_db_<timestamp>.sql.gz
+./bin/db restore os3_db_….sql.gz  # DROP SCHEMA public + загрузка дампа
+./bin/db help
 ```
 
-## 📦 Технологии
+### `./bin/shakti`
 
-### Frontend
-- **Vue 3** (Composition API) + **TypeScript** - основной фреймворк
-- **Vite** - сборщик и dev-сервер
-- **Pinia** - управление состоянием
-- **Vue Router** - маршрутизация
-- **Vue I18n** - интернационализация (русский/английский)
-- **idb** - работа с IndexedDB для локального хранения данных
-- **vite-plugin-pwa** - PWA функциональность (Service Worker, манифест)
-- **qrcode-generator** - генерация QR-кодов для шаринга
+Прокси на тестовый VPS Shakti (креды в `~/bin/shakti-root`, не в git). Скилл: `.cursor/skills/os3-shakti/`.
 
-### Backend (опционально)
-- **Node.js** + **Express** - сервер для уведомлений через Telegram Bot API
-- **node-cron** - планирование задач для отправки уведомлений
-
-### Интеграции
-- **Telegram Mini App SDK** (@twa-dev/sdk) - интеграция с Telegram
-
-## ✨ Основные функции
-
-### Управление привычками
-- ✅ Создание, редактирование и удаление привычек
-- ✅ Поддержка множественных привычек одновременно
-- ✅ Настройка цвета и иконки для каждой привычки
-- ✅ Кастомные цвета (16 предустановленных + пользовательский)
-
-### Персонажи-мотиваторы
-- ✅ **Добрая бабушка** - ласковые, поддерживающие фразы
-- ✅ **Гопник** - грубоватый, но мотивирующий стиль
-- ✅ **Учитель** - строгий, но справедливый наставник
-- ✅ **Дедушка** - мудрые советы и поддержка
-- ✅ Уникальные фразы в зависимости от:
-  - Дня без привычки (1, 7, 30, 100+)
-  - Текущей серии (streak)
-  - Полученных достижений
-
-### Календарь и отслеживание
-- ✅ Визуальный календарь с отметками дней
-- ✅ Возможность отмечать/снимать отметку с любого дня
-- ✅ Заметки к каждому дню
-- ✅ Индикация дней с заметками
-- ✅ Подсчет текущей серии (дней подряд)
-
-### Статистика и аналитика
-- ✅ График прогресса за последние 30 дней
-- ✅ Счетчик текущей серии (дней подряд)
-- ✅ Общее количество дней без привычки
-- ✅ Процент успешных дней
-- ✅ Общая статистика по всем привычкам
-
-### Система достижений
-- ✅ **Первый шаг** - 1 день без привычки
-- ✅ **Неделя силы** - 7 дней без привычки
-- ✅ **Месяц побед** - 30 дней без привычки
-- ✅ **Сотня дней** - 100 дней без привычки
-- ✅ **Недельная серия** - 7 дней подряд
-- ✅ **Месячная серия** - 30 дней подряд
-- ✅ Визуальные бейджи с прогрессом
-- ✅ История полученных достижений
-
-### Уведомления
-- ✅ Настройка времени напоминаний для каждой привычки
-- ✅ Push-уведомления (если поддерживается браузером)
-- ✅ Ежедневные мотивирующие сообщения от персонажа
-- ✅ Кастомные тексты напоминаний
-- ✅ Интеграция с Telegram Bot API для уведомлений через Telegram
-- ✅ Сервер уведомлений (опционально, в папке `server/`)
-- ✅ Автоматическая проверка пропущенных уведомлений при открытии приложения
-- ✅ Поддержка iOS устройств с альтернативной системой уведомлений
-
-### PWA функциональность
-- ✅ Service Worker для офлайн работы
-- ✅ Манифест для установки на устройство
-- ✅ Кэширование ресурсов
-- ✅ Работа без интернета
-- ✅ Возможность установки как нативное приложение
-- ✅ Автоматическое обновление при новой версии
-
-### Дополнительно
-- ✅ Темная/светлая тема (переключатель в навигации)
-- ✅ Интеграция с Telegram Mini App
-- ✅ Адаптивный дизайн для мобильных устройств
-- ✅ Обработка ошибок с понятными сообщениями
-- ✅ Интернационализация (русский/английский)
-- ✅ Генерация QR-кодов для шаринга приложения
-- ✅ Страница "О приложении" с информацией и версией
-
-## 📁 Структура проекта
-
-```
-├── src/
-│   ├── components/          # Vue компоненты
-│   │   ├── AchievementBadge.vue      # Бейдж достижения
-│   │   ├── AppLogo.vue               # Логотип приложения
-│   │   ├── CalendarView.vue          # Календарь с отметками
-│   │   ├── CharacterSelector.vue     # Выбор персонажа
-│   │   ├── ColorPicker.vue           # Выбор цвета
-│   │   ├── HabitCard.vue             # Карточка привычки
-│   │   ├── HabitForm.vue             # Форма создания/редактирования
-│   │   ├── NotificationSettings.vue  # Настройки уведомлений
-│   │   ├── StatsChart.vue            # График статистики
-│   │   └── TelegramSettings.vue      # Настройки Telegram
-│   ├── views/              # Страницы приложения
-│   │   ├── HomeView.vue              # Главная страница
-│   │   ├── HabitDetailView.vue       # Детальная страница привычки
-│   │   ├── StatsView.vue             # Общая статистика
-│   │   ├── AchievementsView.vue      # Все достижения
-│   │   ├── SettingsView.vue          # Настройки
-│   │   ├── NotificationSettingsView.vue  # Настройки уведомлений
-│   │   ├── AboutView.vue             # О приложении
-│   │   └── ShareView.vue             # Поделиться приложением
-│   ├── stores/            # Pinia stores
-│   │   ├── habitsStore.ts            # Хранилище привычек
-│   │   └── themeStore.ts             # Хранилище темы
-│   ├── utils/             # Утилиты
-│   │   ├── characters.ts             # Логика персонажей
-│   │   ├── notifications.ts          # Уведомления
-│   │   ├── notificationServer.ts     # Интеграция с сервером уведомлений
-│   │   ├── projectColors.ts          # Цвета проектов
-│   │   ├── setupTelegramBot.ts       # Настройка Telegram бота
-│   │   ├── storage.ts                 # Работа с IndexedDB
-│   │   ├── telegram.ts                # Утилиты Telegram
-│   │   └── telegramMiniApp.ts        # Интеграция с Telegram Mini App
-│   ├── types/             # TypeScript типы
-│   │   └── index.ts                   # Определения типов
-│   ├── router/            # Маршрутизация
-│   │   └── index.ts                   # Конфигурация маршрутов
-│   ├── config/            # Конфигурация
-│   │   └── telegram.ts                # Настройки Telegram
-│   ├── composables/       # Композаблы Vue
-│   │   ├── useTelegram.ts             # Хук для работы с Telegram
-│   │   └── useI18n.ts                 # Хук для интернационализации
-│   ├── locales/           # Локализации
-│   │   ├── ru.json        # Русский язык
-│   │   └── en.json        # Английский язык
-│   ├── i18n.ts            # Конфигурация интернационализации
-│   ├── App.vue            # Корневой компонент
-│   ├── main.ts            # Точка входа
-│   └── style.css          # Глобальные стили
-├── server/                 # Сервер уведомлений (опционально)
-│   ├── server.js           # Express сервер
-│   ├── bot.js              # Логика Telegram бота
-│   ├── package.json        # Зависимости сервера
-│   └── README.md           # Документация сервера
-├── public/                 # Статические файлы
-│   ├── icons/              # Иконки PWA
-│   ├── manifest.webmanifest
-│   └── sw.js               # Service Worker (генерируется автоматически)
-├── dist/                   # Собранные файлы (после build)
-├── package.json            # Зависимости проекта
-├── package-lock.json       # Зафиксированные версии зависимостей
-├── vite.config.ts          # Конфигурация Vite
-├── tsconfig.json           # Конфигурация TypeScript
-├── tsconfig.node.json      # Конфигурация TypeScript для Node.js
-├── render.yaml             # Конфигурация для деплоя на Render.com
-└── README.md               # Этот файл
+```bash
+./bin/shakti status
+./bin/shakti bootstrap          # первый раз
+./bin/shakti deploy             # обновление на https://acts.os3.pro
+./bin/shakti run 'docker ps'
+./bin/shakti logs docker os3-nginx -n 100
 ```
 
-## 🌐 Деплой
+Make: `make shakti-bootstrap`, `make shakti-deploy`.
 
-### GitHub Pages
+Переменные: `DB_CONTAINER` (`os3-db`), `PGUSER`, `PGDATABASE`, `PGPASSWORD` (по умолчанию `os3`), `BACKUPS_DIR`. Дампы — в `backups/` (в `.gitignore`).
 
-Приложение можно деплоить на GitHub Pages вручную или через GitHub Actions.
+Эквиваленты в Makefile: `make shell-db`, `make db-dump`, `make db-restore <файл>`.
 
-**Доступно по адресу:** https://tilkerman.github.io/project-pwa/
+## Cursor Rules (AI-агенты)
 
-**Ручной деплой:**
-1. Выполните сборку: `npm run build`
-2. Включите GitHub Pages в настройках репозитория (Settings → Pages)
-3. Выберите источник: "Deploy from a branch"
-4. Укажите ветку и папку `dist`
+В [`.cursor/rules/`](.cursor/rules/) лежат постоянные правила для агентов Cursor (`alwaysApply: true` — подключаются в каждой сессии):
 
-**Автоматический деплой через GitHub Actions:**
-1. Создайте workflow файл `.github/workflows/pages.yml`
-2. Убедитесь, что в `vite.config.ts` указан правильный `base` путь для вашего репозитория
-3. Включите GitHub Pages в настройках репозитория (Settings → Pages)
-4. Выберите источник: "GitHub Actions"
+| Правило | Файл | О чём |
+|---------|------|--------|
+| **ai_artisan** | [`.cursor/rules/ai_artisan.mdc`](.cursor/rules/ai_artisan.mdc) | Когда и как вызывать `./bin/artisan`, типовые команды October и `chub:*` |
+| **ai_db** | [`.cursor/rules/ai_db.mdc`](.cursor/rules/ai_db.mdc) | Когда и как вызывать `./bin/db`, запросы, дампы, ограничения |
 
-### Сервер уведомлений
+Не дублируйте в промптах длинные инструкции по CLI — достаточно сослаться на эти правила и скрипты в `bin/`. Подробные контракты `chub:* ai` — в репозитории **axis** (`.cursor/commands/*_artisan.md`).
 
-Сервер для отправки уведомлений через Telegram Bot API находится в папке `server/`.
+## Полезные команды
 
-**Деплой на Render.com (бесплатно):**
+```bash
+# October CLI и PostgreSQL с хоста
+./bin/artisan october:migrate
+./bin/db -c "\dt"
 
-Проект включает файл `render.yaml` для автоматической настройки деплоя:
+# Интерактивная оболочка в контейнере
+make bash
+make shell-db
 
-1. Зарегистрируйтесь на [Render.com](https://render.com)
-2. Подключите репозиторий GitHub
-3. Render автоматически обнаружит `render.yaml` и настроит сервис
-4. Добавьте переменную окружения `TELEGRAM_BOT_TOKEN` с токеном вашего бота
-5. После деплоя получите URL вашего сервера (например: `https://your-app.onrender.com`)
+# Тесты и линтер (в php/ или в контейнере)
+composer test
+composer lint
 
-**Ручная настройка (если не используется render.yaml):**
-- **Root Directory**: `server`
-- **Build Command**: `npm install`
-- **Start Command**: `npm start`
-- **Environment Variables**: `TELEGRAM_BOT_TOKEN` (токен вашего бота)
+# Права на каталоги БД на хосте (опционально)
+./docker/init-db-dirs.sh
+```
 
-**Важно:** После деплоя сервера укажите его URL в настройках приложения (в разделе Telegram Settings).
+## База опыта для агентов (Cursor)
 
-Подробнее в `server/README.md`
+Скилл **os3-onboarding** (`.cursor/skills/os3-onboarding/`): накопительная база фактов о проекте, автогенерируемый индекс и скрипты `fact-add.sh` / `index-rebuild.sh`. В чате: упомянуть скилл или задачу по OS3 — агент читает `knowledge/INDEX.md`.
 
-## 📱 Telegram Mini App
+## Документация
 
-Приложение поддерживает интеграцию с Telegram Mini App:
-- Автоматическое определение запуска в Telegram
-- Сохранение chat_id для уведомлений
-- Адаптация под тему Telegram (автоматическое применение фона)
-- Использование Telegram Web App API
-- Поддержка Desktop и Mobile версий Telegram
-- Автоматическая инициализация при запуске в Telegram
+- [Zen.Act — микрофронт и Vite](docs/zen-act-microfrontend.md)
+- [October CMS](https://docs.octobercms.com)
+- CLI-прокси и правила AI: разделы выше, [`bin/`](bin/), [`.cursor/rules/`](.cursor/rules/)
+- Референс по Vite/Chub в соседнем проекте: `axis` → `php/plugins/zen/chub`
 
-## 🔔 Система уведомлений
+## Лицензия
 
-Приложение поддерживает два типа уведомлений:
-
-### 1. Браузерные Push-уведомления
-- Работают в браузере без дополнительного сервера
-- Требуют разрешения пользователя
-- Могут не работать на iOS Safari (ограничения браузера)
-
-### 2. Уведомления через Telegram Bot
-- Работают через сервер уведомлений (Render.com)
-- Надежнее браузерных уведомлений
-- Работают даже когда приложение закрыто
-- Требуют настройки Telegram бота и сервера
-
-**Настройка:**
-1. Создайте Telegram бота через [@BotFather](https://t.me/BotFather)
-2. Получите токен бота
-3. Задеплойте сервер уведомлений (см. `server/README.md`)
-4. Укажите URL сервера и токен в настройках приложения
-5. Откройте приложение в Telegram Mini App для автоматического получения Chat ID
-
-## 💾 Хранение данных
-
-- **IndexedDB** через библиотеку `idb`
-- Все данные хранятся локально на устройстве пользователя
-- Нет необходимости в регистрации или сервере
-- Данные сохраняются между сессиями
-- Автоматическое резервное копирование не требуется (данные локальные)
-
-## 🔧 Скрипты
-
-- `npm run dev` - запуск dev-сервера
-- `npm run build` - сборка для продакшена
-- `npm run preview` - предпросмотр собранного приложения
-- `npm run type-check` - проверка типов TypeScript
-
-## 📋 Версии зависимостей
-
-### Production зависимости
-- `vue`: ^3.4.0
-- `vue-router`: ^4.2.5
-- `pinia`: ^2.1.7
-- `vue-i18n`: ^9.14.5
-- `idb`: ^7.1.1
-- `@twa-dev/sdk`: ^8.0.2
-- `qrcode-generator`: ^2.0.4
-
-### Development зависимости
-- `vite`: ^5.0.0
-- `@vitejs/plugin-vue`: ^5.0.0
-- `vite-plugin-pwa`: ^0.17.4
-- `typescript`: ^5.3.0
-- `vue-tsc`: ^1.8.27
-
-## 📝 Дополнительная документация
-
-В проекте есть дополнительные файлы с инструкциями:
-- `TELEGRAM_BOT_SETUP.md` - настройка Telegram бота
-- `TELEGRAM_MINI_APP_INTEGRATION.md` - интеграция с Telegram Mini App
-- `NOTIFICATIONS_SETUP.md` - настройка уведомлений
-- `server/README.md` - документация сервера уведомлений
-- И другие инструкции по настройке и деплою
-
-## 🎨 Иконки PWA
-
-Иконки находятся в `public/icons/`:
-- `icon-192x192.png` - иконка 192x192
-- `icon-512x512.png` - иконка 512x512 (если есть)
-- `icon.svg` - SVG иконка в корне `public/`
-
-## 🐛 Решение проблем
-
-### Уведомления не работают
-
-**Браузерные уведомления:**
-- Убедитесь, что вы дали разрешение на уведомления в настройках браузера
-- На iOS Safari уведомления могут не работать (ограничения браузера)
-- Попробуйте установить приложение как PWA
-
-**Telegram уведомления:**
-- Проверьте, что сервер уведомлений запущен и доступен
-- Убедитесь, что Chat ID сохранен (откройте приложение в Telegram Mini App)
-- Проверьте токен бота в настройках сервера
-- Проверьте логи сервера на Render.com
-
-### Данные не сохраняются
-
-- Убедитесь, что браузер поддерживает IndexedDB
-- Проверьте, не включен ли режим инкогнито (может блокировать IndexedDB)
-- Очистите кэш браузера и попробуйте снова
-
-### Приложение не обновляется
-
-- Очистите кэш Service Worker в настройках браузера
-- Переустановите PWA приложение
-- Принудительно обновите страницу (Ctrl+Shift+R или Cmd+Shift+R)
-
-### Проблемы с Telegram Mini App
-
-- Убедитесь, что используете актуальную версию Telegram
-- Попробуйте перезапустить Telegram
-- Проверьте, что приложение открыто через правильный URL
-
-## 📄 Лицензия
-
-Проект находится в приватном репозитории.
-
-## 🤝 Поддержка
-
-Если у вас возникли проблемы:
-1. Проверьте раздел "Решение проблем" выше
-2. Изучите дополнительную документацию в корне проекта
-3. Проверьте логи браузера (F12 → Console) и сервера
-
----
-
-> Документация обновлена: январь 2025
+Платформа October CMS — [проприетарная лицензия](php/LICENSE.md) (EULA). Собственные плагины `zen/*` — по соглашению с правообладателем репозитория.

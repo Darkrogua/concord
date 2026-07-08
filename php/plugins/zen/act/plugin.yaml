@@ -1,0 +1,21 @@
+plugin:
+    name: 'zen.act::lang.plugin.name'
+    description: 'zen.act::lang.plugin.description'
+    author: 'Al Blaze'
+    icon: oc-icon-file-text
+    homepage: ''
+navigation:
+    act:
+        label: 'zen.act::lang.plugin.name'
+        url: zen/act/acts
+        icon: icon-file-text
+        permissions:
+            - zen.act.manage_acts
+        order: 500
+        sideMenu:
+            acts:
+                label: 'zen.act::lang.navigation.acts'
+                url: zen/act/acts
+                icon: icon-list
+                permissions:
+                    - zen.act.manage_acts

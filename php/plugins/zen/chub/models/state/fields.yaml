@@ -1,0 +1,18 @@
+tabs:
+    fields:
+        name:
+            label: Название
+            span: auto
+            type: text
+            tab: Основное
+        code:
+            label: Код
+            span: auto
+            type: text
+            tab: Основное
+        description:
+            label: Описание
+            size: large
+            span: full
+            type: richeditor
+            tab: Основное

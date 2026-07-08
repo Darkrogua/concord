@@ -1,0 +1,10 @@
+name: Checkins
+form: $/zen/chub/models/checkin/fields.yaml
+modelClass: Zen\Chub\Models\Checkin
+defaultRedirect: zen/chub/checkins
+create:
+    redirect: 'zen/chub/checkins/update/:id'
+    redirectClose: zen/chub/checkins
+update:
+    redirect: zen/chub/checkins
+    redirectClose: zen/chub/checkins

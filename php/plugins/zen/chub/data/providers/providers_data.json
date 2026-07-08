@@ -1,0 +1,52 @@
+[
+    {
+        "id": 1,
+        "name": "Водоходъ",
+        "code": "vodohod",
+        "description": "<p><a href=\"https:\/\/vodohod.com\/\">https:\/\/vodohod.com<\/a><\/p>",
+        "active": 1,
+        "sort_order": 1,
+        "created_at": "2026-03-05 18:58:37",
+        "updated_at": "2026-03-11 18:45:17"
+    },
+    {
+        "id": 2,
+        "name": "ВолгаWolga",
+        "code": "volga",
+        "description": "<p><a href=\"https:\/\/volgawolga.ru\/\">https:\/\/volgawolga.ru\/<\/a><\/p>",
+        "active": 1,
+        "sort_order": 2,
+        "created_at": "2026-03-05 19:15:24",
+        "updated_at": "2026-03-11 18:45:17"
+    },
+    {
+        "id": 3,
+        "name": "Гама",
+        "code": "gama",
+        "description": "<p><a href=\"https:\/\/gama-nn.ru\/\">https:\/\/gama-nn.ru\/<\/a><\/p>",
+        "active": 1,
+        "sort_order": 3,
+        "created_at": "2026-03-05 19:16:26",
+        "updated_at": "2026-03-11 18:45:17"
+    },
+    {
+        "id": 4,
+        "name": "Спутник-Гермес",
+        "code": "germes",
+        "description": "<p><a href=\"https:\/\/www.sputnik-germes.ru\/\">https:\/\/www.sputnik-germes.ru\/<\/a><\/p>",
+        "active": 1,
+        "sort_order": 4,
+        "created_at": "2026-03-05 19:17:27",
+        "updated_at": "2026-03-11 18:45:17"
+    },
+    {
+        "id": 5,
+        "name": "Инфофлот",
+        "code": "infoflot",
+        "description": "<p><a href=\"https:\/\/www.infoflot.com\/\">https:\/\/www.infoflot.com\/<\/a><\/p>",
+        "active": 1,
+        "sort_order": 5,
+        "created_at": "2026-03-05 19:18:21",
+        "updated_at": "2026-03-11 18:45:17"
+    }
+]

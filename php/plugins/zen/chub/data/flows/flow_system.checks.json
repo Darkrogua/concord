@@ -1,0 +1,23 @@
+[
+    {
+        "active": true,
+        "name": "Ежедневная проверка системы",
+        "code": "system.daily.check",
+        "description": "<p>Ежедневная проверка системы<\/p>",
+        "handler_path": "Zen.Chub.Classes.System.SystemChecks.dailyCheck",
+        "handler_path_source": null,
+        "handler_path_target": null,
+        "handler_start_path": null,
+        "handler_start_path_source": null,
+        "handler_start_path_target": null,
+        "handler_finish_path": null,
+        "handler_finish_path_source": null,
+        "handler_finish_path_target": null,
+        "handler_error_path": null,
+        "handler_error_path_source": null,
+        "handler_error_path_target": null,
+        "handler_stop_path": null,
+        "handler_stop_path_source": null,
+        "handler_stop_path_target": null
+    }
+]

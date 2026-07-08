@@ -1,0 +1,82 @@
+[
+    {
+        "id": 1,
+        "name": "Система обработки заявок",
+        "description": "<p>Запись: *\/5 0,7-23 * * * означает: Каждые 5 минут кроме интервала 1 часу до 6 утра<\/p>",
+        "planners": [
+            {
+                "active": "0",
+                "title": "Повторный запрос заявки",
+                "cron_command": "*\/5 0,7-23 * * *",
+                "method_code": "uon-payments-retry"
+            },
+            {
+                "active": "1",
+                "title": "Опрос U-ON через каждые 5 минут",
+                "cron_command": "*\/5 0,7-23 * * *",
+                "method_code": "daily-uon-payments"
+            }
+        ],
+        "active": 1,
+        "sort_order": 1,
+        "created_at": "2026-02-16 01:15:18",
+        "updated_at": "2026-04-20 23:13:12"
+    },
+    {
+        "id": 2,
+        "name": "Учёт времени",
+        "description": "<p>Тут просто тестируем всякие разные ситуации<\/p>",
+        "planners": [
+            {
+                "active": "1",
+                "title": "Метод вызывается каждую минуту",
+                "cron_command": "* * * * *",
+                "method_code": "run:test"
+            }
+        ],
+        "active": 1,
+        "sort_order": 2,
+        "created_at": "2026-02-12 18:53:34",
+        "updated_at": "2026-05-08 14:42:27"
+    },
+    {
+        "id": 3,
+        "name": "Обслуживание системы",
+        "description": "<p>0 3 * * * - Означает выполнять каждый день в 3 часа ночи<\/p>",
+        "planners": [
+            {
+                "active": "1",
+                "title": "Ротация логов",
+                "cron_command": "0 3 * * *",
+                "method_code": "run:logs-rotate"
+            },
+            {
+                "active": "1",
+                "title": "Ежедневные проверки системы",
+                "cron_command": "0 1 * * *",
+                "method_code": "system.daily.check"
+            }
+        ],
+        "active": 1,
+        "sort_order": 3,
+        "created_at": "2026-03-19 17:56:03",
+        "updated_at": "2026-05-18 17:48:49"
+    },
+    {
+        "id": 4,
+        "name": "Утреннее уведомление",
+        "description": "<p>Утреннее уведомление по задаче <a href=\"https:\/\/azimuth-tour.kaiten.ru\/63519847\">https:\/\/azimuth-tour.kaiten.ru\/63519847<\/a><\/p><p>Пишет в Rocket.Chat #Oplata кто сегодня в смене<\/p>",
+        "planners": [
+            {
+                "active": "1",
+                "title": "Метод ежедневного утреннего уведомления",
+                "cron_command": "0 8 * * *",
+                "method_code": "morning-hallo"
+            }
+        ],
+        "active": 1,
+        "sort_order": 4,
+        "created_at": "2026-04-16 14:25:37",
+        "updated_at": "2026-04-20 23:13:23"
+    }
+]

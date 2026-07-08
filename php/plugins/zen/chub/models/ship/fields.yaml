@@ -1,0 +1,94 @@
+tabs:
+    fields:
+        inclusions_repeater:
+            label: 'В стоимость включено'
+            span: auto
+            type: repeater
+            prompt: 'Добавить пункт'
+            tab: Финансы
+            form:
+                fields:
+                    inclusion_id:
+                        label: Пункт
+                        type: dropdown
+        surcharges_repeater:
+            label: 'Дополнительно оплачивается'
+            span: auto
+            type: repeater
+            prompt: 'Добавить пункт'
+            tab: Финансы
+            form:
+                fields:
+                    surcharge_id:
+                        label: Пункт
+                        type: dropdown
+        ship_class_id:
+            label: Класс корабля
+            span: full
+            type: dropdown
+            options: getShipClassOptions
+            tab: Характеристики
+        amenities_repeater:
+            label: 'На борту теплохода'
+            prompt: 'Добавить пункт'
+            displayMode: accordion
+            span: auto
+            type: repeater
+            tab: Характеристики
+            form:
+                fields:
+                    amenity_id:
+                        label: Пункт
+                        type: dropdown
+        specifications_repeater:
+            label: 'Технические характеристики'
+            prompt: 'Добавить характеристику'
+            displayMode: accordion
+            span: auto
+            type: repeater
+            tab: Характеристики
+            form:
+                fields:
+                    specification_id:
+                        label: Характеристика
+                        type: dropdown
+                        span: auto
+                    value:
+                        label: Значение
+                        type: text
+                        span: auto
+        meta_title:
+            label: 'Метатег title'
+            span: full
+            type: text
+            tab: SEO
+        meta_description:
+            label: 'Метатег description'
+            span: full
+            size: large
+            type: textarea
+            tab: SEO
+fields:
+    active:
+        label: Активно
+        span: full
+        default: 1
+        type: switch
+    name:
+        label: Название
+        span: full
+        type: text
+    description:
+        label: Описание
+        span: full
+        size: large
+        type: richeditor
+    images:
+        label: 'Изображения теплохода'
+        span: full
+        mode: image
+        useCaption: true
+        thumbOptions:
+            mode: crop
+            extension: auto
+        type: fileupload

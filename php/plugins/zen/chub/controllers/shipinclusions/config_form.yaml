@@ -1,0 +1,10 @@
+name: ShipInclusions
+form: $/zen/chub/models/shipinclusion/fields.yaml
+modelClass: Zen\Chub\Models\ShipInclusion
+defaultRedirect: zen/chub/shipinclusions
+create:
+    redirect: 'zen/chub/shipinclusions/update/:id'
+    redirectClose: zen/chub/shipinclusions
+update:
+    redirect: zen/chub/shipinclusions
+    redirectClose: zen/chub/shipinclusions

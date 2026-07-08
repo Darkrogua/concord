@@ -1,0 +1,23 @@
+# Filter scopes (October v4: type group + :filtered)
+
+scopes:
+    feature_group:
+        label: Слой
+        type: group
+        modelClass: Zen\Chub\Models\Feature
+        options: filterFeatureGroupOptions
+        conditions: feature_group in (:filtered)
+
+    workflow_status:
+        label: Статус
+        type: group
+        modelClass: Zen\Chub\Models\Feature
+        options: filterWorkflowStatusOptions
+        conditions: workflow_status in (:filtered)
+
+    catalog_tags:
+        label: Теги
+        type: group
+        modelClass: Zen\Chub\Models\Feature
+        options: filterCatalogTagOptions
+        scope: filterCatalogTags

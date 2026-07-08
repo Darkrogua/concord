@@ -1,0 +1,15 @@
+title: Commands
+modelClass: Zen\Chub\Models\Command
+list: $/zen/chub/models/command/columns.yaml
+recordUrl: 'zen/chub/commands/update/:id'
+noRecordsMessage: 'backend::lang.list.no_records'
+recordsPerPage: 20
+showSetup: true
+showCheckboxes: true
+structure:  
+    showTree: true
+    showReorder: true
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'

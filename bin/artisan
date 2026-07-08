@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PHP_CONTAINER="${PHP_CONTAINER:-os3-php}"
+APP_DIR="${APP_DIR:-/var/www/html}"
+
+if ! command -v docker >/dev/null 2>&1; then
+    echo "docker не найден в PATH" >&2
+    exit 1
+fi
+
+# В CI/агентах без TTY `docker exec -it` падает; в интерактивном терминале оставляем -it.
+DOCKER_EXEC_FLAGS=(-i)
+if [[ -t 0 && -t 1 ]]; then
+    DOCKER_EXEC_FLAGS+=(-t)
+fi
+
+exec docker exec "${DOCKER_EXEC_FLAGS[@]}" \
+    "$PHP_CONTAINER" \
+    bash -lc "cd '$APP_DIR' && php artisan $(printf '%q ' "$@")"

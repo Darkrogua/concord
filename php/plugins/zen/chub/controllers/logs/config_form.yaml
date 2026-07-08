@@ -1,0 +1,10 @@
+name: Logs
+form: $/zen/chub/models/log/fields.yaml
+modelClass: Zen\Chub\Models\Log
+defaultRedirect: zen/chub/logs
+create:
+    redirect: 'zen/chub/logs/update/:id'
+    redirectClose: zen/chub/logs
+update:
+    redirect: zen/chub/logs
+    redirectClose: zen/chub/logs

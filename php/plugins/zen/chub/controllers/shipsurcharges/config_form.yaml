@@ -1,0 +1,10 @@
+name: ShipSurcharges
+form: $/zen/chub/models/shipsurcharge/fields.yaml
+modelClass: Zen\Chub\Models\ShipSurcharge
+defaultRedirect: zen/chub/shipsurcharges
+create:
+    redirect: 'zen/chub/shipsurcharges/update/:id'
+    redirectClose: zen/chub/shipsurcharges
+update:
+    redirect: zen/chub/shipsurcharges
+    redirectClose: zen/chub/shipsurcharges

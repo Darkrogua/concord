@@ -1,0 +1,131 @@
+fields:
+    name:
+        label: Название
+        span: left
+        type: text
+    parent_id:
+        label: Родитель
+        span: right
+        type: dropdown
+        emptyOption: '-- Верхний уровень --'
+    feature_group:
+        label: Слой
+        span: left
+        type: dropdown
+        emptyOption: '-- Не указан --'
+        options:
+            Frontend: Frontend
+            Admin: Admin
+            Backend: Backend
+            SEO: SEO
+    active:
+        label: Активно
+        span: right
+        default: 1
+        type: switch
+    section_heading:
+        label: Заголовок секции (MD)
+        span: full
+        type: text
+        readOnly: true
+        comment: Заполняется при импорте из feature-list
+    description:
+        label: Описание
+        size: huge
+        span: full
+        type: textarea
+tabs:
+    fields:
+        tags:
+            label: Теги каталога
+            span: full
+            type: taglist
+            mode: array
+            customTags: true
+            useKey: false
+            options: filterCatalogTagOptions
+            tab: Каталог
+        acceptance_criteria:
+            label: Критерии приёмки
+            prompt: Добавить критерий
+            span: full
+            type: repeater
+            tab: Критерии приёмки
+            form:
+                fields:
+                    value:
+                        label: Критерий
+                        span: full
+                        type: textarea
+        acceptance_checks_panel:
+            label: ''
+            span: full
+            type: partial
+            tab: Критерии приёмки
+            path: $/zen/chub/controllers/features/_acceptance_checks.php
+            context:
+                - update
+        workflow_status:
+            label: Статус реализации
+            span: left
+            type: dropdown
+            tab: Workflow
+            options:
+                '': Не начата
+                in_progress: В работе
+                ready: Готова
+        workflow_comment:
+            label: Комментарий
+            size: giant
+            span: full
+            type: textarea
+            tab: Workflow
+        workflow_tags:
+            label: Теги workflow
+            span: full
+            type: taglist
+            mode: array
+            customTags: true
+            useKey: false
+            options: filterWorkflowTagOptions
+            tab: Workflow
+        workflow_files:
+            label: Связанные файлы
+            prompt: Добавить файл
+            span: full
+            type: repeater
+            tab: Workflow
+            form:
+                fields:
+                    path:
+                        label: Путь
+                        span: full
+                        type: text
+                    note:
+                        label: Комментарий
+                        span: full
+                        type: text
+        dependencies_rows:
+            label: Зависимости (исходящие)
+            prompt: Добавить зависимость
+            span: full
+            type: repeater
+            tab: Зависимости
+            form:
+                fields:
+                    depends_on_feature_id:
+                        label: Фича
+                        span: left
+                        type: dropdown
+                    comment:
+                        label: Комментарий
+                        span: right
+                        type: text
+        depended_by_panel:
+            label: ''
+            span: full
+            type: partial
+            tab: Зависимости
+            path: $/zen/chub/controllers/features/_depended_by.php
+            context:
+                - update

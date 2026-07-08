@@ -1,0 +1,84 @@
+fields:
+    is_folder:
+        label: 'Иконка папки в списке'
+        comment: 'Только внешний вид в таблице, на свойства блока не влияет'
+        span: auto
+        type: switch
+    code:
+        label: 'Код блока'
+        span: auto
+        type: text
+        comment: 'Например header или alerts/alert — папка partials/{group}/'
+        trigger:
+            action: hide
+            field: is_folder
+            condition: checked
+    name:
+        label: Название
+        span: auto
+        type: text
+    parent_id:
+        label: Родитель
+        span: auto
+        emptyOption: '-- Верхний уровень --'
+        showSearch: true
+        type: dropdown
+    description:
+        label: Описание
+        size: huge
+        span: full
+        type: textarea
+        comment: 'Markdown в themes/liner/partials/{group}/{name}.md'
+        trigger:
+            action: hide
+            field: is_folder
+            condition: checked
+tabs:
+    fields:
+        block_preview:
+            label: ''
+            span: full
+            type: partial
+            tab: Представления
+            path: $/zen/chub/controllers/blocks/_preview_tab.php
+            context:
+                - update
+            trigger:
+                action: hide
+                field: is_folder
+                condition: checked
+        demo_json_hint:
+            label: ''
+            span: full
+            type: partial
+            tab: Демо-данные
+            path: $/zen/chub/controllers/blocks/_demo_json_hint.php
+            context:
+                - update
+            trigger:
+                action: hide
+                field: is_folder
+                condition: checked
+        files:
+            label: Файлы блока
+            prompt: Добавить файл
+            displayMode: accordion
+            span: full
+            type: repeater
+            tab: Файлы
+            trigger:
+                action: hide
+                field: is_folder
+                condition: checked
+            form:
+                fields:
+                    name:
+                        label: 'Путь к файлу'
+                        span: full
+                        type: text
+                        comment: 'Например themes/liner/partials/header/header.htm'
+                    description:
+                        label: Описание
+                        span: full
+                        size: small
+                        type: textarea

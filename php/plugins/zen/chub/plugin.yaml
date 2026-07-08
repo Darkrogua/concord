@@ -1,0 +1,12 @@
+plugin:
+    name: 'Cruise Hub'
+    description: 'zen.chub::lang.plugin.description'
+    author: 'Al Blaze'
+    icon: oc-icon-ship
+    homepage: ''
+navigation:
+    chub:
+        label: CHub
+        url: zen/chub/entities
+        icon: icon-play
+        order: '1'

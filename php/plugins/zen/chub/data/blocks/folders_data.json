@@ -1,0 +1,56 @@
+[
+    {
+        "id": 53,
+        "code": null,
+        "name": "Каркас страницы",
+        "parent_id": null,
+        "is_folder": 1,
+        "sort_order": 1,
+        "files": []
+    },
+    {
+        "id": 54,
+        "code": null,
+        "name": "Круизная страница",
+        "parent_id": null,
+        "is_folder": 1,
+        "sort_order": 9,
+        "files": []
+    },
+    {
+        "id": 55,
+        "code": null,
+        "name": "Контентные секции",
+        "parent_id": null,
+        "is_folder": 1,
+        "sort_order": 24,
+        "files": []
+    },
+    {
+        "id": 56,
+        "code": null,
+        "name": "Карточки",
+        "parent_id": null,
+        "is_folder": 1,
+        "sort_order": 36,
+        "files": []
+    },
+    {
+        "id": 57,
+        "code": null,
+        "name": "UI-компоненты",
+        "parent_id": null,
+        "is_folder": 1,
+        "sort_order": 41,
+        "files": []
+    },
+    {
+        "id": 58,
+        "code": null,
+        "name": "Поиск, формы и меню",
+        "parent_id": null,
+        "is_folder": 1,
+        "sort_order": 54,
+        "files": []
+    }
+]

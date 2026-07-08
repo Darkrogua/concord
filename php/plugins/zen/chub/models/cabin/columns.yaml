@@ -1,0 +1,49 @@
+columns:
+    id:
+        label: id
+        type: number
+        sortable: true
+    name:
+        label: Название
+        type: text
+        searchable: true
+        sortable: true
+    deck_name:
+        label: Палуба
+        type: text
+        sortable: true
+        searchable: true
+        sqlSelect: "(SELECT name FROM zen_chub_decks WHERE zen_chub_decks.id = @deck_id LIMIT 1)"
+    grade_name:
+        label: Категория
+        type: text
+        sortable: true
+        searchable: true
+        sqlSelect: "(SELECT name FROM zen_chub_grades WHERE zen_chub_grades.id = @grade_id LIMIT 1)"
+    ship_name:
+        label: Теплоход
+        type: text
+        sortable: true
+        searchable: true
+        sqlSelect: "(SELECT zen_chub_ships.name FROM zen_chub_ships INNER JOIN zen_chub_grades ON zen_chub_grades.ship_id = zen_chub_ships.id WHERE zen_chub_grades.id = @grade_id LIMIT 1)"
+    active:
+        label: Активно
+        type: switch
+        sortable: true
+    sort_order:
+        label: Порядок
+        type: number
+        invisible: true
+        sortable: true
+    created_at:
+        label: Создано
+        type: datetime
+        invisible: true
+        sortable: true
+        format: 'd.m.Y H:i'
+    updated_at:
+        label: Обновлено
+        type: datetime
+        invisible: true
+        sortable: true
+        format: 'd.m.Y H:i'

@@ -1,0 +1,86 @@
+fields:
+    active:
+        label: Активно
+        span: full
+        default: 1
+        type: switch
+    name:
+        label: Название
+        span: auto
+        type: text
+    code:
+        label: Код
+        span: auto
+        required: true
+        type: text
+        comment: 'Оставьте пустым для автогенерации из названия'
+    url:
+        label: url
+        span: auto
+        type: text
+    parent_id:
+        label: Родитель
+        span: auto
+        emptyOption: '-- Верхний уровень --'
+        showSearch: true
+        type: dropdown
+    description:
+        label: Описание
+        span: full
+        size: large
+        type: richeditor
+    icon_path:
+        label: 'Путь до иконки SVG'
+        span: full
+        type: text
+        default: plugins/zen/chub/assets/build/main/images/entities/cog.svg
+    build_entity:
+        label: 'Собрать сущность'
+        span: full
+        type: checkbox
+        comment: 'Сгенерировать модель, миграцию и backend-шаблоны после сохранения'
+    builder_name:
+        label: 'Имя сущности (ед. число)'
+        span: auto
+        type: text
+        comment: 'Например: Book или BookCategory'
+        trigger:
+            action: show
+            field: build_entity
+            condition: checked
+    builder_name_plural:
+        label: 'Имя сущности (мн. число)'
+        span: auto
+        type: text
+        comment: 'Например: books или book_categories'
+        trigger:
+            action: show
+            field: build_entity
+            condition: checked
+    builder_name_title:
+        label: 'Заголовок раздела'
+        span: auto
+        type: text
+        default: Записи
+        trigger:
+            action: show
+            field: build_entity
+            condition: checked
+    builder_name_create:
+        label: 'Текст раздела "Создать"'
+        span: auto
+        type: text
+        default: 'Создать запись'
+        trigger:
+            action: show
+            field: build_entity
+            condition: checked
+    builder_name_update:
+        label: 'Текст раздела "Изменить"'
+        span: auto
+        type: text
+        default: 'Изменить запись'
+        trigger:
+            action: show
+            field: build_entity
+            condition: checked

@@ -1,0 +1,56 @@
+{
+    "id": "3aaab785-4b1b-49ba-b543-0f745852ede0",
+    "name": "test2",
+    "description": null,
+    "owner_id": 5,
+    "activate_at": null,
+    "stop_at": null,
+    "created_at": "2026-06-26T12:59:34+04:00",
+    "updated_at": "2026-06-26T12:59:34+04:00",
+    "blocks": [
+        {
+            "id": "0a5b9223-0566-49b7-b0d1-5063bb716a3c",
+            "name": "Markdown",
+            "data": {
+                "markdown": "",
+                "type": "markdown"
+            },
+            "sort_order": 1,
+            "created_at": "2026-06-29 13:00:12",
+            "updated_at": "2026-06-29 13:00:12",
+            "hash": "a4329d3ce3aede3741ad7c1d25557e3cbac043ae0d5d5113879b683e68de47ec"
+        },
+        {
+            "id": "095a4544-7c61-4e79-8d53-d0255befb383",
+            "name": "Web-приложение",
+            "data": {
+                "html": "",
+                "type": "webapp"
+            },
+            "sort_order": 2,
+            "created_at": "2026-06-26 08:59:40",
+            "updated_at": "2026-06-26 08:59:40",
+            "hash": "9539f6d8971ec60a71532af8bb7ce332f251a547f2327bb9eb679b873376aab2"
+        }
+    ],
+    "access": {
+        "meta": {
+            "owner_login": "zen",
+            "schema_version": "1"
+        },
+        "grants": [
+            {
+                "resource_type": "act",
+                "resource_id": "3aaab785-4b1b-49ba-b543-0f745852ede0",
+                "login": "@public",
+                "role": "viewer"
+            }
+        ]
+    },
+    "owner_user_tags": [],
+    "format_version": 2,
+    "written_at": "2026-06-29T13:11:28+00:00",
+    "envelope_hash": "f882c568186e2197e622c4786415fa7c062e6f983473003280cf3671ed2f9204",
+    "log_head_id": 3,
+    "owner_login": "zen"
+}

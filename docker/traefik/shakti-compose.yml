@@ -1,0 +1,32 @@
+# Traefik на Shakti VPS — /srv/docker/traefik/compose.yml
+# Let's Encrypt HTTP-01, Docker provider, сеть traefik (external).
+
+services:
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik"
+      - "--certificatesresolvers.le.acme.email=${ACME_EMAIL:-admin@os3.pro}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.httpchallenge=true"
+      - "--certificatesresolvers.le.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true

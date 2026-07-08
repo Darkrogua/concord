@@ -1,0 +1,10 @@
+name: Акт
+form: $/zen/act/models/act/fields.yaml
+modelClass: Zen\Act\Models\Act
+defaultRedirect: zen/act/acts
+create:
+    redirect: 'zen/act/acts/update/:id'
+    redirectClose: zen/act/acts
+update:
+    redirect: zen/act/acts
+    redirectClose: zen/act/acts

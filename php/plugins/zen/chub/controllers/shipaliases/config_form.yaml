@@ -1,0 +1,10 @@
+name: ShipAliases
+form: $/zen/chub/models/shipalias/fields.yaml
+modelClass: Zen\Chub\Models\ShipAlias
+defaultRedirect: zen/chub/shipaliases
+create:
+    redirect: 'zen/chub/shipaliases/update/:id'
+    redirectClose: zen/chub/shipaliases
+update:
+    redirect: zen/chub/shipaliases
+    redirectClose: zen/chub/shipaliases

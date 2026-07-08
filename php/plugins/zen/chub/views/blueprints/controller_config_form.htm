@@ -1,0 +1,10 @@
+name: {{ controller_name }}
+form: $/zen/chub/models/{{ name }}/fields.yaml
+modelClass: Zen\Chub\Models\{{ model_name }}
+defaultRedirect: zen/chub/{{ names }}
+create:
+    redirect: 'zen/chub/{{ names }}/update/:id'
+    redirectClose: zen/chub/{{ names }}
+update:
+    redirect: zen/chub/{{ names }}
+    redirectClose: zen/chub/{{ names }}

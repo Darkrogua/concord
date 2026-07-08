@@ -1,0 +1,12 @@
+list: $/zen/act/models/act/columns.yaml
+modelClass: Zen\Act\Models\Act
+title: Акты
+noRecordsMessage: 'backend::lang.list.no_records'
+showSetup: true
+showCheckboxes: true
+recordsPerPage: 25
+toolbar:
+    buttons: list_toolbar
+    search:
+        prompt: 'backend::lang.list.search_prompt'
+recordUrl: 'zen/act/acts/update/:id'

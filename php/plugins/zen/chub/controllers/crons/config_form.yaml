@@ -1,0 +1,10 @@
+name: Crons
+form: $/zen/chub/models/cron/fields.yaml
+modelClass: Zen\Chub\Models\Cron
+defaultRedirect: zen/chub/crons
+create:
+    redirect: 'zen/chub/crons/update/:id'
+    redirectClose: zen/chub/crons
+update:
+    redirect: zen/chub/crons
+    redirectClose: zen/chub/crons

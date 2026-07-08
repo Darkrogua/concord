@@ -1,0 +1,10 @@
+name: Фичлист
+form: $/zen/chub/models/feature/fields.yaml
+modelClass: Zen\Chub\Models\Feature
+defaultRedirect: zen/chub/features
+create:
+    redirect: 'zen/chub/features/update/:id'
+    redirectClose: zen/chub/features
+update:
+    redirect: zen/chub/features
+    redirectClose: zen/chub/features
