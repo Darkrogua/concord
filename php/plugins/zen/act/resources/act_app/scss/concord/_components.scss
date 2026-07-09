@@ -1,0 +1,837 @@
+.concord-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--concord-bg);
+  color: var(--concord-text);
+  padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 12px);
+}
+
+.concord-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px;
+  gap: 12px;
+  background: var(--concord-header-bg);
+  border-bottom: 1px solid var(--concord-border);
+}
+
+.concord-header__title {
+  margin: 0;
+  font-size: var(--concord-text-title);
+  font-weight: var(--concord-weight-bold);
+  line-height: var(--concord-leading-tight);
+  letter-spacing: var(--concord-tracking-title);
+  color: var(--concord-text);
+}
+
+.concord-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.concord-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: var(--concord-radius-sm);
+  background: transparent;
+  color: var(--concord-text);
+  cursor: pointer;
+}
+
+.concord-icon-btn:active {
+  background: var(--concord-purple-light);
+}
+
+.concord-tabs-wrap {
+  position: relative;
+}
+
+.concord-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px var(--concord-page-gutter) 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.concord-tabs--overflow {
+  padding-right: 32px;
+}
+
+.concord-tabs__hint {
+  position: absolute;
+  top: 8px;
+  bottom: 12px;
+  right: calc(var(--concord-page-gutter) - 2px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 28px;
+  padding-left: 10px;
+  color: var(--concord-text);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, var(--concord-bg) 55%);
+  pointer-events: none;
+}
+
+.concord-tabs__hint svg {
+  width: 18px;
+  height: 18px;
+}
+
+.concord-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.concord-tabs__item {
+  flex-shrink: 0;
+  padding: 7px 15px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-xs);
+  background: transparent;
+  color: var(--concord-text-secondary);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-tight);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.concord-tabs__item--active {
+  border-color: var(--concord-text);
+  background: var(--concord-surface);
+  color: var(--concord-text);
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-sort {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 0 var(--concord-page-gutter) 12px;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text-secondary);
+}
+
+.concord-sort > span {
+  flex-shrink: 0;
+}
+
+.concord-sort__select {
+  appearance: none;
+  flex: 0 1 auto;
+  width: auto;
+  padding: 8px 28px 8px 14px;
+  border: none;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-purple-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%234a3d8f' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E") no-repeat right 12px center;
+  color: var(--concord-purple-dark);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-tight);
+  cursor: pointer;
+}
+
+.concord-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 var(--concord-page-gutter);
+}
+
+.concord-card {
+  border: none;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-card-bg);
+  box-shadow: var(--concord-shadow);
+  text-align: left;
+  width: 100%;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  overflow: hidden;
+}
+
+.concord-card__head {
+  display: block;
+  width: 100%;
+  padding: 16px 16px 14px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.concord-card--expanded .concord-card__head {
+  padding-bottom: 0;
+}
+
+.concord-card__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.concord-card__title {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--concord-text-card);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.concord-card__date {
+  flex-shrink: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text-secondary);
+}
+
+.concord-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.concord-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.concord-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--concord-purple);
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.concord-card__action:hover {
+  background: var(--concord-purple-light);
+}
+
+.concord-card__action--active {
+  color: var(--concord-purple-dark);
+}
+
+.concord-card__divider {
+  display: block;
+  margin-top: 12px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--concord-card-divider);
+}
+
+.concord-card__divider--bottom {
+  margin: 12px 16px 14px;
+}
+
+.concord-card__sections {
+  padding: 2px 16px 0;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.concord-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 152px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--concord-radius-pill);
+  font-size: var(--concord-text-badge);
+  font-weight: var(--concord-weight-medium);
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.concord-status--awaiting {
+  border-color: var(--concord-status-grey-border);
+  background: var(--concord-status-grey-bg);
+  color: var(--concord-text-secondary);
+}
+
+.concord-status--overdue {
+  border-color: var(--concord-status-red-border);
+  background: var(--concord-status-red-bg);
+  color: var(--concord-status-red-text);
+}
+
+.concord-status--approved {
+  border-color: var(--concord-status-green-bg);
+  background: var(--concord-status-green-bg);
+  color: #fff;
+}
+
+.concord-section {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--concord-border);
+}
+
+.concord-section:last-child {
+  border-bottom: none;
+  padding-bottom: 4px;
+}
+
+.concord-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.concord-section__name {
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-tight);
+}
+
+.concord-section__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-section-count-bg);
+  font-size: var(--concord-text-caption);
+  font-weight: var(--concord-weight-medium);
+  line-height: 1;
+  color: var(--concord-text);
+  white-space: nowrap;
+}
+
+.concord-section__count-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--concord-purple-dark);
+}
+
+.concord-progress {
+  position: relative;
+}
+
+.concord-progress__track {
+  position: relative;
+  height: 6px;
+  border-radius: var(--concord-radius-pill);
+  background: var(--concord-bar-track);
+  overflow: visible;
+}
+
+.concord-progress__fill {
+  height: 100%;
+  border-radius: var(--concord-radius-pill);
+  background: var(--concord-bar-fill);
+  transition: width 0.25s ease;
+}
+
+.concord-progress__marker {
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 16px;
+  border-radius: 1.5px;
+  background: var(--concord-bar-marker);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.concord-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2px;
+  min-height: var(--concord-nav-height);
+  padding: 8px 6px calc(8px + var(--concord-safe-bottom));
+  background: var(--concord-surface);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+}
+
+.concord-nav__divider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--concord-nav-separator-bottom);
+  height: 1px;
+  background: var(--concord-border);
+  pointer-events: none;
+}
+
+.concord-nav__item {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  min-width: 0;
+  max-width: 76px;
+  padding: 6px 4px 4px;
+  border: none;
+  background: transparent;
+  color: var(--concord-text-secondary);
+  font-size: var(--concord-text-nav);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-tight);
+  cursor: pointer;
+}
+
+.concord-nav__item--active {
+  background: var(--concord-purple);
+  color: #fff;
+  border-radius: var(--concord-radius-xs);
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-nav__item--profile {
+  justify-content: flex-end;
+}
+
+.concord-nav__icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: var(--concord-nav-icon-box);
+}
+
+.concord-nav__icon-wrap--profile {
+  width: auto;
+  min-width: 46px;
+  height: var(--concord-nav-profile-block);
+  gap: 3px;
+}
+
+.concord-nav__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.concord-nav__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.concord-nav__label--spacer {
+  visibility: hidden;
+}
+
+.concord-nav__avatar {
+  width: var(--concord-nav-profile-block);
+  height: var(--concord-nav-profile-block);
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--concord-purple-light);
+  flex-shrink: 0;
+}
+
+.concord-nav__avatar--placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--concord-purple-dark);
+  font-size: 16px;
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-nav__caret {
+  width: 10px;
+  height: 8px;
+  color: var(--concord-text-secondary);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.concord-nav__badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 7px;
+  background: var(--concord-badge);
+  color: #fff;
+  font-size: 9px;
+  font-weight: var(--concord-weight-bold);
+  line-height: 14px;
+  text-align: center;
+}
+
+.concord-account-sheet {
+  padding-top: 10px;
+  background: var(--concord-header-bg);
+}
+
+.concord-account-sheet .concord-sheet__title {
+  margin-bottom: 12px;
+}
+
+.concord-account-sheet__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.concord-account-sheet__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 4px;
+  border: none;
+  border-bottom: 1px solid var(--concord-border);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.concord-account-sheet__list > li:last-child .concord-account-sheet__item {
+  border-bottom: none;
+}
+
+.concord-account-sheet__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--concord-purple-light);
+  color: var(--concord-purple-dark);
+  font-size: 14px;
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-account-sheet__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.concord-account-sheet__name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-tight);
+}
+
+.concord-account-sheet__avatar--create svg {
+  width: 20px;
+  height: 20px;
+  color: var(--concord-purple);
+}
+
+.concord-account-sheet__name--create {
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: var(--concord-text-caption);
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-purple-dark);
+}
+
+.concord-create-sheet {
+  padding-top: 10px;
+}
+
+.concord-create-sheet .concord-sheet__title {
+  margin-bottom: 12px;
+}
+
+.concord-create-sheet__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.concord-create-sheet__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 4px;
+  border: none;
+  border-bottom: 1px solid var(--concord-border);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.concord-create-sheet__item:last-child {
+  border-bottom: none;
+}
+
+.concord-create-sheet__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--concord-purple-light);
+  color: var(--concord-purple-dark);
+  font-size: 14px;
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-create-sheet__label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-tight);
+}
+
+.concord-create-sheet__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.concord-create-sheet__btn {
+  flex: 1;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--concord-radius-pill);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  cursor: pointer;
+}
+
+.concord-create-sheet__btn--cancel {
+  background: var(--concord-purple-light);
+  color: var(--concord-purple-dark);
+}
+
+.concord-create-sheet__btn--save {
+  background: var(--concord-purple);
+  color: #fff;
+}
+
+.concord-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: var(--concord-bg);
+}
+
+.concord-search-enter-active,
+.concord-search-leave-active {
+  transition: opacity 0.32s ease;
+}
+
+.concord-search-enter-active .concord-overlay__header,
+.concord-search-leave-active .concord-overlay__header {
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s ease;
+}
+
+.concord-search-enter-active .concord-overlay__body,
+.concord-search-leave-active .concord-overlay__body {
+  transition: opacity 0.28s ease 0.08s, transform 0.32s cubic-bezier(0.4, 0, 0.2, 1) 0.06s;
+}
+
+.concord-search-enter-from,
+.concord-search-leave-to {
+  opacity: 0;
+}
+
+.concord-search-enter-from .concord-overlay__header,
+.concord-search-leave-to .concord-overlay__header {
+  transform: translateY(-100%);
+  opacity: 0.85;
+}
+
+.concord-search-enter-from .concord-overlay__body,
+.concord-search-leave-to .concord-overlay__body {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.concord-overlay__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--concord-purple-light);
+}
+
+.concord-overlay__input {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+  font-size: var(--concord-text-card);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-body);
+}
+
+.concord-overlay__input:focus {
+  outline: 2px solid var(--concord-purple-muted);
+}
+
+.concord-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.concord-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 160;
+  max-height: 70dvh;
+  padding: 20px 16px calc(16px + var(--concord-safe-bottom));
+  border-radius: 16px 16px 0 0;
+  background: var(--concord-surface);
+  overflow-y: auto;
+}
+
+.concord-sheet__handle {
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 14px;
+  border-radius: 2px;
+  background: var(--concord-text-secondary);
+  opacity: 0.35;
+}
+
+.concord-sheet__radio {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--concord-purple);
+  border-radius: 50%;
+}
+
+.concord-sheet__radio-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--concord-purple);
+}
+
+.concord-sheet__title {
+  margin: 0 0 16px;
+  font-size: var(--concord-text-sheet);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  letter-spacing: var(--concord-tracking-title);
+}
+
+.concord-sheet__group {
+  margin-bottom: 16px;
+}
+
+.concord-sheet__label {
+  margin: 0 0 8px;
+  font-size: var(--concord-text-caption);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text-secondary);
+}
+
+.concord-sheet__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.concord-sheet__chip {
+  padding: 8px 14px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-pill);
+  background: var(--concord-surface);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-tight);
+  cursor: pointer;
+}
+
+.concord-sheet__chip--active {
+  border-color: var(--concord-purple);
+  background: var(--concord-purple-light);
+  color: var(--concord-purple-dark);
+  font-weight: var(--concord-weight-medium);
+}
+
+.concord-empty {
+  margin: 24px 0;
+  text-align: center;
+  color: var(--concord-text-secondary);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-body);
+}

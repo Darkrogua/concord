@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.concord-page,
+.concord-overlay,
+.concord-sheet {
+  font-family: var(--concord-font-family);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.concord-page button,
+.concord-page input,
+.concord-page select {
+  font-family: inherit;
+}

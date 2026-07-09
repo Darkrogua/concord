@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AuthView from './views/AuthView.vue'
+import ProjectsHomeView from './views/ProjectsHomeView.vue'
 import ActsHomeView from './views/ActsHomeView.vue'
 import ProfileView from './views/ProfileView.vue'
 import ActView from './views/ActView.vue'
@@ -10,6 +11,12 @@ const router = createRouter({
     {
       path: '/app',
       name: 'acts',
+      component: ProjectsHomeView,
+      meta: { requiresAuth: true, tab: 'acts' },
+    },
+    {
+      path: '/app/legacy',
+      name: 'acts-legacy',
       component: ActsHomeView,
       meta: { requiresAuth: true, tab: 'acts' },
     },

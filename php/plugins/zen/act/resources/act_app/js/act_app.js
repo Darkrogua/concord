@@ -5,6 +5,7 @@ import { initAppEnvironment } from '../vue/app-environment.js'
 import { initPwaInstall, registerServiceWorker, watchAppBuild } from '../vue/pwa-install.js'
 import { bindTelegramBackButton, ensureTelegramSdk, initTelegramWebApp, isTelegramWebApp } from '../vue/telegram-webapp.js'
 import '../scss/act_app.scss'
+import '../scss/concord.scss'
 
 function bootstrap() {
   initAppEnvironment()

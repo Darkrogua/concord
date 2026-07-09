@@ -1,0 +1,58 @@
+:root {
+  --concord-bg: #ffffff;
+  --concord-surface: #ffffff;
+  --concord-header-bg: #f8f5ff;
+  --concord-card-bg: #f3f0f8;
+  --concord-card-divider: #c5b8db;
+  --concord-section-count-bg: #ece8f4;
+  --concord-purple: #5e4db2;
+  --concord-purple-dark: #4a3d8f;
+  --concord-purple-light: #ece8f4;
+  --concord-purple-muted: #ddd6ec;
+  --concord-text: #2e2840;
+  --concord-text-secondary: #8a8498;
+  --concord-border: rgba(94, 77, 178, 0.12);
+  --concord-radius: 16px;
+  --concord-radius-sm: 12px;
+  --concord-radius-xs: 8px;
+  --concord-radius-pill: 999px;
+  --concord-shadow: none;
+
+  /* Typography — Figma «Прототип-ГОЛОСОВАЛКА» */
+  --concord-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --concord-text-title: 22px;
+  --concord-text-card: 14px;
+  --concord-text-body: 14px;
+  --concord-text-caption: 12px;
+  --concord-text-badge: 13px;
+  --concord-text-nav: 11px;
+  --concord-text-sheet: 18px;
+  --concord-weight-regular: 400;
+  --concord-weight-medium: 500;
+  --concord-weight-semibold: 600;
+  --concord-weight-bold: 700;
+  --concord-leading-tight: 1.25;
+  --concord-leading-body: 1.4;
+  --concord-leading-relaxed: 1.45;
+  --concord-tracking-title: -0.02em;
+
+  --concord-status-green: #28a745;
+  --concord-status-green-bg: #28a745;
+  --concord-status-grey-border: rgba(140, 132, 158, 0.35);
+  --concord-status-grey-bg: rgba(255, 255, 255, 0.55);
+  --concord-status-red-border: rgba(183, 28, 28, 0.45);
+  --concord-status-red-bg: rgba(253, 234, 234, 0.9);
+  --concord-status-red-text: #8b1c1c;
+  --concord-bar-track: #e6e0f0;
+  --concord-bar-fill: #9b8fc4;
+  --concord-bar-marker: #5e4db2;
+  --concord-nav-icon-box: 24px;
+  --concord-nav-label-block: calc(var(--concord-text-nav) * var(--concord-leading-tight));
+  --concord-nav-items-block: calc(var(--concord-nav-icon-box) + 3px + var(--concord-nav-label-block));
+  --concord-nav-profile-block: calc(var(--concord-nav-icon-box) + 3px + var(--concord-nav-label-block));
+  --concord-nav-separator-bottom: calc(8px + var(--concord-safe-bottom) + 4px + var(--concord-nav-label-block) + 3px + var(--concord-nav-icon-box) + 12px);
+  --concord-nav-height: 96px;
+  --concord-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --concord-badge: #e53935;
+  --concord-page-gutter: 16px;
+}

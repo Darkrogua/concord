@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Локальное превью главной Concord без Docker.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT/php/plugins/zen/act"
+
+if [[ ! -d node_modules ]]; then
+  echo "→ npm install…"
+  npm install
+fi
+
+PORT="${CONCORD_PREVIEW_PORT:-5173}"
+URL="http://127.0.0.1:${PORT}/concord-preview.html"
+
+echo ""
+echo "Concord preview: ${URL}"
+echo "В Cursor: Cmd+Shift+P → «Simple Browser: Show» → вставьте URL выше"
+echo "Остановка: Ctrl+C"
+echo ""
+
+exec node node_modules/vite/bin/vite.js --host 127.0.0.1 --port "$PORT" --open /concord-preview.html
