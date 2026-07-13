@@ -12,10 +12,32 @@ fi
 PORT="${CONCORD_PREVIEW_PORT:-5173}"
 URL="http://127.0.0.1:${PORT}/concord-preview.html"
 
+# Освободить порт, если завис старый процесс
+if command -v lsof >/dev/null 2>&1; then
+  for _ in 1 2 3; do
+    OLD_PIDS="$(lsof -ti tcp:"${PORT}" -sTCP:LISTEN 2>/dev/null || true)"
+    if [[ -z "${OLD_PIDS}" ]]; then
+      break
+    fi
+    echo "→ Останавливаю старый процесс на порту ${PORT} (${OLD_PIDS})…"
+    kill ${OLD_PIDS} 2>/dev/null || true
+    sleep 1
+  done
+fi
+
 echo ""
 echo "Concord preview: ${URL}"
-echo "В Cursor: Cmd+Shift+P → «Simple Browser: Show» → вставьте URL выше"
+echo "Если браузер не открылся — вставьте URL вручную."
+echo "В Cursor: Cmd+Shift+P → «Simple Browser: Show» → ${URL}"
 echo "Остановка: Ctrl+C"
 echo ""
 
-exec node node_modules/vite/bin/vite.js --host 127.0.0.1 --port "$PORT" --open /concord-preview.html
+if [[ "$(uname -s)" == "Darwin" ]] && command -v open >/dev/null 2>&1; then
+  (sleep 1.5 && open "${URL}") &
+fi
+
+exec node node_modules/vite/bin/vite.js \
+  --config vite.concord.config.js \
+  --host 127.0.0.1 \
+  --port "${PORT}" \
+  --open /concord-preview.html

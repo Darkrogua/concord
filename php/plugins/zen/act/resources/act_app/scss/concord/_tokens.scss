@@ -2,9 +2,10 @@
   --concord-bg: #ffffff;
   --concord-surface: #ffffff;
   --concord-header-bg: #f8f5ff;
-  --concord-card-bg: #f3f0f8;
+  --concord-card-bg: #f3f0f7;
   --concord-card-divider: #c5b8db;
   --concord-section-count-bg: #ece8f4;
+  --concord-filter-chip-bg: #ece8f4;
   --concord-purple: #5e4db2;
   --concord-purple-dark: #4a3d8f;
   --concord-purple-light: #ece8f4;
@@ -38,11 +39,14 @@
 
   --concord-status-green: #28a745;
   --concord-status-green-bg: #28a745;
+  --concord-status-blue: #4a6fd4;
+  --concord-status-blue-bg: #4a6fd4;
   --concord-status-grey-border: rgba(140, 132, 158, 0.35);
   --concord-status-grey-bg: rgba(255, 255, 255, 0.55);
+  --concord-status-grey-text: #8a8498;
   --concord-status-red-border: rgba(183, 28, 28, 0.45);
   --concord-status-red-bg: rgba(253, 234, 234, 0.9);
-  --concord-status-red-text: #8b1c1c;
+  --concord-status-red-text: #c2185b;
   --concord-bar-track: #e6e0f0;
   --concord-bar-fill: #9b8fc4;
   --concord-bar-marker: #5e4db2;
@@ -54,5 +58,15 @@
   --concord-nav-height: 96px;
   --concord-safe-bottom: env(safe-area-inset-bottom, 0px);
   --concord-badge: #e53935;
+  --concord-tab-badge: #c4564a;
+  --concord-card-meta: #7a869a;
+  --concord-card-magenta: #f01473;
+  --concord-card-author: #5c61af;
+  --concord-card-avatar-bg: #5e5e62;
+  --concord-card-count-active: #1d7bff;
+  --concord-card-progress-track: rgba(98, 73, 163, 0.18);
+  --concord-card-progress-fill: #6249a3;
+  --concord-card-icon: #5e6ad2;
+  --concord-card-icon-muted: #6b7280;
   --concord-page-gutter: 16px;
 }

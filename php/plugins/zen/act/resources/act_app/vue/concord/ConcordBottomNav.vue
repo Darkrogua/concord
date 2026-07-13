@@ -3,24 +3,30 @@
     <div class="concord-nav__divider" aria-hidden="true" />
     <button
       type="button"
-      class="concord-nav__item concord-nav__item--active"
-      aria-current="page"
+      :class="['concord-nav__item', { 'concord-nav__item--active': active === 'list' }]"
+      :aria-current="active === 'list' ? 'page' : undefined"
+      @click="$emit('navigate', 'list')"
     >
       <span class="concord-nav__icon-wrap">
         <svg class="concord-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
-            d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"
+            d="M4 6.5h16M4 12h16M4 17.5h10"
             stroke="currentColor"
             stroke-width="1.6"
-            stroke-linejoin="round"
+            stroke-linecap="round"
           />
         </svg>
-        <span v-if="projectsBadge" class="concord-nav__badge">{{ projectsBadge }}</span>
+        <span v-if="agreementsBadge" class="concord-nav__badge">{{ agreementsBadge }}</span>
       </span>
-      <span class="concord-nav__label">Все проекты</span>
+      <span class="concord-nav__label">Согласования</span>
     </button>
 
-    <button type="button" class="concord-nav__item" @click="$emit('settings')">
+    <button
+      type="button"
+      :class="['concord-nav__item', { 'concord-nav__item--active': active === 'settings' }]"
+      :aria-current="active === 'settings' ? 'page' : undefined"
+      @click="$emit('navigate', 'settings')"
+    >
       <span class="concord-nav__icon-wrap">
         <svg class="concord-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.5" />
@@ -29,13 +35,6 @@
             stroke="currentColor"
             stroke-width="1.5"
             stroke-linecap="round"
-          />
-          <path
-            d="M12 6.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"
-            stroke="currentColor"
-            stroke-width="1.2"
-            stroke-dasharray="2.5 3.5"
-            opacity="0.55"
           />
         </svg>
       </span>
@@ -51,7 +50,11 @@
       <span class="concord-nav__label">Новый проект</span>
     </button>
 
-    <button type="button" class="concord-nav__item" @click="$emit('notifications')">
+    <button
+      type="button"
+      class="concord-nav__item"
+      @click="$emit('notifications')"
+    >
       <span class="concord-nav__icon-wrap">
         <svg class="concord-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
@@ -90,7 +93,11 @@
 export default {
   name: 'ConcordBottomNav',
   props: {
-    projectsBadge: {
+    active: {
+      type: String,
+      default: 'list',
+    },
+    agreementsBadge: {
       type: [Number, String],
       default: 2,
     },
@@ -107,6 +114,6 @@ export default {
       default: 'А',
     },
   },
-  emits: ['create', 'settings', 'notifications', 'switch-account'],
+  emits: ['navigate', 'create', 'notifications', 'switch-account'],
 }
 </script>

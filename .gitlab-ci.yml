@@ -1,0 +1,33 @@
+# Статическое превью Concord UI для команды (GitLab Pages).
+# URL после деплоя: https://<namespace>.gitlab.io/<project-name>/
+# В Settings → Pages появится точная ссылка.
+
+stages:
+  - deploy
+
+variables:
+  NPM_CONFIG_CACHE: "$CI_PROJECT_DIR/.npm"
+  CONCORD_PAGES_BASE: "/$CI_PROJECT_NAME/"
+
+pages:
+  stage: deploy
+  image: node:20-alpine
+  cache:
+    key: concord-pages-npm
+    paths:
+      - .npm/
+      - php/plugins/zen/act/node_modules/
+  script:
+    - cd php/plugins/zen/act
+    - npm ci
+    - npm run build:concord:pages
+    - cd "$CI_PROJECT_DIR"
+    - rm -rf public
+    - mkdir -p public
+    - cp -R php/plugins/zen/act/dist/concord-pages/. public/
+    - cp public/concord-preview.html public/index.html
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

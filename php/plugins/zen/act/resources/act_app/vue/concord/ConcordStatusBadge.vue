@@ -6,8 +6,8 @@
 
 <script>
 const LABELS = {
+  draft: 'Черновик',
   awaiting: 'Ждет согласования',
-  overdue: 'Ждет согласования',
   approved: 'Согласовано',
 }
 
@@ -17,18 +17,12 @@ export default {
     status: {
       type: String,
       required: true,
-      validator: (v) => ['awaiting', 'overdue', 'approved'].includes(v),
+      validator: (v) => ['draft', 'awaiting', 'approved'].includes(v),
     },
   },
   computed: {
     variant() {
-      if (this.status === 'approved') {
-        return 'approved'
-      }
-      if (this.status === 'overdue') {
-        return 'overdue'
-      }
-      return 'awaiting'
+      return this.status
     },
     label() {
       return LABELS[this.status] || LABELS.awaiting

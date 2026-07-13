@@ -3,7 +3,7 @@
  * Открыть: npm run preview:concord → http://localhost:5173/concord-preview.html
  */
 import { createApp } from 'vue'
-import ProjectsHomeView from '../vue/views/ProjectsHomeView.vue'
+import ConcordApp from '../vue/ConcordApp.vue'
 import '../scss/concord.scss'
 
-createApp(ProjectsHomeView).mount('#concord-app')
+createApp(ConcordApp).mount('#concord-app')

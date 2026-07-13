@@ -1,3 +1,5 @@
 .DS_Store
 vc
 secrets/
+php/plugins/zen/act/dist/
+php/plugins/zen/act/node_modules/
