@@ -19,7 +19,36 @@
       @remove-filter="removeFilter"
     />
 
-    <GeneralSettingsView v-else-if="currentView === 'settings'" />
+    <GeneralSettingsView
+      v-else-if="currentView === 'settings'"
+      :groups="profileGroups"
+      @open-groups="goToGroupsManage"
+    />
+
+    <GroupsManageView
+      v-else-if="currentView === 'groups-manage'"
+      :groups="profileGroups"
+      @back="goToSettings"
+      @edit-group="openGroupMembers"
+      @delete-group="deleteGroup"
+      @create-group="goToCreateGroup"
+    />
+
+    <GroupMembersView
+      v-else-if="currentView === 'group-members'"
+      :group-title="activeGroupTitle"
+      :contacts="groupContacts"
+      :member-ids="activeGroupMemberIds"
+      @back="goToGroupsManage"
+      @save="saveGroupMembers"
+    />
+
+    <CreateGroupView
+      v-else-if="currentView === 'group-create'"
+      :contacts="groupContacts"
+      @back="goToGroupsManage"
+      @save="onCreateGroup"
+    />
 
     <FilterEditorView
       v-else-if="currentView === 'filter-editor'"
@@ -33,9 +62,36 @@
       @close-picker="pickerOpen = false"
     />
 
+    <CreateAgreementView
+      v-else-if="currentView === 'create-agreement'"
+      @back="goToList"
+      @save-draft="onSaveAgreementDraft"
+    />
+
+    <AgreementEditorView
+      v-else-if="currentView === 'agreement-editor'"
+      :agreement="editingAgreement"
+      :contacts="groupContacts"
+      :groups="profileGroups"
+      @back="goToList"
+      @add-block="onAddAgreementBlock"
+      @delete-block="onDeleteAgreementBlock"
+      @add-section="onAddAgreementSection"
+      @update-section="onUpdateAgreementSection"
+    />
+
+    <NotificationsView
+      v-else-if="currentView === 'notifications'"
+      :sections="notificationSections"
+      @back="goToList"
+      @open-agreement="onOpenAgreementFromNotification"
+      @mark-read="markNotificationRead"
+    />
+
     <ConcordBottomNav
       :active="navActive"
       :avatar-initial="activeAccountInitial"
+      :notifications-badge="unreadNotificationsCount"
       @navigate="onNavigate"
       @create="createOpen = true"
       @notifications="onNotifications"
@@ -64,10 +120,23 @@ import AgreementsListView from './views/AgreementsListView.vue'
 import FilterSettingsView from './views/FilterSettingsView.vue'
 import FilterEditorView from './views/FilterEditorView.vue'
 import GeneralSettingsView from './views/GeneralSettingsView.vue'
+import CreateAgreementView from './views/CreateAgreementView.vue'
+import AgreementEditorView from './views/AgreementEditorView.vue'
+import NotificationsView from './views/NotificationsView.vue'
+import GroupsManageView from './views/GroupsManageView.vue'
+import GroupMembersView from './views/GroupMembersView.vue'
+import CreateGroupView from './views/CreateGroupView.vue'
 import AccountSwitcherSheet from './concord/AccountSwitcherSheet.vue'
 import ConcordBottomNav from './concord/ConcordBottomNav.vue'
 import CreateProjectSheet from './concord/CreateProjectSheet.vue'
-import { DEFAULT_FILTER_SECTIONS, MOCK_AGREEMENTS } from './concord/mock-agreements.js'
+import { DEFAULT_FILTER_SECTIONS, MOCK_AGREEMENTS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, getNextAgreementNumber } from './concord/mock-agreements.js'
+import { MOCK_NOTIFICATION_SECTIONS } from './concord/mock-notifications.js'
+import {
+  MOCK_CONTACTS,
+  cloneProfileGroups,
+  createProfileGroup,
+  syncGroupMemberCount,
+} from './concord/mock-groups.js'
 
 export default {
   name: 'ConcordApp',
@@ -76,6 +145,12 @@ export default {
     FilterSettingsView,
     FilterEditorView,
     GeneralSettingsView,
+    CreateAgreementView,
+    AgreementEditorView,
+    NotificationsView,
+    GroupsManageView,
+    GroupMembersView,
+    CreateGroupView,
     AccountSwitcherSheet,
     ConcordBottomNav,
     CreateProjectSheet,
@@ -89,7 +164,18 @@ export default {
       }))
     )
 
+    const notificationSections = ref(
+      MOCK_NOTIFICATION_SECTIONS.map((section) => ({
+        ...section,
+        items: section.items.map((item) => ({ ...item })),
+      }))
+    )
+    const profileGroups = ref(cloneProfileGroups())
+    const groupContacts = ref(MOCK_CONTACTS.map((contact) => ({ ...contact })))
+    const activeGroupId = ref(null)
+
     const currentView = ref('list')
+    const editingAgreementId = ref(null)
     const editingSectionId = ref(null)
     const editorTitle = ref('Новый фильтр')
     const editorName = ref('')
@@ -106,10 +192,39 @@ export default {
     })
 
     const navActive = computed(() => {
-      if (currentView.value === 'settings') {
+      if (currentView.value === 'settings' || currentView.value.startsWith('group')) {
         return 'settings'
       }
+      if (currentView.value === 'notifications') {
+        return 'notifications'
+      }
       return 'list'
+    })
+
+    const activeGroupTitle = computed(() => {
+      const group = profileGroups.value.find((item) => item.id === activeGroupId.value)
+      return group?.title || ''
+    })
+
+    const activeGroupMemberIds = computed(() => {
+      const group = profileGroups.value.find((item) => item.id === activeGroupId.value)
+      return group?.memberIds ? [...group.memberIds] : []
+    })
+
+    const editingAgreement = computed(() =>
+      agreements.value.find((item) => item.id === editingAgreementId.value) || null
+    )
+
+    const unreadNotificationsCount = computed(() => {
+      let count = 0
+      for (const section of notificationSections.value) {
+        for (const item of section.items) {
+          if (!item.empty && !item.isRead) {
+            count += 1
+          }
+        }
+      }
+      return count || undefined
     })
 
     function goToFilterSettings() {
@@ -118,6 +233,42 @@ export default {
 
     function goToList() {
       currentView.value = 'list'
+    }
+
+    function goToSettings() {
+      currentView.value = 'settings'
+    }
+
+    function goToGroupsManage() {
+      currentView.value = 'groups-manage'
+    }
+
+    function goToCreateGroup() {
+      currentView.value = 'group-create'
+    }
+
+    function openGroupMembers(groupId) {
+      activeGroupId.value = groupId
+      currentView.value = 'group-members'
+    }
+
+    function saveGroupMembers(memberIds) {
+      const index = profileGroups.value.findIndex((item) => item.id === activeGroupId.value)
+      if (index === -1) {
+        return
+      }
+      profileGroups.value[index] = syncGroupMemberCount({
+        ...profileGroups.value[index],
+        memberIds: [...memberIds],
+      })
+    }
+
+    function deleteGroup(groupId) {
+      profileGroups.value = profileGroups.value.filter((group) => group.id !== groupId)
+    }
+
+    function onCreateGroup(payload) {
+      profileGroups.value.push(createProfileGroup(payload.title, payload.memberIds))
     }
 
     function onNavigate(view) {
@@ -192,7 +343,14 @@ export default {
     }
 
     function onEditAgreement(id) {
-      console.info('[concord] edit agreement', id)
+      const item = agreements.value.find((agreement) => agreement.id === id)
+      if (!item || item.status !== 'draft') {
+        console.info('[concord] edit agreement', id)
+        return
+      }
+      ensureAgreementSections(item)
+      editingAgreementId.value = id
+      currentView.value = 'agreement-editor'
     }
 
     function onDuplicateAgreement(id) {
@@ -200,7 +358,73 @@ export default {
     }
 
     function onCreateOption(type) {
-      console.info('[concord] create agreement', type)
+      if (type === 'approval') {
+        currentView.value = 'create-agreement'
+        return
+      }
+      console.info('[concord] create voting — not implemented in preview')
+    }
+
+    function onSaveAgreementDraft(form) {
+      const nextNumber = getNextAgreementNumber(agreements.value)
+      const draft = createDraftAgreement(form, nextNumber)
+      agreements.value.unshift(draft)
+      editingAgreementId.value = draft.id
+      currentView.value = 'agreement-editor'
+    }
+
+    function onAddAgreementBlock({ sectionId, blockType }) {
+      const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
+      if (!agreement) {
+        return
+      }
+      ensureAgreementSections(agreement)
+      const section = agreement.sections.find((item) => item.id === sectionId)
+      if (!section) {
+        return
+      }
+      if (!section.blocks) {
+        section.blocks = []
+      }
+      section.blocks.push(createAgreementBlock(blockType))
+    }
+
+    function onDeleteAgreementBlock({ sectionId, blockId }) {
+      const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
+      if (!agreement) {
+        return
+      }
+      const section = agreement.sections?.find((item) => item.id === sectionId)
+      if (!section?.blocks) {
+        return
+      }
+      section.blocks = section.blocks.filter((block) => block.id !== blockId)
+    }
+
+    function onAddAgreementSection(payload) {
+      const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
+      if (!agreement) {
+        return
+      }
+      ensureAgreementSections(agreement)
+      const section = createAgreementSection(payload.title)
+      section.participantIds = [...payload.participantIds]
+      section.groupIds = [...payload.groupIds]
+      agreement.sections.push(section)
+    }
+
+    function onUpdateAgreementSection({ sectionId, title, participantIds, groupIds }) {
+      const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
+      if (!agreement) {
+        return
+      }
+      const section = agreement.sections?.find((item) => item.id === sectionId)
+      if (!section) {
+        return
+      }
+      section.title = title
+      section.participantIds = [...participantIds]
+      section.groupIds = [...groupIds]
     }
 
     function onCreateAccount() {
@@ -208,7 +432,22 @@ export default {
     }
 
     function onNotifications() {
-      console.info('[concord] notifications')
+      currentView.value = 'notifications'
+    }
+
+    function markNotificationRead(notificationId) {
+      for (const section of notificationSections.value) {
+        const item = section.items.find((entry) => entry.id === notificationId)
+        if (item) {
+          item.isRead = true
+          return
+        }
+      }
+    }
+
+    function onOpenAgreementFromNotification(agreementId) {
+      onOpenAgreement(agreementId)
+      currentView.value = 'list'
     }
 
     return {
@@ -226,6 +465,13 @@ export default {
       navActive,
       goToFilterSettings,
       goToList,
+      goToSettings,
+      goToGroupsManage,
+      goToCreateGroup,
+      openGroupMembers,
+      saveGroupMembers,
+      deleteGroup,
+      onCreateGroup,
       onNavigate,
       openFilterEditor,
       openNewFilter,
@@ -237,8 +483,23 @@ export default {
       onEditAgreement,
       onDuplicateAgreement,
       onCreateOption,
+      onSaveAgreementDraft,
+      onAddAgreementBlock,
+      onDeleteAgreementBlock,
+      onAddAgreementSection,
+      onUpdateAgreementSection,
+      editingAgreement,
+      editingAgreementId,
       onCreateAccount,
       onNotifications,
+      notificationSections,
+      unreadNotificationsCount,
+      markNotificationRead,
+      onOpenAgreementFromNotification,
+      profileGroups,
+      groupContacts,
+      activeGroupTitle,
+      activeGroupMemberIds,
     }
   },
 }

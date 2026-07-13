@@ -156,7 +156,18 @@ export default {
 
     const allTabs = DEFAULT_TOP_TABS
     const sortOptions = SORT_OPTIONS
-    const visibleTabs = computed(() => allTabs)
+    const visibleTabs = computed(() =>
+      allTabs.map((tab) => {
+        if (tab.id !== 'drafts') {
+          return tab
+        }
+        const draftCount = props.agreements.filter((item) => item.status === 'draft').length
+        return {
+          ...tab,
+          badge: draftCount > 0 ? draftCount : undefined,
+        }
+      })
+    )
 
     function updateTabsOverflow() {
       const el = tabsRef.value

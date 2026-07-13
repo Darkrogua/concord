@@ -32,7 +32,7 @@
           Отмена
         </button>
         <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--save" @click="onSave">
-          Сохранить
+          Создать
         </button>
       </div>
     </div>
@@ -43,8 +43,8 @@
 import { ref, watch } from 'vue'
 
 export const CREATE_PROJECT_OPTIONS = [
-  { id: 'voting', label: 'Голосование' },
   { id: 'approval', label: 'Согласование' },
+  { id: 'voting', label: 'Голосование' },
 ]
 
 export default {
@@ -62,13 +62,13 @@ export default {
   emits: ['close', 'select'],
   setup(props, { emit }) {
     const options = CREATE_PROJECT_OPTIONS
-    const selectedId = ref('voting')
+    const selectedId = ref('approval')
 
     watch(
       () => props.open,
       (isOpen) => {
         if (isOpen) {
-          selectedId.value = 'voting'
+          selectedId.value = 'approval'
         }
       }
     )

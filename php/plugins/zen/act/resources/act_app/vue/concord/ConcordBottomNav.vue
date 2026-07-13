@@ -52,7 +52,8 @@
 
     <button
       type="button"
-      class="concord-nav__item"
+      :class="['concord-nav__item', { 'concord-nav__item--active': active === 'notifications' }]"
+      :aria-current="active === 'notifications' ? 'page' : undefined"
       @click="$emit('notifications')"
     >
       <span class="concord-nav__icon-wrap">

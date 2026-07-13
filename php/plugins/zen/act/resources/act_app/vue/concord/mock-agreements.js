@@ -1,5 +1,6 @@
 export const DEFAULT_TOP_TABS = [
   { id: 'agreements', label: 'Согласования', badge: 5 },
+  { id: 'drafts', label: 'Черновики' },
   { id: 'favorites', label: 'Избранное', badge: 2 },
   { id: 'archive', label: 'Архив', badge: 2 },
   { id: 'work', label: 'Работа', badge: 2 },
@@ -83,6 +84,17 @@ export function formatDateRu(date = new Date()) {
   return `${day}.${month}.${year}`
 }
 
+export function formatIsoDateToRu(value = '') {
+  if (!value) {
+    return ''
+  }
+  const [year, month, day] = value.split('-')
+  if (!year || !month || !day) {
+    return value
+  }
+  return `${day}.${month}.${year}`
+}
+
 /**
  * @typedef {Object} FilterParticipant
  * @property {string} id
@@ -158,6 +170,288 @@ export function formatStatusFilterLabel(status, match = 'is') {
  * @property {boolean} isFavorite
  * @property {boolean} isOwner
  */
+
+export const AGREEMENT_BLOCK_TYPES = [
+  { id: 'files', label: 'Файлы' },
+  { id: 'gallery', label: 'Галерея' },
+  { id: 'text', label: 'Текст' },
+  { id: 'checkbox', label: 'Чекбокс' },
+]
+
+export const AGREEMENT_EDITOR_INTRO =
+  'Наименование. Говорит о том, что вы находитесь в разделе согласования. Здесь вы можете добавлять блоки с контентом: файлы, текст, ссылки и другие элементы.'
+
+/**
+ * @typedef {Object} AgreementBlock
+ * @property {string} id
+ * @property {string} type
+ * @property {string} label
+ * @property {string} [title]
+ * @property {string} [description]
+ * @property {string} [content]
+ * @property {Array<{ id: string, name: string, mime?: string, previewUrl?: string | null }>} [files]
+ * @property {Array<{ id: string, name: string, mime?: string, previewUrl?: string }>} [photos]
+ * @property {string} [prompt]
+ * @property {Array<{ id: string, label: string, checked?: boolean }>} [items]
+ */
+
+/**
+ * @typedef {Object} SectionVotingStats
+ * @property {number} approved
+ * @property {number} rejected
+ * @property {number} pending
+ */
+
+/**
+ * @param {AgreementBlock} block
+ */
+export function normalizeTextBlock(block) {
+  if (!block || block.type !== 'text') {
+    return block
+  }
+  if (block.title === undefined) {
+    block.title = ''
+  }
+  if (block.description === undefined) {
+    block.description = ''
+  }
+  if (block.content === undefined) {
+    block.content = ''
+  }
+  return block
+}
+
+/**
+ * @param {AgreementBlock} block
+ */
+export function normalizeFilesBlock(block) {
+  if (!block || block.type !== 'files') {
+    return block
+  }
+  if (block.title === undefined) {
+    block.title = block.label || 'Файлы'
+  }
+  if (!Array.isArray(block.files)) {
+    block.files = []
+  }
+  return block
+}
+
+/**
+ * @param {AgreementBlock} block
+ */
+export function normalizeGalleryBlock(block) {
+  if (!block || block.type !== 'gallery') {
+    return block
+  }
+  if (block.title === undefined) {
+    block.title = block.label || 'Галерея'
+  }
+  if (!Array.isArray(block.photos)) {
+    block.photos = []
+  }
+  return block
+}
+
+/**
+ * @param {AgreementBlock} block
+ */
+export function normalizeCheckboxBlock(block) {
+  if (!block || block.type !== 'checkbox') {
+    return block
+  }
+  if (block.title === undefined) {
+    block.title = block.label || 'Чекбокс'
+  }
+  if (block.prompt === undefined) {
+    block.prompt = ''
+  }
+  if (!Array.isArray(block.items)) {
+    block.items = []
+  }
+  return block
+}
+
+/**
+ * @param {AgreementBlock} block
+ */
+export function normalizeAgreementBlock(block) {
+  if (!block) {
+    return block
+  }
+  if (block.type === 'text') {
+    return normalizeTextBlock(block)
+  }
+  if (block.type === 'files') {
+    return normalizeFilesBlock(block)
+  }
+  if (block.type === 'gallery') {
+    return normalizeGalleryBlock(block)
+  }
+  if (block.type === 'checkbox') {
+    return normalizeCheckboxBlock(block)
+  }
+  return block
+}
+
+/**
+ * @typedef {Object} AgreementSection
+ * @property {string} id
+ * @property {string} title
+ * @property {string[]} participantIds
+ * @property {string[]} groupIds
+ * @property {AgreementBlock[]} blocks
+ * @property {SectionVotingStats} [votingStats]
+ * @property {number} [voted]
+ * @property {number} [total]
+ */
+
+/**
+ * @param {string} [title]
+ */
+export function createAgreementSection(title = 'Новый раздел') {
+  return {
+    id: `section-${Date.now()}`,
+    title: title.trim() || 'Новый раздел',
+    participantIds: [],
+    groupIds: [],
+    blocks: [],
+    votingStats: { approved: 0, rejected: 0, pending: 100 },
+    voted: 0,
+    total: 0,
+  }
+}
+
+/**
+ * @param {object} agreement
+ */
+export function ensureAgreementSections(agreement) {
+  if (!agreement) {
+    return agreement
+  }
+  if (!Array.isArray(agreement.sections) || agreement.sections.length === 0) {
+    agreement.sections = [
+      createAgreementSection(agreement.title || 'Раздел 1'),
+    ]
+    if (Array.isArray(agreement.blocks) && agreement.blocks.length > 0) {
+      agreement.sections[0].blocks = [...agreement.blocks]
+    }
+    delete agreement.blocks
+  }
+  for (const section of agreement.sections) {
+    if (!Array.isArray(section.blocks)) {
+      section.blocks = []
+    }
+    for (const block of section.blocks) {
+      normalizeAgreementBlock(block)
+    }
+    if (!section.votingStats) {
+      section.votingStats = { approved: 0, rejected: 0, pending: 100 }
+    }
+  }
+  return agreement
+}
+
+/**
+ * @typedef {Object} CreateAgreementForm
+ * @property {string} title
+ * @property {string} description
+ * @property {string} startDate
+ * @property {string} endDate
+ */
+
+/**
+ * @returns {AgreementBlock[]}
+ */
+export function createEditorDemoBlocks() {
+  const files = createAgreementBlock({ id: 'files', label: 'Файлы' })
+  const text = createAgreementBlock({ id: 'text', label: 'Текст' })
+  text.title = 'Просмотреть договор и написать свои комментарии'
+  text.description =
+    'Наименование. Говорит о том, что вы находитесь в разделе согласования. Здесь вы можете добавлять блоки с контентом: файлы, текст, ссылки и другие элементы.'
+  const checkbox = createAgreementBlock({ id: 'checkbox', label: 'Чекбокс' })
+  checkbox.prompt = 'Кто просмотрел договор ответить на несколько вопросов'
+  checkbox.items = [
+    { id: 'item-1', label: 'Есть ли вопросы к договору?', checked: false },
+    { id: 'item-2', label: 'Готовы ли обсудить их во вторник?', checked: false },
+  ]
+  return [files, text, checkbox]
+}
+
+/**
+ * @param {CreateAgreementForm} form
+ * @param {number} nextNumber
+ */
+export function createDraftAgreement(form, nextNumber) {
+  const section = createAgreementSection(form.title.trim() || 'Раздел 1')
+  section.blocks = createEditorDemoBlocks()
+  section.votingStats = { approved: 75, rejected: 15, pending: 10 }
+  section.total = 15
+  section.voted = 12
+
+  return {
+    id: String(nextNumber),
+    number: nextNumber,
+    title: form.title.trim(),
+    description: form.description.trim(),
+    createdAt: formatDateRu(),
+    startDate: formatIsoDateToRu(form.startDate),
+    deadline: formatIsoDateToRu(form.endDate),
+    publishDate: null,
+    categoryId: null,
+    daysLabel: '25 дней',
+    isUrgent: true,
+    author: { name: 'Александр Аблизин' },
+    participants: [
+      { label: '80' },
+      { label: 'И' },
+      { label: 'Е' },
+      { label: 'И' },
+      { label: 'Н' },
+    ],
+    status: 'draft',
+    voted: 12,
+    total: 15,
+    isFavorite: false,
+    isOwner: true,
+    sections: [section],
+  }
+}
+
+/**
+ * @param {{ id: string, label: string }} blockType
+ */
+export function createAgreementBlock(blockType) {
+  const block = {
+    id: `block-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    type: blockType.id,
+    label: blockType.label,
+  }
+  if (blockType.id === 'text') {
+    block.title = ''
+    block.description = ''
+    block.content = ''
+  }
+  if (blockType.id === 'files') {
+    block.title = blockType.label
+    block.files = []
+  }
+  if (blockType.id === 'gallery') {
+    block.title = blockType.label
+    block.photos = []
+  }
+  if (blockType.id === 'checkbox') {
+    block.title = blockType.label
+    block.prompt = ''
+    block.items = []
+  }
+  return block
+}
+
+export function getNextAgreementNumber(agreements) {
+  const max = agreements.reduce((acc, item) => Math.max(acc, item.number || 0), 0)
+  return max + 1
+}
 
 /** @type {AgreementItem[]} */
 export const MOCK_AGREEMENTS = [
@@ -264,7 +558,11 @@ export const DEFAULT_FILTER_SECTIONS = [
 export function filterAgreements(agreements, tabId, query) {
   let list = [...agreements]
 
-  if (tabId === 'favorites') {
+  if (tabId === 'drafts') {
+    list = list.filter((item) => item.status === 'draft')
+  } else if (tabId === 'agreements') {
+    list = list.filter((item) => item.status !== 'draft')
+  } else if (tabId === 'favorites') {
     list = list.filter((item) => item.isFavorite)
   } else if (tabId === 'archive') {
     list = list.filter((item) => item.status === 'approved')

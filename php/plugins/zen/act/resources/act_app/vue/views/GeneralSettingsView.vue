@@ -137,25 +137,45 @@
       </section>
 
       <section class="concord-accordion">
-        <button
-          type="button"
-          class="concord-accordion__header"
-          :aria-expanded="expanded.groups"
-          @click="toggleSection('groups')"
-        >
-          <span>Группы</span>
-          <svg
-            class="concord-accordion__chevron"
-            :class="{ 'concord-accordion__chevron--open': expanded.groups }"
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            aria-hidden="true"
+        <div class="concord-accordion__header concord-accordion__header--groups">
+          <button
+            type="button"
+            class="concord-accordion__header-main"
+            :aria-expanded="expanded.groups"
+            @click="toggleSection('groups')"
           >
-            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+            Группы
+          </button>
+          <div class="concord-accordion__header-trail">
+            <button
+              type="button"
+              class="concord-accordion__header-action"
+              aria-label="Редактировать группы"
+              @click.stop="$emit('open-groups')"
+            >
+              <ConcordGroupEditIcon />
+            </button>
+            <button
+              type="button"
+              class="concord-accordion__header-chevron-btn"
+              :aria-expanded="expanded.groups"
+              :aria-label="expanded.groups ? 'Свернуть группы' : 'Развернуть группы'"
+              @click.stop="toggleSection('groups')"
+            >
+              <svg
+                class="concord-accordion__chevron"
+                :class="{ 'concord-accordion__chevron--open': expanded.groups }"
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
 
         <div v-if="expanded.groups" class="concord-accordion__body">
           <div
@@ -163,15 +183,23 @@
             :key="group.id"
             class="concord-notifications__group-row"
           >
-            <span class="concord-notifications__group-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-                <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
-                <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
+            <span class="concord-notifications__group-icon-wrap" aria-hidden="true">
+              <span class="concord-notifications__group-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+                  <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <span class="concord-notifications__group-badge">{{ group.memberCount }}</span>
             </span>
             <span class="concord-notifications__group-title">{{ group.title }}</span>
             <div class="concord-notifications__group-actions">
-              <button type="button" class="concord-notifications__group-action-btn" aria-label="Редактировать группу">
+              <button
+                type="button"
+                class="concord-notifications__group-action-btn"
+                aria-label="Редактировать группу"
+                @click="$emit('open-groups')"
+              >
                 <ConcordGroupEditIcon />
               </button>
               <button type="button" class="concord-notifications__group-action-btn" aria-label="Удалить группу">
@@ -186,11 +214,10 @@
 </template>
 
 <script>
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, toRef } from 'vue'
 import {
   DEFAULT_NOTIFICATION_SETTINGS,
   DEFAULT_PROFILE,
-  DEFAULT_PROFILE_GROUPS,
 } from '../concord/mock-notifications.js'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
 import ConcordGroupEditIcon from '../concord/ConcordGroupEditIcon.vue'
@@ -198,10 +225,16 @@ import ConcordGroupEditIcon from '../concord/ConcordGroupEditIcon.vue'
 export default {
   name: 'GeneralSettingsView',
   components: { ConcordGroupEditIcon, ConcordGroupDeleteIcon },
-  setup() {
+  props: {
+    groups: {
+      type: Array,
+      required: true,
+    },
+  },
+  emits: ['open-groups'],
+  setup(props) {
     const profile = ref({ ...DEFAULT_PROFILE })
     const notificationSettings = ref({ ...DEFAULT_NOTIFICATION_SETTINGS })
-    const groups = ref(DEFAULT_PROFILE_GROUPS.map((group) => ({ ...group })))
     const avatarInputRef = ref(null)
     const expanded = reactive({
       account: false,
@@ -237,7 +270,7 @@ export default {
     return {
       profile,
       notificationSettings,
-      groups,
+      groups: toRef(props, 'groups'),
       avatarInputRef,
       expanded,
       fullName,
