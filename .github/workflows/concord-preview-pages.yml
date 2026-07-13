@@ -6,6 +6,7 @@ on:
       - main
       - master
       - john
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -42,7 +43,7 @@ jobs:
         working-directory: php/plugins/zen/act/dist/concord-pages
         run: cp concord-preview.html index.html
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: php/plugins/zen/act/dist/concord-pages
 
