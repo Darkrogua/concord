@@ -57,7 +57,7 @@
 import { ref, watch } from 'vue'
 import FilterChip from '../concord/FilterChip.vue'
 import FilterPickerModal from '../concord/FilterPickerModal.vue'
-import { formatCreatedFilterLabel, formatParticipantFilterLabel, formatStatusFilterLabel } from '../concord/mock-agreements.js'
+import { formatCreatedFilterLabel, formatParticipantsFilterLabel, formatStatusFilterLabel } from '../concord/mock-agreements.js'
 
 export default {
   name: 'FilterEditorView',
@@ -150,13 +150,13 @@ export default {
       emit('close-picker')
     }
 
-    function onAddParticipant({ participant, match }) {
+    function onAddParticipant({ participants, match }) {
       filters.value.push({
         id: `participant-${Date.now()}`,
-        label: formatParticipantFilterLabel(participant, match),
+        label: formatParticipantsFilterLabel(participants, match),
         category: 'participant',
-        value: participant.id,
-        avatars: [participant.initial],
+        value: participants.map((item) => item.id),
+        avatars: participants.map((item) => item.initial),
       })
       emit('close-picker')
     }

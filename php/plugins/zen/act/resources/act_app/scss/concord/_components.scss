@@ -2595,16 +2595,12 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 8px 10px;
-  border: none;
+  padding: 6px 8px;
   border-radius: var(--concord-radius-xs);
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.concord-filter-modal__user--selected,
-.concord-filter-modal__user:hover {
+.concord-filter-modal__user--selected {
   background: var(--concord-purple-light);
 }
 
@@ -2613,21 +2609,52 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 2px solid #c8c3d4;
   border-radius: 50%;
-  background: #d5d1de;
+  background: #ece9f2;
   color: #5e5e62;
-  font-size: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.concord-filter-modal__user-avatar:active {
+  transform: scale(0.96);
+}
+
+.concord-filter-modal__user-avatar--selected {
+  border-color: var(--concord-purple);
+  background: var(--concord-purple);
+  color: #fff;
+}
+
+.concord-filter-modal__user-initial {
+  font-size: 15px;
   font-weight: var(--concord-weight-semibold);
   line-height: 1;
+  pointer-events: none;
+}
+
+.concord-filter-modal__user-check {
+  display: block;
+  pointer-events: none;
 }
 
 .concord-filter-modal__user-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
   min-width: 0;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .concord-filter-modal__user-name {

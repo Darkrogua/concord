@@ -122,6 +122,21 @@ export function formatParticipantFilterLabel(participant, match = 'is') {
 }
 
 /**
+ * @param {FilterParticipant[]} participants
+ * @param {'is' | 'is_not'} [match]
+ */
+export function formatParticipantsFilterLabel(participants, match = 'is') {
+  if (!participants.length) {
+    return match === 'is_not' ? 'Участник не выбран' : 'Участник не выбран'
+  }
+  if (participants.length === 1) {
+    return formatParticipantFilterLabel(participants[0], match)
+  }
+  const prefix = match === 'is_not' ? 'Участники не' : 'Участники'
+  return `${prefix}: ${participants.map((item) => item.name).join(', ')}`
+}
+
+/**
  * @typedef {Object} FilterStatusOption
  * @property {string} id
  * @property {string} label

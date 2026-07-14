@@ -142,20 +142,50 @@
           </div>
 
           <div class="concord-filter-modal__users">
-            <button
+            <div
               v-for="user in filteredParticipants"
               :key="user.id"
-              type="button"
               class="concord-filter-modal__user"
-              :class="{ 'concord-filter-modal__user--selected': selectedParticipantId === user.id }"
-              @click="selectedParticipantId = user.id"
+              :class="{ 'concord-filter-modal__user--selected': isParticipantSelected(user.id) }"
             >
-              <span class="concord-filter-modal__user-avatar">{{ user.initial }}</span>
-              <span class="concord-filter-modal__user-info">
+              <button
+                type="button"
+                class="concord-filter-modal__user-avatar"
+                :class="{ 'concord-filter-modal__user-avatar--selected': isParticipantSelected(user.id) }"
+                :aria-label="isParticipantSelected(user.id) ? `Убрать ${user.name}` : `Выбрать ${user.name}`"
+                :aria-pressed="isParticipantSelected(user.id)"
+                @click="toggleParticipant(user.id)"
+              >
+                <span v-if="!isParticipantSelected(user.id)" class="concord-filter-modal__user-initial">
+                  {{ user.initial }}
+                </span>
+                <svg
+                  v-else
+                  class="concord-filter-modal__user-check"
+                  viewBox="0 0 16 16"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3.5 8.2 6.4 11 12.5 5"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="concord-filter-modal__user-info"
+                @click="toggleParticipant(user.id)"
+              >
                 <span class="concord-filter-modal__user-name">{{ user.name }}</span>
                 <span class="concord-filter-modal__user-email">{{ user.email }}</span>
-              </span>
-            </button>
+              </button>
+            </div>
 
             <p v-if="!filteredParticipants.length" class="concord-filter-modal__empty">
               Ничего не найдено
@@ -166,7 +196,7 @@
             <button
               type="button"
               class="concord-filter-modal__submit-text"
-              :disabled="!selectedParticipantId"
+              :disabled="!selectedParticipantIds.length"
               @click="submitParticipant"
             >
               ДОБАВИТЬ
@@ -302,7 +332,7 @@ export default {
     const selectedCreated = ref('last_7d')
     const createdDate = ref(formatDateRu())
     const participantQuery = ref('')
-    const selectedParticipantId = ref(FILTER_PARTICIPANTS[0]?.id || '')
+    const selectedParticipantIds = ref([])
     const statusMatch = ref('is')
     const selectedStatusId = ref('planned')
     const categories = FILTER_CATEGORIES
@@ -346,7 +376,7 @@ export default {
       selectedCreated.value = 'last_7d'
       createdDate.value = formatDateRu()
       participantQuery.value = ''
-      selectedParticipantId.value = participants[0]?.id || ''
+      selectedParticipantIds.value = []
       statusMatch.value = 'is'
       selectedStatusId.value = 'planned'
     }
@@ -385,13 +415,25 @@ export default {
       createdDate.value = formatNativeToRu(event.target.value)
     }
 
+    function isParticipantSelected(userId) {
+      return selectedParticipantIds.value.includes(userId)
+    }
+
+    function toggleParticipant(userId) {
+      if (isParticipantSelected(userId)) {
+        selectedParticipantIds.value = selectedParticipantIds.value.filter((id) => id !== userId)
+        return
+      }
+      selectedParticipantIds.value = [...selectedParticipantIds.value, userId]
+    }
+
     function submitParticipant() {
-      const participant = participants.find((user) => user.id === selectedParticipantId.value)
-      if (!participant) {
+      const selected = participants.filter((user) => selectedParticipantIds.value.includes(user.id))
+      if (!selected.length) {
         return
       }
       emit('add-participant', {
-        participant,
+        participants: selected,
         match: 'is',
       })
     }
@@ -418,7 +460,9 @@ export default {
       selectedCreated,
       createdDate,
       participantQuery,
-      selectedParticipantId,
+      selectedParticipantIds,
+      isParticipantSelected,
+      toggleParticipant,
       statusMatch,
       selectedStatusId,
       nativeDateValue,
