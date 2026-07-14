@@ -25,6 +25,8 @@ if command -v lsof >/dev/null 2>&1; then
   done
 fi
 
+rm -rf node_modules/.vite 2>/dev/null || true
+
 echo ""
 echo "Concord preview: ${URL}"
 echo "Если браузер не открылся — вставьте URL вручную."
@@ -40,4 +42,5 @@ exec node node_modules/vite/bin/vite.js \
   --config vite.concord.config.js \
   --host 127.0.0.1 \
   --port "${PORT}" \
+  --force \
   --open /concord-preview.html

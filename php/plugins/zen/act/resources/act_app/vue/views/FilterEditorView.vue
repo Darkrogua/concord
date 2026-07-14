@@ -25,6 +25,8 @@
           v-for="filter in filters"
           :key="filter.id"
           :filter="filter"
+          editable
+          @edit="editFilter"
           @remove="removeFilter(filter.id)"
         />
       </div>
@@ -42,7 +44,8 @@
       :open="pickerOpen"
       :step="pickerStep"
       :selected-category="selectedCategory"
-      @close="$emit('close-picker')"
+      :editing-filter="editingFilter"
+      @close="onClosePicker"
       @select-category="onSelectCategory"
       @add-urgency="onAddUrgency"
       @add-created="onAddCreated"
@@ -54,10 +57,15 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import FilterChip from '../concord/FilterChip.vue'
 import FilterPickerModal from '../concord/FilterPickerModal.vue'
-import { formatCreatedFilterLabel, formatParticipantsFilterLabel, formatStatusFilterLabel } from '../concord/mock-agreements.js'
+import {
+  FILTER_CATEGORIES,
+  formatCreatedFilterLabel,
+  formatParticipantsFilterLabel,
+  formatStatusFilterLabel,
+} from '../concord/mock-agreements.js'
 
 export default {
   name: 'FilterEditorView',
@@ -86,6 +94,11 @@ export default {
     const filters = ref([...props.initialFilters])
     const pickerStep = ref('categories')
     const selectedCategory = ref(null)
+    const editingFilterId = ref(null)
+
+    const editingFilter = computed(
+      () => filters.value.find((item) => item.id === editingFilterId.value) || null
+    )
 
     watch(
       () => props.initialName,
@@ -105,7 +118,11 @@ export default {
     watch(
       () => props.pickerOpen,
       (open) => {
-        if (open) {
+        if (!open) {
+          editingFilterId.value = null
+          return
+        }
+        if (!editingFilterId.value) {
           pickerStep.value = 'categories'
           selectedCategory.value = null
         }
@@ -129,50 +146,91 @@ export default {
       }
     }
 
+    function onClosePicker() {
+      editingFilterId.value = null
+      emit('close-picker')
+    }
+
+    function editFilter(filter) {
+      editingFilterId.value = filter.id
+      selectedCategory.value = FILTER_CATEGORIES.find((item) => item.id === filter.category) || null
+      if (filter.category === 'urgency') {
+        pickerStep.value = 'urgency'
+      } else if (filter.category === 'created') {
+        pickerStep.value = 'created'
+      } else if (filter.category === 'participant') {
+        pickerStep.value = 'participant'
+      } else if (filter.category === 'status') {
+        pickerStep.value = 'status'
+      } else {
+        pickerStep.value = 'categories'
+      }
+      emit('open-picker')
+    }
+
+    function upsertFilter(filterId, payload) {
+      if (filterId) {
+        const index = filters.value.findIndex((item) => item.id === filterId)
+        if (index !== -1) {
+          filters.value[index] = {
+            ...filters.value[index],
+            ...payload,
+          }
+        }
+        return
+      }
+      filters.value.push(payload)
+    }
+
     function onAddUrgency(option) {
-      filters.value.push({
-        id: `urgency-${Date.now()}`,
+      upsertFilter(editingFilterId.value, {
+        id: editingFilterId.value || `urgency-${Date.now()}`,
         label: option.id === 'set' ? 'Срочность установлена' : 'Срочность не установлена',
         category: 'urgency',
         value: option.id,
       })
-      emit('close-picker')
+      onClosePicker()
     }
 
     function onAddCreated({ option, date }) {
-      filters.value.push({
-        id: `created-${Date.now()}`,
+      upsertFilter(editingFilterId.value, {
+        id: editingFilterId.value || `created-${Date.now()}`,
         label: formatCreatedFilterLabel(option, date || undefined),
         category: 'created',
         value: option.id,
         date: date || null,
       })
-      emit('close-picker')
+      onClosePicker()
     }
 
     function onAddParticipant({ participants, match }) {
-      filters.value.push({
-        id: `participant-${Date.now()}`,
+      upsertFilter(editingFilterId.value, {
+        id: editingFilterId.value || `participant-${Date.now()}`,
         label: formatParticipantsFilterLabel(participants, match),
         category: 'participant',
         value: participants.map((item) => item.id),
         avatars: participants.map((item) => item.initial),
+        match,
       })
-      emit('close-picker')
+      onClosePicker()
     }
 
     function onAddStatus({ status, match }) {
-      filters.value.push({
-        id: `status-${Date.now()}`,
+      upsertFilter(editingFilterId.value, {
+        id: editingFilterId.value || `status-${Date.now()}`,
         label: formatStatusFilterLabel(status, match),
         category: 'status',
         value: status.id,
         match,
       })
-      emit('close-picker')
+      onClosePicker()
     }
 
     function onPickerBack() {
+      if (editingFilterId.value) {
+        onClosePicker()
+        return
+      }
       pickerStep.value = 'categories'
       selectedCategory.value = null
     }
@@ -189,7 +247,10 @@ export default {
       filters,
       pickerStep,
       selectedCategory,
+      editingFilter,
       removeFilter,
+      editFilter,
+      onClosePicker,
       onSelectCategory,
       onAddUrgency,
       onAddCreated,

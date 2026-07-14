@@ -67,7 +67,7 @@
           </label>
 
           <button type="button" class="concord-filter-modal__submit" @click="submitUrgency">
-            Добавить
+            {{ submitActionLabel }}
           </button>
         </div>
 
@@ -117,7 +117,7 @@
 
           <div class="concord-filter-modal__footer-actions">
             <button type="button" class="concord-filter-modal__submit-text" @click="submitCreated">
-              ДОБАВИТЬ
+              {{ submitActionLabel }}
             </button>
           </div>
         </div>
@@ -199,7 +199,7 @@
               :disabled="!selectedParticipantIds.length"
               @click="submitParticipant"
             >
-              ДОБАВИТЬ
+              {{ submitActionLabel }}
             </button>
           </div>
         </div>
@@ -271,7 +271,7 @@
 
           <div class="concord-filter-modal__footer-actions">
             <button type="button" class="concord-filter-modal__submit-text" @click="submitStatus">
-              ДОБАВИТЬ
+              {{ submitActionLabel }}
             </button>
           </div>
         </div>
@@ -325,6 +325,10 @@ export default {
       type: Object,
       default: null,
     },
+    editingFilter: {
+      type: Object,
+      default: null,
+    },
   },
   emits: ['close', 'select-category', 'add-urgency', 'add-created', 'add-participant', 'add-status', 'back'],
   setup(props, { emit }) {
@@ -342,20 +346,23 @@ export default {
     const statusOptions = FILTER_STATUS_OPTIONS
 
     const modalTitle = computed(() => {
+      const editing = Boolean(props.editingFilter)
       if (props.step === 'urgency') {
-        return 'Срочность'
+        return editing ? 'Изменить: срочность' : 'Срочность'
       }
       if (props.step === 'created') {
-        return 'Создана'
+        return editing ? 'Изменить: создана' : 'Создана'
       }
       if (props.step === 'participant') {
-        return 'Участник'
+        return editing ? 'Изменить: участники' : 'Участник'
       }
       if (props.step === 'status') {
-        return 'Статус'
+        return editing ? 'Изменить: статус' : 'Статус'
       }
       return 'Добавить фильтр'
     })
+
+    const submitActionLabel = computed(() => (props.editingFilter ? 'СОХРАНИТЬ' : 'ДОБАВИТЬ'))
 
     const nativeDateValue = computed(() => parseDateRu(createdDate.value) || '')
 
@@ -381,10 +388,42 @@ export default {
       selectedStatusId.value = 'planned'
     }
 
+    function loadFilterState(filter) {
+      resetState()
+      if (!filter) {
+        return
+      }
+      if (filter.category === 'urgency' && filter.value) {
+        selectedUrgency.value = filter.value
+      }
+      if (filter.category === 'created' && filter.value) {
+        selectedCreated.value = filter.value
+        if (filter.date) {
+          createdDate.value = filter.date
+        }
+      }
+      if (filter.category === 'participant' && Array.isArray(filter.value)) {
+        selectedParticipantIds.value = [...filter.value]
+      }
+      if (filter.category === 'status') {
+        if (filter.match) {
+          statusMatch.value = filter.match
+        }
+        if (filter.value) {
+          selectedStatusId.value = filter.value
+        }
+      }
+    }
+
     watch(
-      () => props.open,
-      (open) => {
-        if (open) {
+      () => [props.open, props.editingFilter],
+      ([open, editingFilter]) => {
+        if (!open) {
+          return
+        }
+        if (editingFilter) {
+          loadFilterState(editingFilter)
+        } else {
           resetState()
         }
       }
@@ -467,6 +506,7 @@ export default {
       selectedStatusId,
       nativeDateValue,
       modalTitle,
+      submitActionLabel,
       submitUrgency,
       submitCreated,
       submitParticipant,
