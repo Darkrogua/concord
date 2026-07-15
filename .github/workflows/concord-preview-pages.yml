@@ -39,9 +39,16 @@ jobs:
           CONCORD_PAGES_BASE: /${{ github.event.repository.name }}/
         run: npm run build:concord:pages
 
-      - name: Add index.html
+      - name: Add index.html and cache-bust assets
         working-directory: php/plugins/zen/act/dist/concord-pages
-        run: cp concord-preview.html index.html
+        env:
+          BUILD_SHA: ${{ github.sha }}
+        run: |
+          cp concord-preview.html index.html
+          SHORT_SHA="${BUILD_SHA:0:7}"
+          for file in index.html concord-preview.html; do
+            perl -pi -e "s/(concord-preview-[^\"?]+\.(?:js|css))/\$1?v=${SHORT_SHA}/g" "$file"
+          done
 
       - uses: actions/upload-pages-artifact@v4
         with:
