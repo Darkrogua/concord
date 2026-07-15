@@ -1141,6 +1141,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.concord-settings__section--expanded .concord-settings__section-head {
   margin-bottom: 10px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--concord-border);
@@ -1150,6 +1156,46 @@
   margin: 0;
   flex: 1;
   min-width: 0;
+}
+
+.concord-settings__section-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.concord-settings__section-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: var(--concord-purple-light);
+  color: var(--concord-text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.concord-settings__section-toggle:hover {
+  color: var(--concord-purple);
+  background: rgba(107, 77, 230, 0.14);
+}
+
+.concord-settings__section-toggle:active {
+  transform: scale(0.96);
+}
+
+.concord-settings__section-chevron {
+  transition: transform 0.2s ease;
+}
+
+.concord-settings__section-chevron--open {
+  transform: rotate(180deg);
 }
 
 .concord-settings__sections-hint {
@@ -1576,7 +1622,6 @@
   font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-medium);
   color: var(--concord-text);
-  text-transform: lowercase;
 }
 
 .concord-agreement-create__input {
@@ -1681,15 +1726,16 @@
 }
 
 .concord-agreement-create__dates {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .concord-agreement-create__date-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1 1 calc(50% - 6px);
   min-width: 0;
 }
 

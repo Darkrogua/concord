@@ -11,7 +11,7 @@
 
     <main class="concord-agreement-create">
       <label class="concord-agreement-create__field">
-        <span class="concord-agreement-create__label">название проекта</span>
+        <span class="concord-agreement-create__label">Название проекта</span>
         <input
           v-model="form.title"
           class="concord-agreement-create__input"
@@ -21,7 +21,7 @@
       </label>
 
       <label class="concord-agreement-create__field">
-        <span class="concord-agreement-create__label">описание проекта</span>
+        <span class="concord-agreement-create__label">Описание проекта</span>
         <textarea
           v-model="form.description"
           class="concord-agreement-create__input concord-agreement-create__textarea"
@@ -32,7 +32,7 @@
 
       <div class="concord-agreement-create__field">
         <div class="concord-agreement-create__dates-head">
-          <span class="concord-agreement-create__label">сроки согласования</span>
+          <span class="concord-agreement-create__label">Сроки согласования</span>
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
             <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.6"/>
             <path d="M8 3v4M16 3v4M4 10h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
