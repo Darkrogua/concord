@@ -11,8 +11,7 @@
 
     <main ref="sectionsRef" class="concord-settings">
       <p v-if="canReorderSections" class="concord-settings__sections-hint">
-        <span class="concord-settings__sections-hint-touch">Удерживайте заголовок раздела и перетащите — порядок табов на главной изменится</span>
-        <span class="concord-settings__sections-hint-mouse">Потяните раздел за ⋮⋮ у заголовка — порядок табов на главной изменится</span>
+        Потяните ≡ справа от названия — порядок табов на главной изменится
       </p>
 
       <section
@@ -23,6 +22,7 @@
         :data-section-id="section.id"
       >
         <div class="concord-settings__section-head">
+          <h2 class="concord-settings__title">{{ section.title }}</h2>
           <button
             v-if="canReorderSections"
             type="button"
@@ -30,16 +30,10 @@
             aria-label="Перетащить раздел"
             tabindex="-1"
           >
-            <svg viewBox="0 0 8 14" width="8" height="14" fill="currentColor" aria-hidden="true">
-              <circle cx="2" cy="2" r="1.2" />
-              <circle cx="6" cy="2" r="1.2" />
-              <circle cx="2" cy="7" r="1.2" />
-              <circle cx="6" cy="7" r="1.2" />
-              <circle cx="2" cy="12" r="1.2" />
-              <circle cx="6" cy="12" r="1.2" />
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+              <path d="M4 8h16M4 12h16M4 16h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             </svg>
           </button>
-          <h2 class="concord-settings__title">{{ section.title }}</h2>
         </div>
 
         <FilterChipSortableList

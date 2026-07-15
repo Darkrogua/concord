@@ -1114,8 +1114,10 @@
 }
 
 .concord-settings__section {
-  padding-bottom: 4px;
+  padding: 12px;
+  border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
   transition:
     transform 0.24s cubic-bezier(0.2, 0, 0, 1),
     box-shadow 0.24s ease,
@@ -1125,8 +1127,10 @@
 .concord-settings__section-head {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--concord-border);
 }
 
 .concord-settings__section-head .concord-settings__title {
@@ -1136,28 +1140,10 @@
 }
 
 .concord-settings__sections-hint {
-  margin: 0 0 4px;
+  margin: 0 0 8px;
   font-size: 12px;
   line-height: 1.35;
   color: var(--concord-text-secondary);
-}
-
-.concord-settings__sections-hint-touch {
-  display: none;
-}
-
-.concord-settings__sections-hint-mouse {
-  display: inline;
-}
-
-@media (pointer: coarse) {
-  .concord-settings__sections-hint-touch {
-    display: inline;
-  }
-
-  .concord-settings__sections-hint-mouse {
-    display: none;
-  }
 }
 
 .concord-settings__section-drag {
@@ -1165,27 +1151,28 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   margin: 0;
   padding: 0;
   border: none;
-  border-radius: 6px;
-  background: transparent;
+  border-radius: 10px;
+  background: var(--concord-purple-light);
   color: var(--concord-text-secondary);
   cursor: grab;
-  opacity: 0.55;
-  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
 .concord-settings__section-drag:hover {
-  opacity: 1;
   color: var(--concord-purple);
-  background: var(--concord-purple-light);
+  background: rgba(107, 77, 230, 0.14);
 }
 
 .concord-settings__section-drag:active {
   cursor: grabbing;
+  transform: scale(0.96);
 }
 
 .concord-settings__section--sortable {
@@ -1193,34 +1180,29 @@
   -webkit-user-select: none;
 }
 
-@media (pointer: coarse) {
-  .concord-settings__section-drag {
-    display: none;
-  }
-
-  .concord-settings__section--sortable .concord-settings__section-head {
-    touch-action: none;
-    cursor: grab;
-  }
-}
-
 .concord-filter-section-sortable-chosen {
   transform: scale(1.01);
   background: var(--concord-purple-light);
-  box-shadow: 0 8px 28px rgba(107, 77, 230, 0.14);
+  border-color: rgba(107, 77, 230, 0.25);
+  box-shadow: 0 10px 32px rgba(107, 77, 230, 0.16);
 }
 
 .concord-filter-section-sortable-ghost {
-  opacity: 0.45;
+  opacity: 0.55;
+  border-style: dashed;
+  border-color: var(--concord-purple);
+  background: transparent;
 }
 
-.concord-filter-section-sortable-ghost .concord-settings__section-head .concord-settings__title {
-  color: var(--concord-purple);
+.concord-filter-section-sortable-ghost .concord-settings__section-head {
+  border-bottom-color: transparent;
 }
 
 .concord-filter-section-sortable-drag {
   opacity: 1;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.12);
+  border-color: rgba(107, 77, 230, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+  z-index: 2;
 }
 
 .concord-settings__title {
@@ -1274,52 +1256,14 @@
 .concord-settings__chip-item {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  flex: 0 0 auto;
+  width: auto;
   max-width: 100%;
-}
-
-.concord-settings__chip-drag {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 28px;
-  margin: 0;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--concord-text-secondary);
-  cursor: grab;
-  opacity: 0.55;
-  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
-}
-
-.concord-settings__chip-drag:hover {
-  opacity: 1;
-  color: var(--concord-purple);
-  background: var(--concord-purple-light);
-}
-
-.concord-settings__chip-drag:active {
-  cursor: grabbing;
 }
 
 .concord-settings__chips--sortable .concord-settings__chip-item {
   user-select: none;
   -webkit-user-select: none;
-}
-
-@media (pointer: coarse) {
-  .concord-settings__chip-drag {
-    display: none;
-  }
-
-  .concord-settings__chips--sortable .concord-settings__chip-item {
-    touch-action: none;
-    cursor: grab;
-  }
 }
 
 .concord-settings__chips--sortable .concord-settings__chip-item .concord-settings__chip {

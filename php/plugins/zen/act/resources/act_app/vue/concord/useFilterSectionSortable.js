@@ -33,17 +33,20 @@ export function useFilterSectionSortable(listRef, { canReorder, onReorder }) {
     const touchReorder = usesTouchReorder()
 
     sortable = Sortable.create(element, {
-      animation: 240,
+      animation: 260,
       easing: 'cubic-bezier(0.2, 0, 0, 1)',
-      delay: touchReorder ? 300 : 0,
-      delayOnTouchOnly: true,
-      touchStartThreshold: 6,
+      delay: 0,
+      delayOnTouchOnly: false,
+      touchStartThreshold: 4,
       draggable: '.concord-settings__section',
-      handle: '.concord-settings__section-head',
+      handle: '.concord-settings__section-drag',
+      forceFallback: touchReorder,
+      fallbackOnBody: true,
+      fallbackTolerance: 8,
+      swapThreshold: 0.65,
       ghostClass: 'concord-filter-section-sortable-ghost',
       chosenClass: 'concord-filter-section-sortable-chosen',
       dragClass: 'concord-filter-section-sortable-drag',
-      fallbackTolerance: 4,
       onChoose() {
         if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
           navigator.vibrate(12)

@@ -26,20 +26,16 @@ export function useFilterChipSortable(listRef, { canReorder, onReorder }) {
     destroySortable()
 
     const element = listRef.value
-    if (!element || !canReorder.value) {
+    if (!element || !canReorder.value || usesTouchReorder()) {
       return
     }
-
-    const touchReorder = usesTouchReorder()
-
     sortable = Sortable.create(element, {
       animation: 220,
       easing: 'cubic-bezier(0.2, 0, 0, 1)',
-      delay: touchReorder ? 280 : 0,
-      delayOnTouchOnly: true,
+      delay: 0,
+      delayOnTouchOnly: false,
       touchStartThreshold: 6,
       draggable: '.concord-settings__chip-item',
-      ...(touchReorder ? {} : { handle: '.concord-settings__chip-drag' }),
       filter: '.concord-settings__chip-remove',
       preventOnFilter: true,
       ghostClass: 'concord-filter-chip-sortable-ghost',
