@@ -6,9 +6,22 @@
           <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-      <h1 class="concord-header__title">Группа: {{ groupTitle }}</h1>
+      <h1 class="concord-header__title concord-group-title">
+        <span class="concord-group-title__prefix">Группа:</span>
+        <input
+          ref="titleInputRef"
+          v-model="editableTitle"
+          type="text"
+          class="concord-group-title__input"
+          :aria-label="`Название группы: ${groupTitle}`"
+          autocomplete="off"
+          spellcheck="false"
+          @keydown.enter.prevent="titleInputRef?.blur()"
+        >
+      </h1>
       <ConcordGroupHeaderActions
         :member-count="selectedMemberIds.length"
+        :disabled="!canSave"
         @save="saveAndBack"
       />
     </header>
@@ -52,6 +65,8 @@ export default {
   setup(props, { emit }) {
     const searchQuery = ref('')
     const selectedMemberIds = ref([...props.memberIds])
+    const editableTitle = ref(props.groupTitle)
+    const titleInputRef = ref(null)
 
     watch(
       () => props.memberIds,
@@ -60,17 +75,34 @@ export default {
       }
     )
 
+    watch(
+      () => props.groupTitle,
+      (value) => {
+        editableTitle.value = value
+      }
+    )
+
     const filteredContacts = computed(() => filterContacts(props.contacts, searchQuery.value))
+    const canSave = computed(() => editableTitle.value.trim().length > 0)
 
     function saveAndBack() {
-      emit('save', [...selectedMemberIds.value])
+      if (!canSave.value) {
+        return
+      }
+      emit('save', {
+        title: editableTitle.value.trim(),
+        memberIds: [...selectedMemberIds.value],
+      })
       emit('back')
     }
 
     return {
       searchQuery,
       selectedMemberIds,
+      editableTitle,
+      titleInputRef,
       filteredContacts,
+      canSave,
       saveAndBack,
     }
   },

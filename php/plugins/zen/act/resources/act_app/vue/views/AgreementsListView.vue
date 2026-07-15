@@ -79,53 +79,34 @@
       </p>
     </main>
 
-    <Transition name="concord-search">
-      <div v-if="searchOpen" class="concord-overlay" role="dialog" aria-label="Поиск">
-        <div class="concord-overlay__header">
-          <button type="button" class="concord-icon-btn" aria-label="Назад" @click="closeSearch">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-          <input
-            ref="searchInput"
-            v-model="searchQuery"
-            class="concord-overlay__input"
-            type="search"
-            placeholder="Поиск"
-            autocomplete="off"
-          >
-          <button
-            v-if="searchQuery"
-            type="button"
-            class="concord-icon-btn"
-            aria-label="Очистить"
-            @click="searchQuery = ''"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
-        <main class="concord-list concord-overlay__body">
-          <AgreementCard
-            v-for="item in searchResults"
-            :key="`search-${item.id}`"
-            :agreement="item"
-            @open="onOpenAgreement"
-            @toggle-favorite="toggleFavorite"
-            @duplicate="onDuplicate"
-            @edit="onEdit"
-          />
-        </main>
-      </div>
-    </Transition>
+    <ConcordSearchOverlay
+      :open="searchOpen"
+      :query="searchQuery"
+      :scope="searchScope"
+      @close="closeSearch"
+      @update:query="searchQuery = $event"
+      @update:scope="searchScope = $event"
+    >
+      <AgreementCard
+        v-for="item in searchResults"
+        :key="`search-${item.id}`"
+        :agreement="item"
+        @open="onOpenAgreement"
+        @toggle-favorite="toggleFavorite"
+        @duplicate="onDuplicate"
+        @edit="onEdit"
+      />
+      <p v-if="searchQuery.trim() && searchResults.length === 0" class="concord-empty">
+        Ничего не найдено.
+      </p>
+    </ConcordSearchOverlay>
   </div>
 </template>
 
 <script>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AgreementCard from '../concord/AgreementCard.vue'
+import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
 import {
   SORT_OPTIONS,
   buildTopTabsFromSections,
@@ -135,7 +116,7 @@ import {
 
 export default {
   name: 'AgreementsListView',
-  components: { AgreementCard },
+  components: { AgreementCard, ConcordSearchOverlay },
   props: {
     agreements: {
       type: Array,
@@ -153,7 +134,7 @@ export default {
     const sortId = ref('favorites')
     const searchOpen = ref(false)
     const searchQuery = ref('')
-    const searchInput = ref(null)
+    const searchScope = ref('content')
     const tabsRef = ref(null)
     const showTabsOverflow = ref(false)
     let tabsResizeObserver = null
@@ -206,7 +187,7 @@ export default {
     })
 
     const searchResults = computed(() => {
-      const list = filterAgreements(props.agreements, activeTab.value, searchQuery.value)
+      const list = filterAgreements(props.agreements, activeTab.value, searchQuery.value, searchScope.value)
       return sortAgreements(list, sortId.value)
     })
 
@@ -231,13 +212,6 @@ export default {
       emit('duplicate-agreement', id)
     }
 
-    watch(searchOpen, async (open) => {
-      if (open) {
-        await nextTick()
-        requestAnimationFrame(() => searchInput.value?.focus())
-      }
-    })
-
     return {
       activeTab,
       groupLabel,
@@ -246,7 +220,7 @@ export default {
       visibleTabs,
       searchOpen,
       searchQuery,
-      searchInput,
+      searchScope,
       tabsRef,
       showTabsOverflow,
       updateTabsOverflow,

@@ -978,6 +978,19 @@
   outline: 2px solid var(--concord-purple-muted);
 }
 
+.concord-overlay__scopes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 12px;
+  background: var(--concord-purple-light);
+  border-bottom: 1px solid var(--concord-border);
+}
+
+.concord-overlay__scopes .concord-sheet__chip {
+  font-size: var(--concord-text-caption);
+}
+
 .concord-overlay__body {
   flex: 1;
   min-height: 0;
@@ -3543,6 +3556,46 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.concord-group-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.concord-group-title__prefix {
+  flex-shrink: 0;
+}
+
+.concord-group-title__input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 2px 4px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: text;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.concord-group-title__input:hover {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 -1px 0 var(--concord-purple-muted);
+}
+
+.concord-group-title__input:focus {
+  outline: none;
+  background: var(--concord-surface);
+  box-shadow: inset 0 0 0 2px var(--concord-purple-muted);
 }
 
 .concord-group-header-actions {

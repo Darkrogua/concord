@@ -278,13 +278,16 @@ export default {
       currentView.value = groupMembersReturnView.value
     }
 
-    function saveGroupMembers(memberIds) {
+    function saveGroupMembers(payload) {
       const index = profileGroups.value.findIndex((item) => item.id === activeGroupId.value)
       if (index === -1) {
         return
       }
+      const memberIds = Array.isArray(payload) ? payload : payload.memberIds
+      const title = Array.isArray(payload) ? profileGroups.value[index].title : payload.title
       profileGroups.value[index] = syncGroupMemberCount({
         ...profileGroups.value[index],
+        title: String(title || profileGroups.value[index].title).trim() || profileGroups.value[index].title,
         memberIds: [...memberIds],
       })
     }

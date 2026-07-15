@@ -13,6 +13,13 @@ export const SORT_OPTIONS = [
   { id: 'activity', label: 'По активности' },
 ]
 
+/** @typedef {'title' | 'content'} SearchScopeId */
+
+export const SEARCH_SCOPE_OPTIONS = [
+  { id: 'title', label: 'Название' },
+  { id: 'content', label: 'Название и содержимое' },
+]
+
 export const FILTER_CATEGORIES = [
   { id: 'urgency', label: 'Срочность' },
   { id: 'created', label: 'Создано' },
@@ -491,6 +498,22 @@ export const MOCK_AGREEMENTS = [
     total: 50,
     isFavorite: false,
     isOwner: true,
+    description: 'Спецификация интеграции API и схема обмена данными.',
+    sections: [
+      {
+        id: 'section-308',
+        title: 'Техническое задание',
+        blocks: [
+          {
+            id: 'block-308-text',
+            type: 'text',
+            label: 'Текст',
+            title: 'Описание релиза',
+            content: 'Интеграция платёжного шлюза и личного кабинета партнёра.',
+          },
+        ],
+      },
+    ],
   },
   {
     id: '307',
@@ -513,6 +536,22 @@ export const MOCK_AGREEMENTS = [
     total: 30,
     isFavorite: true,
     isOwner: false,
+    description: 'Черновик бюджета на Q3 и план закупок.',
+    sections: [
+      {
+        id: 'section-307',
+        title: 'Финансы',
+        blocks: [
+          {
+            id: 'block-307-text',
+            type: 'text',
+            label: 'Текст',
+            title: 'Смета',
+            content: 'Распределение бюджета по отделам и подрядчикам.',
+          },
+        ],
+      },
+    ],
   },
   {
     id: '306',
@@ -535,6 +574,22 @@ export const MOCK_AGREEMENTS = [
     total: 30,
     isFavorite: false,
     isOwner: false,
+    description: 'Итоговый отчёт по проекту и закрывающие документы.',
+    sections: [
+      {
+        id: 'section-306',
+        title: 'Архив',
+        blocks: [
+          {
+            id: 'block-306-text',
+            type: 'text',
+            label: 'Текст',
+            title: 'Заключение',
+            content: 'Все этапы релиза завершены, акты подписаны.',
+          },
+        ],
+      },
+    ],
   },
 ]
 
@@ -602,7 +657,79 @@ function resolveTopTabBadge(tabId, agreements) {
   return preset?.badge
 }
 
-export function filterAgreements(agreements, tabId, query) {
+/**
+ * @param {object} agreement
+ */
+function collectAgreementContentParts(agreement) {
+  const parts = []
+
+  if (agreement.description) {
+    parts.push(agreement.description)
+  }
+
+  for (const section of agreement.sections || []) {
+    if (section.title) {
+      parts.push(section.title)
+    }
+
+    for (const block of section.blocks || []) {
+      parts.push(block.label, block.title, block.description, block.content, block.prompt)
+
+      for (const file of block.files || []) {
+        parts.push(file.name)
+      }
+
+      for (const photo of block.photos || []) {
+        parts.push(photo.name)
+      }
+
+      for (const item of block.items || []) {
+        parts.push(item.label)
+      }
+    }
+  }
+
+  return parts.filter(Boolean)
+}
+
+/**
+ * @param {object} agreement
+ */
+export function getAgreementTitleHaystack(agreement) {
+  return [agreement.title, String(agreement.number), agreement.author?.name]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+}
+
+/**
+ * @param {object} agreement
+ */
+export function getAgreementContentHaystack(agreement) {
+  return collectAgreementContentParts(agreement).join(' ').toLowerCase()
+}
+
+/**
+ * @param {object} agreement
+ * @param {string} query
+ * @param {SearchScopeId} [searchScope]
+ */
+export function agreementMatchesSearch(agreement, query, searchScope = 'content') {
+  const q = String(query || '').trim().toLowerCase()
+  if (!q) {
+    return true
+  }
+
+  const titleHaystack = getAgreementTitleHaystack(agreement)
+  if (searchScope === 'title') {
+    return titleHaystack.includes(q)
+  }
+
+  const contentHaystack = getAgreementContentHaystack(agreement)
+  return `${titleHaystack} ${contentHaystack}`.includes(q)
+}
+
+export function filterAgreements(agreements, tabId, query, searchScope = 'content') {
   let list = [...agreements]
 
   if (tabId === 'drafts') {
@@ -621,12 +748,7 @@ export function filterAgreements(agreements, tabId, query) {
 
   const q = String(query || '').trim().toLowerCase()
   if (q) {
-    list = list.filter(
-      (item) =>
-        item.title.toLowerCase().includes(q) ||
-        String(item.number).includes(q) ||
-        item.author.name.toLowerCase().includes(q)
-    )
+    list = list.filter((item) => agreementMatchesSearch(item, q, searchScope))
   }
 
   return list
