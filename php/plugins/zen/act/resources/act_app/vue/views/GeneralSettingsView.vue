@@ -35,7 +35,7 @@
 
         <div v-if="expanded.account" class="concord-accordion__body">
           <div class="concord-notifications__row">
-            <span class="concord-notifications__row-label">фото</span>
+            <span class="concord-notifications__row-label">Фото</span>
             <input
               ref="avatarInputRef"
               type="file"
@@ -64,22 +64,22 @@
           </div>
 
           <label class="concord-notifications__row concord-notifications__row--field">
-            <span class="concord-notifications__row-label">имя</span>
+            <span class="concord-notifications__row-label">Имя</span>
             <input v-model="profile.firstName" type="text" class="concord-notifications__input">
           </label>
 
           <label class="concord-notifications__row concord-notifications__row--field">
-            <span class="concord-notifications__row-label">фамилия</span>
+            <span class="concord-notifications__row-label">Фамилия</span>
             <input v-model="profile.lastName" type="text" class="concord-notifications__input">
           </label>
 
           <label class="concord-notifications__row concord-notifications__row--field">
-            <span class="concord-notifications__row-label">телефон</span>
+            <span class="concord-notifications__row-label">Телефон</span>
             <input v-model="profile.phone" type="tel" class="concord-notifications__input">
           </label>
 
           <label class="concord-notifications__row concord-notifications__row--field">
-            <span class="concord-notifications__row-label">дата рождения</span>
+            <span class="concord-notifications__row-label">Дата рождения</span>
             <input
               v-model="profile.birthDate"
               type="text"
@@ -89,8 +89,13 @@
           </label>
 
           <div class="concord-notifications__row">
-            <span class="concord-notifications__row-label">удаление</span>
-            <button type="button" class="concord-notifications__group-action-btn" aria-label="Удалить аккаунт">
+            <span class="concord-notifications__row-label">Удаление</span>
+            <button
+              type="button"
+              class="concord-notifications__group-action-btn"
+              aria-label="Удалить аккаунт"
+              @click="askDeleteAccount"
+            >
               <ConcordGroupDeleteIcon />
             </button>
           </div>
@@ -120,68 +125,50 @@
 
         <div v-if="expanded.notifications" class="concord-accordion__body">
           <label class="concord-notifications__toggle-row">
-            <span>общие чаты</span>
+            <span>Общие чаты</span>
             <input v-model="notificationSettings.generalChats" type="checkbox" class="concord-toggle">
           </label>
 
           <label class="concord-notifications__toggle-row">
-            <span>личные чаты</span>
+            <span>Личные чаты</span>
             <input v-model="notificationSettings.personalChats" type="checkbox" class="concord-toggle">
           </label>
 
           <label class="concord-notifications__toggle-row">
-            <span>группы</span>
+            <span>Группы</span>
             <input v-model="notificationSettings.groups" type="checkbox" class="concord-toggle">
           </label>
         </div>
       </section>
 
       <section class="concord-accordion">
-        <div class="concord-accordion__header concord-accordion__header--groups">
-          <button
-            type="button"
-            class="concord-accordion__header-main"
-            :aria-expanded="expanded.groups"
-            @click="toggleSection('groups')"
+        <button
+          type="button"
+          class="concord-accordion__header"
+          :aria-expanded="expanded.groups"
+          @click="toggleSection('groups')"
+        >
+          <span>Группы</span>
+          <svg
+            class="concord-accordion__chevron"
+            :class="{ 'concord-accordion__chevron--open': expanded.groups }"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            aria-hidden="true"
           >
-            Группы
-          </button>
-          <div class="concord-accordion__header-trail">
-            <button
-              type="button"
-              class="concord-accordion__header-action"
-              aria-label="Редактировать группы"
-              @click.stop="$emit('open-groups')"
-            >
-              <ConcordGroupEditIcon />
-            </button>
-            <button
-              type="button"
-              class="concord-accordion__header-chevron-btn"
-              :aria-expanded="expanded.groups"
-              :aria-label="expanded.groups ? 'Свернуть группы' : 'Развернуть группы'"
-              @click.stop="toggleSection('groups')"
-            >
-              <svg
-                class="concord-accordion__chevron"
-                :class="{ 'concord-accordion__chevron--open': expanded.groups }"
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
 
         <div v-if="expanded.groups" class="concord-accordion__body">
-          <div
+          <button
             v-for="group in groups"
             :key="group.id"
-            class="concord-notifications__group-row"
+            type="button"
+            class="concord-notifications__group-row concord-notifications__group-row--clickable"
+            @click="$emit('edit-group', group.id)"
           >
             <span class="concord-notifications__group-icon-wrap" aria-hidden="true">
               <span class="concord-notifications__group-icon">
@@ -197,19 +184,45 @@
               <button
                 type="button"
                 class="concord-notifications__group-action-btn"
-                aria-label="Редактировать группу"
-                @click="$emit('open-groups')"
+                aria-label="Удалить группу"
+                @click.stop="askDeleteGroup(group)"
               >
-                <ConcordGroupEditIcon />
-              </button>
-              <button type="button" class="concord-notifications__group-action-btn" aria-label="Удалить группу">
                 <ConcordGroupDeleteIcon />
               </button>
             </div>
-          </div>
+          </button>
+
+          <button
+            type="button"
+            class="concord-settings__edit concord-notifications__group-add"
+            @click="$emit('create-group')"
+          >
+            <span class="concord-settings__edit-plus" aria-hidden="true">+</span>
+            Создать группу
+          </button>
         </div>
       </section>
     </main>
+
+    <ConcordConfirmSheet
+      :open="accountDeleteConfirmOpen"
+      title="Удалить аккаунт?"
+      message="Аккаунт будет удалён без возможности восстановления."
+      confirm-label="Удалить"
+      cancel-label="Отмена"
+      @confirm="confirmDeleteAccount"
+      @cancel="cancelDeleteAccount"
+    />
+
+    <ConcordConfirmSheet
+      :open="Boolean(pendingDeleteGroup)"
+      title="Удалить группу?"
+      :message="deleteConfirmMessage"
+      confirm-label="Удалить"
+      cancel-label="Отмена"
+      @confirm="confirmDeleteGroup"
+      @cancel="cancelDeleteGroup"
+    />
   </div>
 </template>
 
@@ -220,22 +233,24 @@ import {
   DEFAULT_PROFILE,
 } from '../concord/mock-notifications.js'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
-import ConcordGroupEditIcon from '../concord/ConcordGroupEditIcon.vue'
+import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 
 export default {
   name: 'GeneralSettingsView',
-  components: { ConcordGroupEditIcon, ConcordGroupDeleteIcon },
+  components: { ConcordGroupDeleteIcon, ConcordConfirmSheet },
   props: {
     groups: {
       type: Array,
       required: true,
     },
   },
-  emits: ['open-groups'],
-  setup(props) {
+  emits: ['edit-group', 'delete-group', 'delete-account', 'create-group'],
+  setup(props, { emit }) {
     const profile = ref({ ...DEFAULT_PROFILE })
     const notificationSettings = ref({ ...DEFAULT_NOTIFICATION_SETTINGS })
     const avatarInputRef = ref(null)
+    const pendingDeleteGroup = ref(null)
+    const accountDeleteConfirmOpen = ref(false)
     const expanded = reactive({
       account: false,
       notifications: false,
@@ -243,9 +258,44 @@ export default {
     })
 
     const fullName = computed(() => `${profile.value.firstName} ${profile.value.lastName}`.trim())
+    const deleteConfirmMessage = computed(() => {
+      if (!pendingDeleteGroup.value) {
+        return ''
+      }
+      return `Группа «${pendingDeleteGroup.value.title}» будет удалена без возможности восстановления.`
+    })
 
     function toggleSection(section) {
       expanded[section] = !expanded[section]
+    }
+
+    function askDeleteGroup(group) {
+      pendingDeleteGroup.value = group
+    }
+
+    function cancelDeleteGroup() {
+      pendingDeleteGroup.value = null
+    }
+
+    function confirmDeleteGroup() {
+      if (!pendingDeleteGroup.value) {
+        return
+      }
+      emit('delete-group', pendingDeleteGroup.value.id)
+      pendingDeleteGroup.value = null
+    }
+
+    function askDeleteAccount() {
+      accountDeleteConfirmOpen.value = true
+    }
+
+    function cancelDeleteAccount() {
+      accountDeleteConfirmOpen.value = false
+    }
+
+    function confirmDeleteAccount() {
+      accountDeleteConfirmOpen.value = false
+      emit('delete-account')
     }
 
     function openAvatarPicker() {
@@ -274,7 +324,16 @@ export default {
       avatarInputRef,
       expanded,
       fullName,
+      pendingDeleteGroup,
+      accountDeleteConfirmOpen,
+      deleteConfirmMessage,
       toggleSection,
+      askDeleteGroup,
+      cancelDeleteGroup,
+      confirmDeleteGroup,
+      askDeleteAccount,
+      cancelDeleteAccount,
+      confirmDeleteAccount,
       openAvatarPicker,
       onAvatarSelected,
     }

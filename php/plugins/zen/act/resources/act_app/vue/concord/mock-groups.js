@@ -4,6 +4,7 @@
  * @property {string} shortName
  * @property {string} name
  * @property {string} initial
+ * @property {string} [email]
  */
 
 /**
@@ -16,14 +17,14 @@
 
 /** @type {GroupContact[]} */
 export const MOCK_CONTACTS = [
-  { id: 'alex-ablizin', shortName: 'А. Аблизин', name: 'Александр Аблизин', initial: 'А' },
-  { id: 'artem-dmitrenko', shortName: 'А. Дмитренко', name: 'Артём Дмитренко', initial: 'А' },
-  { id: 'elena-vasilyeva', shortName: 'Е. Васильева', name: 'Елена Васильева', initial: 'Е' },
-  { id: 'maria-gorbunova', shortName: 'М. Горбунова', name: 'Мария Горбунова', initial: 'М' },
-  { id: 'roman-gorbachev', shortName: 'Р. Горбачёв', name: 'Роман Горбачёв', initial: 'Р' },
-  { id: 'sergey-gordienko', shortName: 'С. Гордиенко', name: 'Сергей Гордиенко', initial: 'С' },
-  { id: 'ivan-petrov', shortName: 'И. Петров', name: 'Иван Петров', initial: 'И' },
-  { id: 'elena-smirnova', shortName: 'Е. Смирнова', name: 'Елена Смирнова', initial: 'Е' },
+  { id: 'alex-ablizin', shortName: 'А. Аблизин', name: 'Александр Аблизин', initial: 'А', email: 'zen@8ber.ru' },
+  { id: 'artem-dmitrenko', shortName: 'А. Дмитренко', name: 'Артём Дмитренко', initial: 'А', email: 'darkrogua@inbox.ru' },
+  { id: 'elena-vasilyeva', shortName: 'Е. Васильева', name: 'Елена Васильева', initial: 'Е', email: 'elena.v@example.ru' },
+  { id: 'maria-gorbunova', shortName: 'М. Горбунова', name: 'Мария Горбунова', initial: 'М', email: 'maria.g@example.ru' },
+  { id: 'roman-gorbachev', shortName: 'Р. Горбачёв', name: 'Роман Горбачёв', initial: 'Р', email: 'roman.g@example.ru' },
+  { id: 'sergey-gordienko', shortName: 'С. Гордиенко', name: 'Сергей Гордиенко', initial: 'С', email: 'sergey.g@example.ru' },
+  { id: 'ivan-petrov', shortName: 'И. Петров', name: 'Иван Петров', initial: 'И', email: 'ivan.petrov@example.ru' },
+  { id: 'elena-smirnova', shortName: 'Е. Смирнова', name: 'Елена Смирнова', initial: 'Е', email: 'elena.s@example.ru' },
 ]
 
 const DEV_MEMBER_IDS = [
@@ -92,6 +93,7 @@ export function filterContacts(contacts, query = '') {
   return contacts.filter(
     (contact) =>
       contact.shortName.toLowerCase().includes(normalized) ||
-      contact.name.toLowerCase().includes(normalized)
+      contact.name.toLowerCase().includes(normalized) ||
+      (contact.email && contact.email.toLowerCase().includes(normalized))
   )
 }

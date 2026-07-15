@@ -541,6 +541,8 @@ export const MOCK_AGREEMENTS = [
 export const DEFAULT_FILTER_SECTIONS = [
   {
     id: 'mine',
+    tabId: 'agreements',
+    tabLabel: 'Согласования',
     title: 'Мои согласования',
     filters: [
       { id: 'urgency-set', label: 'Срочность установлена', category: 'urgency', value: 'set' },
@@ -550,6 +552,8 @@ export const DEFAULT_FILTER_SECTIONS = [
   },
   {
     id: 'favorites',
+    tabId: 'favorites',
+    tabLabel: 'Избранное',
     title: 'Избранное',
     filters: [
       { id: 'fav-urgency', label: 'Срочность установлена', category: 'urgency', value: 'set' },
@@ -561,6 +565,8 @@ export const DEFAULT_FILTER_SECTIONS = [
   },
   {
     id: 'archive',
+    tabId: 'archive',
+    tabLabel: 'Архив',
     title: 'Архив',
     filters: [
       { id: 'arch-urgency', label: 'Срочность установлена', category: 'urgency', value: 'set' },
@@ -569,6 +575,32 @@ export const DEFAULT_FILTER_SECTIONS = [
     ],
   },
 ]
+
+export function buildTopTabsFromSections(sections, agreements = []) {
+  return sections.map((section) => {
+    const tabId = section.tabId || section.id
+    return {
+      id: tabId,
+      label: section.tabLabel || section.title,
+      badge: resolveTopTabBadge(tabId, agreements),
+    }
+  })
+}
+
+function resolveTopTabBadge(tabId, agreements) {
+  if (tabId === 'drafts') {
+    const count = agreements.filter((item) => item.status === 'draft').length
+    return count > 0 ? count : undefined
+  }
+
+  if (tabId === 'favorites') {
+    const count = agreements.filter((item) => item.isFavorite).length
+    return count > 0 ? count : undefined
+  }
+
+  const preset = DEFAULT_TOP_TABS.find((tab) => tab.id === tabId)
+  return preset?.badge
+}
 
 export function filterAgreements(agreements, tabId, query) {
   let list = [...agreements]
@@ -583,6 +615,8 @@ export function filterAgreements(agreements, tabId, query) {
     list = list.filter((item) => item.status === 'approved')
   } else if (tabId === 'work') {
     list = list.filter((item) => item.status === 'awaiting')
+  } else if (String(tabId).startsWith('custom-')) {
+    list = list.filter((item) => item.status !== 'draft')
   }
 
   const q = String(query || '').trim().toLowerCase()

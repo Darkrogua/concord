@@ -3,6 +3,7 @@
     <AgreementsListView
       v-if="currentView === 'list'"
       :agreements="agreements"
+      :filter-sections="filterSections"
       @open-agreement="onOpenAgreement"
       @edit-agreement="onEditAgreement"
       @duplicate-agreement="onDuplicateAgreement"
@@ -17,12 +18,17 @@
       @edit-section="openFilterEditor"
       @add-filter="openNewFilter"
       @remove-filter="removeFilter"
+      @reorder-filters="reorderFilters"
+      @reorder-sections="reorderSections"
     />
 
     <GeneralSettingsView
       v-else-if="currentView === 'settings'"
       :groups="profileGroups"
-      @open-groups="goToGroupsManage"
+      @edit-group="openGroupMembersFromSettings"
+      @delete-group="deleteGroup"
+      @delete-account="onDeleteAccount"
+      @create-group="goToCreateGroupFromSettings"
     />
 
     <GroupsManageView
@@ -39,14 +45,14 @@
       :group-title="activeGroupTitle"
       :contacts="groupContacts"
       :member-ids="activeGroupMemberIds"
-      @back="goToGroupsManage"
+      @back="closeGroupMembers"
       @save="saveGroupMembers"
     />
 
     <CreateGroupView
       v-else-if="currentView === 'group-create'"
       :contacts="groupContacts"
-      @back="goToGroupsManage"
+      @back="closeCreateGroup"
       @save="onCreateGroup"
     />
 
@@ -173,6 +179,8 @@ export default {
     const profileGroups = ref(cloneProfileGroups())
     const groupContacts = ref(MOCK_CONTACTS.map((contact) => ({ ...contact })))
     const activeGroupId = ref(null)
+    const groupMembersReturnView = ref('groups-manage')
+    const groupCreateReturnView = ref('groups-manage')
 
     const currentView = ref('list')
     const editingAgreementId = ref(null)
@@ -243,13 +251,31 @@ export default {
       currentView.value = 'groups-manage'
     }
 
-    function goToCreateGroup() {
+    function goToCreateGroup(returnView = 'groups-manage') {
+      groupCreateReturnView.value = returnView
       currentView.value = 'group-create'
     }
 
-    function openGroupMembers(groupId) {
+    function goToCreateGroupFromSettings() {
+      goToCreateGroup('settings')
+    }
+
+    function closeCreateGroup() {
+      currentView.value = groupCreateReturnView.value
+    }
+
+    function openGroupMembers(groupId, returnView = 'groups-manage') {
       activeGroupId.value = groupId
+      groupMembersReturnView.value = returnView
       currentView.value = 'group-members'
+    }
+
+    function openGroupMembersFromSettings(groupId) {
+      openGroupMembers(groupId, 'settings')
+    }
+
+    function closeGroupMembers() {
+      currentView.value = groupMembersReturnView.value
     }
 
     function saveGroupMembers(memberIds) {
@@ -265,6 +291,10 @@ export default {
 
     function deleteGroup(groupId) {
       profileGroups.value = profileGroups.value.filter((group) => group.id !== groupId)
+    }
+
+    function onDeleteAccount() {
+      console.info('[concord] delete account — not implemented in preview')
     }
 
     function onCreateGroup(payload) {
@@ -311,11 +341,15 @@ export default {
         const section = filterSections.value.find((item) => item.id === editingSectionId.value)
         if (section) {
           section.title = payload.name
+          section.tabLabel = payload.name
           section.filters = payload.filters.map((filter) => ({ ...filter }))
         }
       } else {
+        const sectionId = `custom-${Date.now()}`
         filterSections.value.push({
-          id: `custom-${Date.now()}`,
+          id: sectionId,
+          tabId: sectionId,
+          tabLabel: payload.name,
           title: payload.name,
           filters: payload.filters.map((filter) => ({ ...filter })),
         })
@@ -329,6 +363,39 @@ export default {
         return
       }
       section.filters = section.filters.filter((filter) => filter.id !== filterId)
+    }
+
+    function reorderFilters({ sectionId, filterIds }) {
+      const section = filterSections.value.find((item) => item.id === sectionId)
+      if (!section || !Array.isArray(filterIds) || filterIds.length < 2) {
+        return
+      }
+      const byId = new Map(section.filters.map((filter) => [filter.id, filter]))
+      const next = filterIds.map((id) => byId.get(id)).filter(Boolean)
+      if (next.length !== section.filters.length) {
+        return
+      }
+      const currentIds = section.filters.map((filter) => filter.id)
+      if (currentIds.join(',') === filterIds.join(',')) {
+        return
+      }
+      section.filters = next
+    }
+
+    function reorderSections(sectionIds) {
+      if (!Array.isArray(sectionIds) || sectionIds.length < 2) {
+        return
+      }
+      const byId = new Map(filterSections.value.map((section) => [section.id, section]))
+      const next = sectionIds.map((id) => byId.get(id)).filter(Boolean)
+      if (next.length !== filterSections.value.length) {
+        return
+      }
+      const currentIds = filterSections.value.map((section) => section.id)
+      if (currentIds.join(',') === sectionIds.join(',')) {
+        return
+      }
+      filterSections.value = next
     }
 
     function toggleFavorite(id) {
@@ -468,7 +535,11 @@ export default {
       goToSettings,
       goToGroupsManage,
       goToCreateGroup,
+      goToCreateGroupFromSettings,
+      closeCreateGroup,
       openGroupMembers,
+      openGroupMembersFromSettings,
+      closeGroupMembers,
       saveGroupMembers,
       deleteGroup,
       onCreateGroup,
@@ -478,6 +549,8 @@ export default {
       closeFilterEditor,
       saveFilterEditor,
       removeFilter,
+      reorderFilters,
+      reorderSections,
       toggleFavorite,
       onOpenAgreement,
       onEditAgreement,

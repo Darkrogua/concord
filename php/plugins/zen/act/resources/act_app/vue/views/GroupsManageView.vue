@@ -30,10 +30,11 @@
         <li
           v-for="group in filteredGroups"
           :key="group.id"
-          class="concord-groups__row"
+          class="concord-groups__row concord-groups__row--clickable"
+          @click="$emit('edit-group', group.id)"
         >
           <span class="concord-groups__title">{{ group.title }}</span>
-          <div class="concord-groups__actions">
+          <div class="concord-groups__actions" @click.stop>
             <button
               type="button"
               class="concord-groups__checkbox"
@@ -48,16 +49,8 @@
             <button
               type="button"
               class="concord-notifications__group-action-btn"
-              aria-label="Редактировать группу"
-              @click="$emit('edit-group', group.id)"
-            >
-              <ConcordGroupEditIcon />
-            </button>
-            <button
-              type="button"
-              class="concord-notifications__group-action-btn"
               aria-label="Удалить группу"
-              @click="$emit('delete-group', group.id)"
+              @click="askDeleteGroup(group)"
             >
               <ConcordGroupDeleteIcon />
             </button>
@@ -69,17 +62,27 @@
     <button type="button" class="concord-groups-fab" aria-label="Создать группу" @click="$emit('create-group')">
       <span aria-hidden="true">+</span>
     </button>
+
+    <ConcordConfirmSheet
+      :open="Boolean(pendingDeleteGroup)"
+      title="Удалить группу?"
+      :message="deleteConfirmMessage"
+      confirm-label="Удалить"
+      cancel-label="Отмена"
+      @confirm="confirmDeleteGroup"
+      @cancel="cancelDeleteGroup"
+    />
   </div>
 </template>
 
 <script>
 import { computed, ref } from 'vue'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
-import ConcordGroupEditIcon from '../concord/ConcordGroupEditIcon.vue'
+import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 
 export default {
   name: 'GroupsManageView',
-  components: { ConcordGroupEditIcon, ConcordGroupDeleteIcon },
+  components: { ConcordGroupDeleteIcon, ConcordConfirmSheet },
   props: {
     groups: {
       type: Array,
@@ -87,9 +90,10 @@ export default {
     },
   },
   emits: ['back', 'edit-group', 'delete-group', 'create-group'],
-  setup(props) {
+  setup(props, { emit }) {
     const searchQuery = ref('')
     const selectedGroupIds = ref([])
+    const pendingDeleteGroup = ref(null)
 
     const filteredGroups = computed(() => {
       const query = searchQuery.value.trim().toLowerCase()
@@ -97,6 +101,13 @@ export default {
         return props.groups
       }
       return props.groups.filter((group) => group.title.toLowerCase().includes(query))
+    })
+
+    const deleteConfirmMessage = computed(() => {
+      if (!pendingDeleteGroup.value) {
+        return ''
+      }
+      return `Группа «${pendingDeleteGroup.value.title}» будет удалена без возможности восстановления.`
     })
 
     function isSelected(groupId) {
@@ -111,6 +122,22 @@ export default {
       selectedGroupIds.value = [...selectedGroupIds.value, groupId]
     }
 
+    function askDeleteGroup(group) {
+      pendingDeleteGroup.value = group
+    }
+
+    function cancelDeleteGroup() {
+      pendingDeleteGroup.value = null
+    }
+
+    function confirmDeleteGroup() {
+      if (!pendingDeleteGroup.value) {
+        return
+      }
+      emit('delete-group', pendingDeleteGroup.value.id)
+      pendingDeleteGroup.value = null
+    }
+
     function onMenu() {
       console.info('[concord] groups menu')
     }
@@ -118,8 +145,13 @@ export default {
     return {
       searchQuery,
       filteredGroups,
+      pendingDeleteGroup,
+      deleteConfirmMessage,
       isSelected,
       toggleGroup,
+      askDeleteGroup,
+      cancelDeleteGroup,
+      confirmDeleteGroup,
       onMenu,
     }
   },

@@ -41,11 +41,11 @@
         <div class="concord-agreement-create__dates">
           <label class="concord-agreement-create__date-field">
             <span class="concord-agreement-create__date-label">Дата начала</span>
-            <input v-model="form.startDate" class="concord-agreement-create__input" type="date" required>
+            <input v-model="form.startDate" class="concord-agreement-create__input" type="date">
           </label>
           <label class="concord-agreement-create__date-field">
             <span class="concord-agreement-create__date-label">Дата окончания</span>
-            <input v-model="form.endDate" class="concord-agreement-create__input" type="date" required>
+            <input v-model="form.endDate" class="concord-agreement-create__input" type="date">
           </label>
         </div>
       </div>
@@ -64,11 +64,23 @@
         </button>
       </div>
     </main>
+
+    <ConcordConfirmSheet
+      :open="datesWarningOpen"
+      title="Сроки не указаны"
+      message="Даты начала и окончания согласования не заполнены. Сохранить черновик без сроков?"
+      confirm-label="Сохранить"
+      cancel-label="Отмена"
+      confirm-tone="primary"
+      @confirm="confirmSaveWithoutDates"
+      @cancel="datesWarningOpen = false"
+    />
   </div>
 </template>
 
 <script>
 import { computed, ref } from 'vue'
+import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 
 const EMPTY_FORM = {
   title: '',
@@ -79,25 +91,44 @@ const EMPTY_FORM = {
 
 export default {
   name: 'CreateAgreementView',
+  components: { ConcordConfirmSheet },
   emits: ['back', 'save-draft'],
   setup(props, { emit }) {
     const form = ref({ ...EMPTY_FORM })
+    const datesWarningOpen = ref(false)
 
-    const canSave = computed(() =>
-      Boolean(form.value.title.trim() && form.value.startDate && form.value.endDate)
+    const canSave = computed(() => Boolean(form.value.title.trim()))
+
+    const hasAgreementDates = computed(() =>
+      Boolean(form.value.startDate && form.value.endDate)
     )
+
+    function emitSave() {
+      emit('save-draft', { ...form.value })
+      datesWarningOpen.value = false
+    }
 
     function saveDraft() {
       if (!canSave.value) {
         return
       }
-      emit('save-draft', { ...form.value })
+      if (!hasAgreementDates.value) {
+        datesWarningOpen.value = true
+        return
+      }
+      emitSave()
+    }
+
+    function confirmSaveWithoutDates() {
+      emitSave()
     }
 
     return {
       form,
       canSave,
+      datesWarningOpen,
       saveDraft,
+      confirmSaveWithoutDates,
     }
   },
 }

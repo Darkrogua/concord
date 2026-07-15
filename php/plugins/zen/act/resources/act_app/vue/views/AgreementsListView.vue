@@ -127,8 +127,8 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AgreementCard from '../concord/AgreementCard.vue'
 import {
-  DEFAULT_TOP_TABS,
   SORT_OPTIONS,
+  buildTopTabsFromSections,
   filterAgreements,
   sortAgreements,
 } from '../concord/mock-agreements.js'
@@ -138,6 +138,10 @@ export default {
   components: { AgreementCard },
   props: {
     agreements: {
+      type: Array,
+      required: true,
+    },
+    filterSections: {
       type: Array,
       required: true,
     },
@@ -154,20 +158,9 @@ export default {
     const showTabsOverflow = ref(false)
     let tabsResizeObserver = null
 
-    const allTabs = DEFAULT_TOP_TABS
+    const allTabs = computed(() => buildTopTabsFromSections(props.filterSections, props.agreements))
     const sortOptions = SORT_OPTIONS
-    const visibleTabs = computed(() =>
-      allTabs.map((tab) => {
-        if (tab.id !== 'drafts') {
-          return tab
-        }
-        const draftCount = props.agreements.filter((item) => item.status === 'draft').length
-        return {
-          ...tab,
-          badge: draftCount > 0 ? draftCount : undefined,
-        }
-      })
-    )
+    const visibleTabs = computed(() => allTabs.value)
 
     function updateTabsOverflow() {
       const el = tabsRef.value
@@ -195,6 +188,17 @@ export default {
       window.removeEventListener('resize', updateTabsOverflow)
       tabsResizeObserver?.disconnect()
     })
+
+    watch(
+      () => props.filterSections.map((section) => section.tabId || section.id).join(','),
+      () => {
+        const tabIds = props.filterSections.map((section) => section.tabId || section.id)
+        if (tabIds.length && !tabIds.includes(activeTab.value)) {
+          activeTab.value = tabIds[0]
+        }
+      },
+      { immediate: true }
+    )
 
     const displayedAgreements = computed(() => {
       const list = filterAgreements(props.agreements, activeTab.value, '')

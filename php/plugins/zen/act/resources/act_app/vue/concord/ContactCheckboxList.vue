@@ -1,46 +1,70 @@
 <template>
-  <div class="concord-contact-list">
-    <label v-if="showSearch" class="concord-contact-list__search-wrap">
-      <span class="concord-contact-list__search-label">Поиск</span>
+  <div class="concord-contact-picker">
+    <div v-if="showSearch" class="concord-filter-modal__combobox">
       <input
         :value="searchQuery"
         type="search"
-        class="concord-contact-list__search"
-        placeholder="Поиск"
+        class="concord-filter-modal__combobox-input"
+        placeholder="Имя или email"
         @input="$emit('update:searchQuery', $event.target.value)"
       >
-    </label>
+      <svg class="concord-filter-modal__combobox-caret" viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+        <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
 
-    <ul class="concord-contact-list__items">
-      <li
+    <div class="concord-filter-modal__users">
+      <div
         v-for="contact in contacts"
         :key="contact.id"
-        class="concord-contact-list__item"
+        class="concord-filter-modal__user"
+        :class="{ 'concord-filter-modal__user--selected': isSelected(contact.id) }"
       >
         <button
           type="button"
-          class="concord-contact-list__row"
+          class="concord-filter-modal__user-avatar"
+          :class="{ 'concord-filter-modal__user-avatar--selected': isSelected(contact.id) }"
+          :aria-label="isSelected(contact.id) ? `Убрать ${contact.name}` : `Выбрать ${contact.name}`"
+          :aria-pressed="isSelected(contact.id)"
           @click="toggleContact(contact.id)"
         >
-          <span class="concord-contact-list__avatar" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-              <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
-              <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
+          <span v-if="!isSelected(contact.id)" class="concord-filter-modal__user-initial">
+            {{ contact.initial }}
           </span>
-          <span class="concord-contact-list__name">{{ contact.shortName }}</span>
-          <span
-            class="concord-contact-list__checkbox"
-            :class="{ 'concord-contact-list__checkbox--checked': isSelected(contact.id) }"
+          <svg
+            v-else
+            class="concord-filter-modal__user-check"
+            viewBox="0 0 16 16"
+            width="18"
+            height="18"
+            fill="none"
             aria-hidden="true"
           >
-            <svg v-if="isSelected(contact.id)" viewBox="0 0 16 16" width="12" height="12" fill="none">
-              <path d="M3.5 8.2 6.4 11 12.5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <path
+              d="M3.5 8.2 6.4 11 12.5 5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="concord-filter-modal__user-info"
+          @click="toggleContact(contact.id)"
+        >
+          <span class="concord-filter-modal__user-name">{{ contact.name }}</span>
+          <span v-if="contactSubtitle(contact)" class="concord-filter-modal__user-email">
+            {{ contactSubtitle(contact) }}
           </span>
         </button>
-      </li>
-    </ul>
+      </div>
+
+      <p v-if="!contacts.length" class="concord-filter-modal__empty">
+        Ничего не найдено
+      </p>
+    </div>
   </div>
 </template>
 
@@ -67,6 +91,9 @@ export default {
   },
   emits: ['update:selectedIds', 'update:searchQuery'],
   methods: {
+    contactSubtitle(contact) {
+      return contact.email || contact.shortName || ''
+    },
     isSelected(id) {
       return this.selectedIds.includes(id)
     },
