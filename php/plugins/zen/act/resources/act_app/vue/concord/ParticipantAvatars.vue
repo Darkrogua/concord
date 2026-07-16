@@ -1,5 +1,5 @@
 <template>
-  <div class="concord-avatars" aria-hidden="true">
+  <div class="concord-avatars" :class="{ 'concord-avatars--compact': compact }" aria-hidden="true">
     <span
       v-for="(person, index) in visiblePeople"
       :key="`${personLabel(person)}-${index}`"
@@ -26,6 +26,10 @@ export default {
     max: {
       type: Number,
       default: 4,
+    },
+    compact: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {

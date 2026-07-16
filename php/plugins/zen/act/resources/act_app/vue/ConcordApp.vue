@@ -79,11 +79,13 @@
       :agreement="editingAgreement"
       :contacts="groupContacts"
       :groups="profileGroups"
-      @back="goToList"
+      @back="onAgreementEditorBack"
       @add-block="onAddAgreementBlock"
       @delete-block="onDeleteAgreementBlock"
       @add-section="onAddAgreementSection"
       @update-section="onUpdateAgreementSection"
+      @create-group="onCreateGroup"
+      @update-group="onUpdateGroup"
     />
 
     <NotificationsView
@@ -121,7 +123,7 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import AgreementsListView from './views/AgreementsListView.vue'
 import FilterSettingsView from './views/FilterSettingsView.vue'
 import FilterEditorView from './views/FilterEditorView.vue'
@@ -135,7 +137,8 @@ import CreateGroupView from './views/CreateGroupView.vue'
 import AccountSwitcherSheet from './concord/AccountSwitcherSheet.vue'
 import ConcordBottomNav from './concord/ConcordBottomNav.vue'
 import CreateProjectSheet from './concord/CreateProjectSheet.vue'
-import { DEFAULT_FILTER_SECTIONS, MOCK_AGREEMENTS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, getNextAgreementNumber } from './concord/mock-agreements.js'
+import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, getNextAgreementNumber } from './concord/mock-agreements.js'
+import { useConcordAgreements } from './composables/useConcordAgreements.js'
 import { MOCK_NOTIFICATION_SECTIONS } from './concord/mock-notifications.js'
 import {
   MOCK_CONTACTS,
@@ -143,6 +146,7 @@ import {
   createProfileGroup,
   syncGroupMemberCount,
 } from './concord/mock-groups.js'
+import { resetConcordScrollPosition } from './concord/scroll-top.js'
 
 export default {
   name: 'ConcordApp',
@@ -162,7 +166,7 @@ export default {
     CreateProjectSheet,
   },
   setup() {
-    const agreements = ref(MOCK_AGREEMENTS.map((item) => ({ ...item })))
+    const { agreements, persist } = useConcordAgreements()
     const filterSections = ref(
       DEFAULT_FILTER_SECTIONS.map((section) => ({
         ...section,
@@ -209,6 +213,14 @@ export default {
       return 'list'
     })
 
+    watch(currentView, () => {
+      nextTick(() => {
+        requestAnimationFrame(() => {
+          resetConcordScrollPosition()
+        })
+      })
+    })
+
     const activeGroupTitle = computed(() => {
       const group = profileGroups.value.find((item) => item.id === activeGroupId.value)
       return group?.title || ''
@@ -241,6 +253,11 @@ export default {
 
     function goToList() {
       currentView.value = 'list'
+    }
+
+    function onAgreementEditorBack() {
+      persist()
+      goToList()
     }
 
     function goToSettings() {
@@ -302,6 +319,18 @@ export default {
 
     function onCreateGroup(payload) {
       profileGroups.value.push(createProfileGroup(payload.title, payload.memberIds))
+    }
+
+    function onUpdateGroup({ groupId, title, memberIds }) {
+      const index = profileGroups.value.findIndex((item) => item.id === groupId)
+      if (index === -1) {
+        return
+      }
+      profileGroups.value[index] = syncGroupMemberCount({
+        ...profileGroups.value[index],
+        title: String(title || profileGroups.value[index].title).trim() || profileGroups.value[index].title,
+        memberIds: [...memberIds],
+      })
     }
 
     function onNavigate(view) {
@@ -441,6 +470,7 @@ export default {
       agreements.value.unshift(draft)
       editingAgreementId.value = draft.id
       currentView.value = 'agreement-editor'
+      persist()
     }
 
     function onAddAgreementBlock({ sectionId, blockType }) {
@@ -456,7 +486,12 @@ export default {
       if (!section.blocks) {
         section.blocks = []
       }
+      const isFirstBlock = section.blocks.length === 0
       section.blocks.push(createAgreementBlock(blockType))
+      if (isFirstBlock) {
+        section.votingStats = { approved: 0, rejected: 0, pending: 100 }
+      }
+      persist()
     }
 
     function onDeleteAgreementBlock({ sectionId, blockId }) {
@@ -481,9 +516,17 @@ export default {
       section.participantIds = [...payload.participantIds]
       section.groupIds = [...payload.groupIds]
       agreement.sections.push(section)
+      persist()
     }
 
-    function onUpdateAgreementSection({ sectionId, title, participantIds, groupIds }) {
+    function onUpdateAgreementSection({
+      sectionId,
+      title,
+      participantIds,
+      groupIds,
+      leaderId,
+      settings,
+    }) {
       const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
       if (!agreement) {
         return
@@ -495,6 +538,23 @@ export default {
       section.title = title
       section.participantIds = [...participantIds]
       section.groupIds = [...groupIds]
+      if (leaderId !== undefined) {
+        section.leaderId = leaderId
+      }
+      if (settings) {
+        section.settings = {
+          ...section.settings,
+          ...settings,
+          reminders: {
+            ...(section.settings?.reminders || {}),
+            ...(settings.reminders || {}),
+          },
+        }
+        if (settings.isImportant !== undefined) {
+          agreement.isUrgent = settings.isImportant
+        }
+      }
+      persist()
     }
 
     function onCreateAccount() {
@@ -535,6 +595,7 @@ export default {
       navActive,
       goToFilterSettings,
       goToList,
+      onAgreementEditorBack,
       goToSettings,
       goToGroupsManage,
       goToCreateGroup,
@@ -546,6 +607,7 @@ export default {
       saveGroupMembers,
       deleteGroup,
       onCreateGroup,
+      onUpdateGroup,
       onNavigate,
       openFilterEditor,
       openNewFilter,

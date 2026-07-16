@@ -102,6 +102,94 @@ export function formatIsoDateToRu(value = '') {
   return `${day}.${month}.${year}`
 }
 
+export function formatSectionTabTitle(title, maxWords = 2) {
+  const text = String(title || '').trim()
+  if (!text) {
+    return 'Контейнер'
+  }
+  const words = text.split(/\s+/).filter(Boolean)
+  if (words.length <= maxWords) {
+    return text
+  }
+  return `${words.slice(0, maxWords).join(' ')}…`
+}
+
+export function parseRuDate(value = '') {
+  const [day, month, year] = String(value || '').trim().split('.')
+  if (!day || !month || !year) {
+    return null
+  }
+  const date = new Date(Number(year), Number(month) - 1, Number(day))
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export function pluralizeDays(count) {
+  const value = Math.abs(Number(count) || 0)
+  const mod10 = value % 10
+  const mod100 = value % 100
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${value} день`
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `${value} дня`
+  }
+  return `${value} дней`
+}
+
+export function formatAgreementDaysLabel(startValue, endValue) {
+  const start = parseRuDate(startValue)
+  const end = parseRuDate(endValue)
+  if (!start || !end) {
+    return '—'
+  }
+  const msPerDay = 24 * 60 * 60 * 1000
+  const diffDays = Math.round((end.getTime() - start.getTime()) / msPerDay)
+  if (diffDays < 0) {
+    return '—'
+  }
+  return pluralizeDays(diffDays)
+}
+
+export function getAgreementDaysRemaining(deadlineValue, today = new Date()) {
+  const end = parseRuDate(deadlineValue)
+  if (!end) {
+    return null
+  }
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  const endStart = new Date(end.getFullYear(), end.getMonth(), end.getDate())
+  const msPerDay = 24 * 60 * 60 * 1000
+  return Math.round((endStart.getTime() - todayStart.getTime()) / msPerDay)
+}
+
+export function isAgreementDeadlineSoon(deadlineValue, thresholdDays = 5) {
+  const remaining = getAgreementDaysRemaining(deadlineValue)
+  if (remaining === null) {
+    return false
+  }
+  return remaining < thresholdDays
+}
+
+export function formatAgreementRemainingLabel(deadlineValue) {
+  const remaining = getAgreementDaysRemaining(deadlineValue)
+  if (remaining === null) {
+    return ''
+  }
+  if (remaining < 0) {
+    return 'просрочено'
+  }
+  if (remaining === 0) {
+    return 'сегодня последний день'
+  }
+  return `осталось ${pluralizeDays(remaining)}`
+}
+
+export function getAgreementDeadlineHint(deadlineValue, periodLabel) {
+  if (isAgreementDeadlineSoon(deadlineValue)) {
+    return formatAgreementRemainingLabel(deadlineValue)
+  }
+  return periodLabel
+}
+
 /**
  * @typedef {Object} FilterParticipant
  * @property {string} id
@@ -196,7 +284,14 @@ export function formatStatusFilterLabel(status, match = 'is') {
 export const AGREEMENT_BLOCK_TYPES = [
   { id: 'files', label: 'Файлы' },
   { id: 'gallery', label: 'Галерея' },
-  { id: 'text', label: 'Текст' },
+  { id: 'text', label: 'Текстовый блок' },
+  { id: 'checkbox', label: 'Чекбокс' },
+]
+
+export const AGREEMENT_EDITOR_BLOCK_TYPES = [
+  { id: 'gallery', label: 'Галерея' },
+  { id: 'files', label: 'Файлы' },
+  { id: 'text', label: 'Текстовый блок' },
   { id: 'checkbox', label: 'Чекбокс' },
 ]
 
@@ -317,11 +412,63 @@ export function normalizeAgreementBlock(block) {
 }
 
 /**
+ * @typedef {Object} SectionSettings
+ * @property {{ day1: boolean, hours2: boolean, hour1: boolean }} reminders
+ * @property {'all' | 'majority'} completionCondition
+ * @property {boolean} isImportant
+ * @property {boolean} visibilityEnabled
+ * @property {boolean} participantsSeeEachOther
+ * @property {boolean} showResultsBefore
+ * @property {boolean} showResultsAfter
+ */
+
+/** @type {SectionSettings} */
+export const DEFAULT_SECTION_SETTINGS = {
+  reminders: { day1: false, hours2: true, hour1: false },
+  completionCondition: 'all',
+  isImportant: true,
+  visibilityEnabled: true,
+  participantsSeeEachOther: true,
+  showResultsBefore: false,
+  showResultsAfter: true,
+}
+
+/**
+ * @param {object} section
+ */
+export function ensureSectionSettings(section) {
+  if (!section) {
+    return section
+  }
+  if (!section.settings) {
+    section.settings = {
+      ...DEFAULT_SECTION_SETTINGS,
+      reminders: { ...DEFAULT_SECTION_SETTINGS.reminders },
+    }
+  } else {
+    section.settings = {
+      ...DEFAULT_SECTION_SETTINGS,
+      ...section.settings,
+      reminders: {
+        ...DEFAULT_SECTION_SETTINGS.reminders,
+        ...(section.settings.reminders || {}),
+      },
+    }
+  }
+  if (section.leaderId === undefined) {
+    section.leaderId = null
+  }
+  return section
+}
+
+/**
  * @typedef {Object} AgreementSection
  * @property {string} id
  * @property {string} title
  * @property {string[]} participantIds
  * @property {string[]} groupIds
+ * @property {string|null} [leaderId]
+ * @property {SectionSettings} [settings]
  * @property {AgreementBlock[]} blocks
  * @property {SectionVotingStats} [votingStats]
  * @property {number} [voted]
@@ -332,16 +479,17 @@ export function normalizeAgreementBlock(block) {
  * @param {string} [title]
  */
 export function createAgreementSection(title = 'Новый раздел') {
-  return {
+  return ensureSectionSettings({
     id: `section-${Date.now()}`,
     title: title.trim() || 'Новый раздел',
     participantIds: [],
     groupIds: [],
+    leaderId: null,
     blocks: [],
     votingStats: { approved: 0, rejected: 0, pending: 100 },
     voted: 0,
     total: 0,
-  }
+  })
 }
 
 /**
@@ -353,7 +501,7 @@ export function ensureAgreementSections(agreement) {
   }
   if (!Array.isArray(agreement.sections) || agreement.sections.length === 0) {
     agreement.sections = [
-      createAgreementSection(agreement.title || 'Раздел 1'),
+      createAgreementSection('Контейнер 1'),
     ]
     if (Array.isArray(agreement.blocks) && agreement.blocks.length > 0) {
       agreement.sections[0].blocks = [...agreement.blocks]
@@ -361,6 +509,7 @@ export function ensureAgreementSections(agreement) {
     delete agreement.blocks
   }
   for (const section of agreement.sections) {
+    ensureSectionSettings(section)
     if (!Array.isArray(section.blocks)) {
       section.blocks = []
     }
@@ -405,11 +554,11 @@ export function createEditorDemoBlocks() {
  * @param {number} nextNumber
  */
 export function createDraftAgreement(form, nextNumber) {
-  const section = createAgreementSection(form.title.trim() || 'Раздел 1')
-  section.blocks = createEditorDemoBlocks()
-  section.votingStats = { approved: 75, rejected: 15, pending: 10 }
-  section.total = 15
-  section.voted = 12
+  const section = createAgreementSection('Контейнер 1')
+  section.blocks = []
+  section.votingStats = { approved: 0, rejected: 0, pending: 100 }
+  section.total = 0
+  section.voted = 0
 
   return {
     id: String(nextNumber),
@@ -421,7 +570,10 @@ export function createDraftAgreement(form, nextNumber) {
     deadline: formatIsoDateToRu(form.endDate),
     publishDate: null,
     categoryId: null,
-    daysLabel: '25 дней',
+    daysLabel: formatAgreementDaysLabel(
+      formatIsoDateToRu(form.startDate) || formatDateRu(),
+      formatIsoDateToRu(form.endDate)
+    ),
     isUrgent: true,
     author: { name: 'Александр Аблизин' },
     participants: [
@@ -466,6 +618,14 @@ export function createAgreementBlock(blockType) {
     block.title = blockType.label
     block.prompt = ''
     block.items = []
+  }
+  if (blockType.id === 'link') {
+    block.title = ''
+    block.url = ''
+  }
+  if (blockType.id === 'code') {
+    block.title = ''
+    block.content = ''
   }
   return block
 }
@@ -606,6 +766,16 @@ export const DEFAULT_FILTER_SECTIONS = [
     ],
   },
   {
+    id: 'drafts',
+    tabId: 'drafts',
+    tabLabel: 'Черновики',
+    title: 'Черновики',
+    filters: [
+      { id: 'draft-mine', label: 'Только мои согласования', category: 'participant', value: 'mine' },
+      { id: 'draft-created', label: 'Создано последние 7 дней', category: 'created', value: '7d' },
+    ],
+  },
+  {
     id: 'favorites',
     tabId: 'favorites',
     tabLabel: 'Избранное',
@@ -739,7 +909,7 @@ export function filterAgreements(agreements, tabId, query, searchScope = 'conten
   } else if (tabId === 'favorites') {
     list = list.filter((item) => item.isFavorite)
   } else if (tabId === 'archive') {
-    list = list.filter((item) => item.status === 'approved')
+    list = list.filter((item) => item.status === 'approved' || item.status === 'archived')
   } else if (tabId === 'work') {
     list = list.filter((item) => item.status === 'awaiting')
   } else if (String(tabId).startsWith('custom-')) {

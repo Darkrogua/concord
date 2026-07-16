@@ -1,6 +1,10 @@
 <template>
   <div class="concord-group-header-actions">
-    <span class="concord-group-header-actions__count" :aria-label="`Участников: ${memberCount}`">
+    <span
+      v-if="showCount"
+      class="concord-group-header-actions__count"
+      :aria-label="`Участников: ${memberCount}`"
+    >
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
         <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
         <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -39,6 +43,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false,
+    },
+    showCount: {
+      type: Boolean,
+      default: true,
     },
   },
   emits: ['save'],

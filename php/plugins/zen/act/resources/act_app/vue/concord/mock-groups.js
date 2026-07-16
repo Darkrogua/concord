@@ -82,6 +82,60 @@ export function getContactsForGroup(group, contacts = MOCK_CONTACTS) {
 }
 
 /**
+ * @param {object} section
+ * @param {ProfileGroup[]} groups
+ * @param {GroupContact[]} contacts
+ */
+export function resolveSectionParticipants(section, groups = [], contacts = MOCK_CONTACTS) {
+  if (!section) {
+    return []
+  }
+
+  const people = []
+  const seen = new Set()
+
+  const addContact = (contact) => {
+    if (!contact || seen.has(contact.id)) {
+      return
+    }
+    seen.add(contact.id)
+    people.push({
+      id: contact.id,
+      label: contact.initial || contact.shortName?.charAt(0) || '?',
+    })
+  }
+
+  for (const contactId of section.participantIds || []) {
+    addContact(contacts.find((contact) => contact.id === contactId))
+  }
+
+  for (const groupId of section.groupIds || []) {
+    const group = groups.find((item) => item.id === groupId)
+    if (!group) {
+      continue
+    }
+    for (const contact of getContactsForGroup(group, contacts)) {
+      addContact(contact)
+    }
+  }
+
+  return people
+}
+
+export function sectionHasConfiguredParticipants(section) {
+  return Boolean(section?.participantIds?.length || section?.groupIds?.length)
+}
+
+/**
+ * @param {object} section
+ * @param {ProfileGroup[]} groups
+ * @param {GroupContact[]} contacts
+ */
+export function resolveSectionVotersCount(section, groups = [], contacts = MOCK_CONTACTS) {
+  return resolveSectionParticipants(section, groups, contacts).length
+}
+
+/**
  * @param {GroupContact[]} contacts
  * @param {string} query
  */

@@ -1,7 +1,7 @@
 <template>
   <article class="concord-text-block">
     <header class="concord-text-block__header">
-      <span class="concord-text-block__type">Текст</span>
+      <span class="concord-text-block__type">{{ blockLabel }}</span>
       <button
         type="button"
         class="concord-text-block__delete"
@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import ConcordGroupDeleteIcon from './ConcordGroupDeleteIcon.vue'
 import ConcordSimpleEditor from './ConcordSimpleEditor.vue'
 import { normalizeTextBlock } from './mock-agreements.js'
@@ -60,7 +60,15 @@ export default {
       normalizeTextBlock(props.block)
     })
 
-    return {}
+    const blockLabel = computed(() => {
+      const label = props.block.label?.trim()
+      if (!label || label === 'Текст') {
+        return 'Текстовый блок'
+      }
+      return label
+    })
+
+    return { blockLabel }
   },
 }
 </script>

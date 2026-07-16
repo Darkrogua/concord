@@ -11,20 +11,38 @@
       <div class="concord-card__details">
         <span
           class="concord-card__flame"
-          :class="{ 'concord-card__flame--urgent': agreement.isUrgent }"
-          :title="agreement.isUrgent ? 'Срочность установлена' : 'Срочность не установлена'"
+          :class="{
+            'concord-card__flame--urgent': showUrgency && !isDeadlineSoon,
+            'concord-card__flame--soon': isDeadlineSoon && !isDeadlineOverdue,
+            'concord-card__flame--overdue': isDeadlineOverdue,
+          }"
+          :title="urgencyTitle"
           aria-hidden="true"
         >
-          <ConcordUrgencyFlame :urgent="agreement.isUrgent" tall />
+          <ConcordUrgencyFlame :urgent="showUrgency" tall />
         </span>
-        <p class="concord-card__deadline">
+        <p
+          class="concord-card__deadline"
+          :class="{
+            'concord-card__deadline--soon': isDeadlineSoon && !isDeadlineOverdue,
+            'concord-card__deadline--overdue': isDeadlineOverdue,
+          }"
+        >
           <span class="concord-card__deadline-date">{{ agreement.deadline }}</span>
-          <span class="concord-card__days">({{ agreement.daysLabel }})</span>
+          <span
+            class="concord-card__days"
+            :class="{
+              'concord-card__days--soon': isDeadlineSoon && !isDeadlineOverdue,
+              'concord-card__days--overdue': isDeadlineOverdue,
+            }"
+          >
+            ({{ deadlineHint }})
+          </span>
         </p>
         <p class="concord-card__author-name">{{ agreement.author.name }}</p>
       </div>
 
-      <ParticipantAvatars :people="agreement.participants" :max="5" />
+      <ParticipantAvatars :people="agreement.participants" :max="5" compact />
     </div>
 
     <div class="concord-card__footer">
@@ -89,6 +107,7 @@
 <script>
 import ParticipantAvatars from './ParticipantAvatars.vue'
 import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
+import { formatAgreementDaysLabel, getAgreementDaysRemaining, getAgreementDeadlineHint, isAgreementDeadlineSoon } from './mock-agreements.js'
 
 const STATUS_LABELS = {
   draft: 'Черновик',
@@ -115,6 +134,36 @@ export default {
         return 0
       }
       return Math.min(100, Math.round((this.agreement.voted / this.agreement.total) * 100))
+    },
+    daysLabel() {
+      return formatAgreementDaysLabel(
+        this.agreement.startDate || this.agreement.createdAt,
+        this.agreement.deadline
+      )
+    },
+    daysRemaining() {
+      return getAgreementDaysRemaining(this.agreement.deadline)
+    },
+    isDeadlineSoon() {
+      return isAgreementDeadlineSoon(this.agreement.deadline)
+    },
+    isDeadlineOverdue() {
+      return this.daysRemaining !== null && this.daysRemaining < 0
+    },
+    showUrgency() {
+      return Boolean(this.agreement.isUrgent || this.isDeadlineSoon)
+    },
+    deadlineHint() {
+      return getAgreementDeadlineHint(this.agreement.deadline, this.daysLabel)
+    },
+    urgencyTitle() {
+      if (this.isDeadlineOverdue) {
+        return 'Срок согласования истёк'
+      }
+      if (this.isDeadlineSoon) {
+        return this.deadlineHint
+      }
+      return this.agreement.isUrgent ? 'Срочность установлена' : 'Срочность не установлена'
     },
   },
 }

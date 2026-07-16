@@ -3,7 +3,12 @@
     <div class="concord-sheet-backdrop" @click="$emit('close')" />
     <div class="concord-sheet concord-account-sheet" role="dialog" aria-label="Сменить аккаунт">
       <div class="concord-sheet__handle" aria-hidden="true" />
-      <h2 class="concord-sheet__title">Сменить аккаунт</h2>
+      <div class="concord-account-sheet__header">
+        <h2 class="concord-sheet__title">Сменить аккаунт</h2>
+        <button type="button" class="concord-account-sheet__cancel" @click="$emit('close')">
+          Отмена
+        </button>
+      </div>
 
       <ul class="concord-account-sheet__list" role="radiogroup" aria-label="Аккаунты">
         <li v-for="account in accounts" :key="account.id">

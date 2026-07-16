@@ -1,20 +1,57 @@
 <template>
   <article class="concord-block concord-text-block-preview" @click="$emit('edit')">
     <button type="button" class="concord-text-block-preview__type" @click.stop="$emit('edit')">
-      Текст
+      {{ blockLabel }}
     </button>
     <h3 class="concord-text-block-preview__title">
-      {{ block.title || 'Заголовок текстового блока' }}
+      {{ previewTitle }}
     </h3>
-    <p class="concord-text-block-preview__desc">
+    <p v-if="previewDescription" class="concord-text-block-preview__desc">
       {{ previewDescription }}
+    </p>
+    <p v-if="previewExcerpt" class="concord-text-block-preview__excerpt">
+      {{ previewExcerpt }}
+    </p>
+    <p
+      v-else-if="!previewDescription"
+      class="concord-text-block-preview__desc concord-text-block-preview__desc--empty"
+    >
+      Нажмите, чтобы открыть редактор и добавить текст
     </p>
   </article>
 </template>
 
 <script>
-import { computed, onMounted } from 'vue'
+import { computed, watch } from 'vue'
 import { normalizeTextBlock } from './mock-agreements.js'
+
+const DEFAULT_TITLE = 'Заголовок текстового блока'
+const EXCERPT_LIMIT = 180
+const DESCRIPTION_LIMIT = 120
+
+function truncateText(value, limit) {
+  const text = String(value || '').trim()
+  if (!text) {
+    return ''
+  }
+  return text.length > limit ? `${text.slice(0, limit)}…` : text
+}
+
+function stripPreviewText(value) {
+  return String(value || '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^>\s+/gm, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/[*_~#>`[\]()\\-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 export default {
   name: 'ConcordTextBlockPreview',
@@ -26,21 +63,48 @@ export default {
   },
   emits: ['edit'],
   setup(props) {
-    onMounted(() => {
-      normalizeTextBlock(props.block)
+    watch(
+      () => props.block,
+      (block) => {
+        if (block) {
+          normalizeTextBlock(block)
+        }
+      },
+      { immediate: true }
+    )
+
+    const previewTitle = computed(() => {
+      const title = props.block.title?.trim()
+      return title || DEFAULT_TITLE
     })
 
-    const previewDescription = computed(() => {
-      if (props.block.description?.trim()) {
-        return props.block.description
+    const previewDescription = computed(() =>
+      truncateText(props.block.description, DESCRIPTION_LIMIT)
+    )
+
+    const previewExcerpt = computed(() => {
+      const content = stripPreviewText(props.block.content)
+      if (content) {
+        return truncateText(content, EXCERPT_LIMIT)
       }
-      if (props.block.content?.trim()) {
-        return props.block.content.replace(/[#*_>`[\]]/g, '').slice(0, 160)
+
+      const rawContent = String(props.block.content || '').trim()
+      if (rawContent && !rawContent.startsWith('{')) {
+        return truncateText(rawContent, EXCERPT_LIMIT)
       }
-      return 'Нажмите, чтобы открыть редактор и добавить текст'
+
+      return ''
     })
 
-    return { previewDescription }
+    const blockLabel = computed(() => {
+      const label = props.block.label?.trim()
+      if (!label || label === 'Текст') {
+        return 'Текстовый блок'
+      }
+      return label
+    })
+
+    return { previewTitle, previewDescription, previewExcerpt, blockLabel }
   },
 }
 </script>

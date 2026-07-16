@@ -8,10 +8,7 @@
         aria-label="Настройки контейнера"
         @click="$emit('section-settings')"
       >
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M12 3.5v2M12 18.5v2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M3.5 12h2M18.5 12h2M5.2 18.8l1.4-1.4M17.4 6.6l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
+        <ConcordGearIcon :size="20" />
       </button>
     </header>
 
@@ -33,10 +30,7 @@
           aria-label="Настройки контейнера"
           @click="$emit('section-settings')"
         >
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M12 3.5v2M12 18.5v2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M3.5 12h2M18.5 12h2M5.2 18.8l1.4-1.4M17.4 6.6l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
+          <ConcordGearIcon :size="20" />
         </button>
       </div>
 
@@ -44,20 +38,37 @@
         <div class="concord-container__footer-details">
           <span
             class="concord-container__flame"
-            :class="{ 'concord-container__flame--urgent': agreement.isUrgent }"
+            :class="{
+              'concord-container__flame--urgent': showUrgency && !isDeadlineSoon,
+              'concord-container__flame--soon': isDeadlineSoon && !isDeadlineOverdue,
+              'concord-container__flame--overdue': isDeadlineOverdue,
+            }"
             aria-hidden="true"
           >
-            <ConcordUrgencyFlame :urgent="agreement.isUrgent" tall />
+            <ConcordUrgencyFlame :urgent="showUrgency" tall />
           </span>
-          <p class="concord-container__deadline">
+          <p
+            class="concord-container__deadline"
+            :class="{
+              'concord-container__deadline--soon': isDeadlineSoon && !isDeadlineOverdue,
+              'concord-container__deadline--overdue': isDeadlineOverdue,
+            }"
+          >
             <span>{{ agreement.deadline }}</span>
-            <span v-if="agreement.daysLabel && agreement.daysLabel !== '—'" class="concord-container__days">
-              ({{ agreement.daysLabel }})
+            <span
+              v-if="deadlineHint && deadlineHint !== '—'"
+              class="concord-container__days"
+              :class="{
+                'concord-container__days--soon': isDeadlineSoon && !isDeadlineOverdue,
+                'concord-container__days--overdue': isDeadlineOverdue,
+              }"
+            >
+              ({{ deadlineHint }})
             </span>
           </p>
           <p class="concord-container__voters">Согласующих: {{ votersLabel }}</p>
         </div>
-        <ParticipantAvatars :people="participants" :max="5" />
+        <ParticipantAvatars :people="participants" :max="5" compact />
       </div>
 
       <div class="concord-container__voting">
@@ -80,12 +91,24 @@
 </template>
 
 <script>
+import ConcordGearIcon from './ConcordGearIcon.vue'
 import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
 import ParticipantAvatars from './ParticipantAvatars.vue'
+import {
+  resolveSectionParticipants,
+  resolveSectionVotersCount,
+  sectionHasConfiguredParticipants,
+} from './mock-groups.js'
+import {
+  formatAgreementDaysLabel,
+  getAgreementDaysRemaining,
+  getAgreementDeadlineHint,
+  isAgreementDeadlineSoon,
+} from './mock-agreements.js'
 
 export default {
   name: 'AgreementContainerCard',
-  components: { ConcordUrgencyFlame, ParticipantAvatars },
+  components: { ConcordGearIcon, ConcordUrgencyFlame, ParticipantAvatars },
   props: {
     agreement: {
       type: Object,
@@ -99,18 +122,19 @@ export default {
       type: Array,
       default: () => [],
     },
+    contacts: {
+      type: Array,
+      default: () => [],
+    },
   },
   emits: ['section-settings'],
   computed: {
+    sectionParticipants() {
+      return resolveSectionParticipants(this.section, this.groups, this.contacts)
+    },
     votersCount() {
-      const section = this.section
-      let count = section.participantIds?.length || 0
-      for (const groupId of section.groupIds || []) {
-        const group = this.groups.find((item) => item.id === groupId)
-        count += group?.memberCount || group?.members?.length || 0
-      }
-      if (count > 0) {
-        return count
+      if (sectionHasConfiguredParticipants(this.section)) {
+        return resolveSectionVotersCount(this.section, this.groups, this.contacts)
       }
       return this.agreement.total || this.agreement.participants?.length || 0
     },
@@ -119,10 +143,31 @@ export default {
       return count ? `${count} чел.` : 'не назначены'
     },
     participants() {
-      if (this.agreement.participants?.length) {
-        return this.agreement.participants
+      if (sectionHasConfiguredParticipants(this.section)) {
+        return this.sectionParticipants
       }
-      return []
+      return this.agreement.participants || []
+    },
+    daysLabel() {
+      return formatAgreementDaysLabel(
+        this.agreement.startDate || this.agreement.createdAt,
+        this.agreement.deadline
+      )
+    },
+    daysRemaining() {
+      return getAgreementDaysRemaining(this.agreement.deadline)
+    },
+    isDeadlineSoon() {
+      return isAgreementDeadlineSoon(this.agreement.deadline)
+    },
+    isDeadlineOverdue() {
+      return this.daysRemaining !== null && this.daysRemaining < 0
+    },
+    showUrgency() {
+      return Boolean(this.agreement.isUrgent || this.isDeadlineSoon)
+    },
+    deadlineHint() {
+      return getAgreementDeadlineHint(this.agreement.deadline, this.daysLabel)
     },
     votingStats() {
       return this.section.votingStats || { approved: 0, rejected: 0, pending: 100 }

@@ -54,8 +54,9 @@
   --concord-nav-label-block: calc(var(--concord-text-nav) * var(--concord-leading-tight));
   --concord-nav-items-block: calc(var(--concord-nav-icon-box) + 3px + var(--concord-nav-label-block));
   --concord-nav-profile-block: calc(var(--concord-nav-icon-box) + 3px + var(--concord-nav-label-block));
-  --concord-nav-separator-bottom: calc(8px + var(--concord-safe-bottom) + 4px + var(--concord-nav-label-block) + 3px + var(--concord-nav-icon-box) + 12px);
-  --concord-nav-height: 96px;
+  --concord-nav-item-block: calc(10px + var(--concord-nav-items-block));
+  --concord-nav-height: calc(16px + var(--concord-nav-item-block));
+  --concord-nav-separator-bottom: calc(8px + var(--concord-safe-bottom) + 4px + var(--concord-nav-label-block) + 3px + var(--concord-nav-icon-box) + 6px);
   --concord-safe-bottom: env(safe-area-inset-bottom, 0px);
   --concord-badge: #e53935;
   --concord-tab-badge: #c4564a;
