@@ -1,129 +1,127 @@
 <template>
-  <div class="concord-page concord-page--groups" :class="{ 'concord-page--groups-picker': pickerMode }">
+  <div v-if="pickerMode" class="concord-page concord-page--groups concord-page--groups-picker">
     <header class="concord-header concord-header--editor concord-header--groups">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="$emit('back')">
+      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="onDone">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
       <h1 class="concord-header__title">Группы</h1>
       <ConcordGroupHeaderActions
-        v-if="pickerMode"
         :show-count="false"
         @save="onDone"
       />
-      <button
-        v-else
-        type="button"
-        class="concord-icon-btn"
-        aria-label="Меню"
-        @click="onMenu"
-      >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
-          <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-          <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
-        </svg>
-      </button>
     </header>
 
-    <div v-if="!pickerMode" class="concord-groups-toolbar">
-      <button type="button" class="concord-groups-toolbar__done" @click="onDone">Готово</button>
-    </div>
-
-    <main class="concord-groups" :class="{ 'concord-groups--picker': pickerMode }">
-      <template v-if="pickerMode">
-        <div
-          v-for="group in filteredGroups"
-          :key="group.id"
-          class="concord-groups-picker__row"
-          role="button"
-          tabindex="0"
-          :aria-pressed="isSelected(group.id)"
-          @click="toggleGroup(group.id)"
-          @keydown.enter.prevent="toggleGroup(group.id)"
-          @keydown.space.prevent="toggleGroup(group.id)"
-        >
-          <span class="concord-notifications__group-icon-wrap" aria-hidden="true">
-            <span class="concord-notifications__group-icon">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-                <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
-                <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="concord-notifications__group-badge">{{ groupMemberCount(group) }}</span>
-          </span>
-          <span class="concord-notifications__group-title">{{ group.title }}</span>
-          <span
-            class="concord-groups-picker__checkbox"
-            :class="{ 'concord-groups-picker__checkbox--checked': isSelected(group.id) }"
-            aria-hidden="true"
-          >
-            <svg v-if="isSelected(group.id)" viewBox="0 0 16 16" width="12" height="12" fill="none">
-              <path d="M3.5 8.2 6.4 11 12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <main class="concord-groups concord-groups--picker">
+      <div
+        v-for="group in filteredGroups"
+        :key="group.id"
+        class="concord-groups-picker__row"
+        role="button"
+        tabindex="0"
+        :aria-pressed="isSelected(group.id)"
+        @click="toggleGroup(group.id)"
+        @keydown.enter.prevent="toggleGroup(group.id)"
+        @keydown.space.prevent="toggleGroup(group.id)"
+      >
+        <span class="concord-notifications__group-icon-wrap" aria-hidden="true">
+          <span class="concord-notifications__group-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+              <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
             </svg>
           </span>
-        </div>
-
-        <button
-          type="button"
-          class="concord-settings__edit concord-notifications__group-add"
-          @click="$emit('create-group')"
+          <span class="concord-notifications__group-badge">{{ groupMemberCount(group) }}</span>
+        </span>
+        <span class="concord-notifications__group-title">{{ group.title }}</span>
+        <span
+          class="concord-groups-picker__checkbox"
+          :class="{ 'concord-groups-picker__checkbox--checked': isSelected(group.id) }"
+          aria-hidden="true"
         >
-          <span class="concord-settings__edit-plus" aria-hidden="true">+</span>
-          Создать группу
-        </button>
-      </template>
+          <svg v-if="isSelected(group.id)" viewBox="0 0 16 16" width="12" height="12" fill="none">
+            <path d="M3.5 8.2 6.4 11 12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
 
-      <template v-else>
-        <label class="concord-groups__search-wrap">
-          <span class="concord-groups__search-label">Поиск</span>
-          <input v-model="searchQuery" type="search" class="concord-groups__search" placeholder="Поиск">
-        </label>
+      <button
+        type="button"
+        class="concord-settings__edit concord-notifications__group-add"
+        @click="$emit('create-group')"
+      >
+        <span class="concord-settings__edit-plus" aria-hidden="true">+</span>
+        Создать группу
+      </button>
+    </main>
+  </div>
 
-        <ul class="concord-groups__list">
-          <li
+  <div v-else class="concord-page concord-page--notifications">
+    <header class="concord-notifications__profile concord-notifications__profile--subpage">
+      <button type="button" class="concord-notifications__back" aria-label="Назад" @click="$emit('back')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <div class="concord-notifications__profile-main">
+        <img
+          v-if="profile.avatarUrl"
+          :src="profile.avatarUrl"
+          alt=""
+          class="concord-notifications__avatar concord-notifications__avatar--image"
+        >
+        <span v-else class="concord-notifications__avatar" aria-hidden="true">{{ profile.avatarInitial }}</span>
+        <h1 class="concord-notifications__name">{{ fullName }}</h1>
+      </div>
+    </header>
+
+    <main class="concord-notifications">
+      <section class="concord-accordion concord-accordion--static">
+        <h2 class="concord-accordion__title">Группы</h2>
+
+        <div class="concord-accordion__body concord-accordion__body--open">
+          <button
             v-for="group in filteredGroups"
             :key="group.id"
-            class="concord-groups__row concord-groups__row--clickable"
+            type="button"
+            class="concord-notifications__group-row concord-notifications__group-row--clickable"
             @click="$emit('edit-group', group.id)"
           >
-            <span class="concord-groups__title">{{ group.title }}</span>
-            <div class="concord-groups__actions" @click.stop>
-              <button
-                type="button"
-                class="concord-groups__checkbox"
-                :class="{ 'concord-groups__checkbox--checked': isSelected(group.id) }"
-                :aria-label="isSelected(group.id) ? 'Снять выбор' : 'Выбрать группу'"
-                @click="toggleGroup(group.id)"
-              >
-                <svg v-if="isSelected(group.id)" viewBox="0 0 16 16" width="12" height="12" fill="none" aria-hidden="true">
-                  <path d="M3.5 8.2 6.4 11 12.5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <span class="concord-notifications__group-icon-wrap" aria-hidden="true">
+              <span class="concord-notifications__group-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+                  <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                 </svg>
-              </button>
+              </span>
+              <span class="concord-notifications__group-badge">{{ groupMemberCount(group) }}</span>
+            </span>
+            <span class="concord-notifications__group-title">{{ group.title }}</span>
+            <div class="concord-notifications__group-actions">
               <button
                 type="button"
                 class="concord-notifications__group-action-btn"
                 aria-label="Удалить группу"
-                @click="askDeleteGroup(group)"
+                @click.stop="askDeleteGroup(group)"
               >
                 <ConcordGroupDeleteIcon />
               </button>
             </div>
-          </li>
-        </ul>
-      </template>
-    </main>
+          </button>
 
-    <button
-      v-if="!pickerMode"
-      type="button"
-      class="concord-groups-fab"
-      aria-label="Создать группу"
-      @click="$emit('create-group')"
-    >
-      <span aria-hidden="true">+</span>
-    </button>
+          <button
+            type="button"
+            class="concord-settings__edit concord-notifications__group-add"
+            @click="$emit('create-group')"
+          >
+            <span class="concord-settings__edit-plus" aria-hidden="true">+</span>
+            Создать группу
+          </button>
+        </div>
+      </section>
+    </main>
 
     <ConcordConfirmSheet
       :open="Boolean(pendingDeleteGroup)"
@@ -139,6 +137,7 @@
 
 <script>
 import { computed, ref, watch } from 'vue'
+import { DEFAULT_PROFILE } from '../concord/mock-notifications.js'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
@@ -162,9 +161,12 @@ export default {
   },
   emits: ['back', 'edit-group', 'delete-group', 'create-group', 'confirm'],
   setup(props, { emit }) {
+    const profile = ref({ ...DEFAULT_PROFILE })
     const searchQuery = ref('')
     const selectedGroupIds = ref([...props.initialSelectedIds])
     const pendingDeleteGroup = ref(null)
+
+    const fullName = computed(() => `${profile.value.firstName} ${profile.value.lastName}`.trim())
 
     watch(
       () => props.initialSelectedIds.join(','),
@@ -223,16 +225,12 @@ export default {
     function onDone() {
       if (props.pickerMode) {
         emit('confirm', [...selectedGroupIds.value])
-        return
       }
-      emit('back')
-    }
-
-    function onMenu() {
-      console.info('[concord] groups menu')
     }
 
     return {
+      profile,
+      fullName,
       searchQuery,
       filteredGroups,
       pendingDeleteGroup,
@@ -244,7 +242,6 @@ export default {
       askDeleteGroup,
       cancelDeleteGroup,
       confirmDeleteGroup,
-      onMenu,
     }
   },
 }

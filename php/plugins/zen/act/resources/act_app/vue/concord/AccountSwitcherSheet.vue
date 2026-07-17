@@ -57,12 +57,7 @@
 
 <script>
 import { ref, watch } from 'vue'
-
-const DEFAULT_ACCOUNTS = [
-  { id: '1', name: 'Александр Аблизин', initial: 'А', avatarUrl: '' },
-  { id: '2', name: 'McMraak', initial: 'А', avatarUrl: '' },
-  { id: '3', name: 'Alex', initial: 'А', avatarUrl: '' },
-]
+import { DEFAULT_ACCOUNTS } from './mock-accounts.js'
 
 export default {
   name: 'AccountSwitcherSheet',

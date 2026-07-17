@@ -28,15 +28,7 @@
       @click="$emit('navigate', 'settings')"
     >
       <span class="concord-nav__icon-wrap">
-        <svg class="concord-nav__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.5" />
-          <path
-            d="M12 3.5v2M12 18.5v2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M3.5 12h2M18.5 12h2M5.2 18.8l1.4-1.4M17.4 6.6l1.4-1.4"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          />
-        </svg>
+        <ConcordGearIcon :size="22" />
       </span>
       <span class="concord-nav__label">Настройки</span>
     </button>
@@ -86,13 +78,17 @@
           <path d="M1 1.5 6 6.5 11 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </span>
+      <span class="concord-nav__label">{{ profileLabel }}</span>
     </button>
   </nav>
 </template>
 
 <script>
+import ConcordGearIcon from './ConcordGearIcon.vue'
+
 export default {
   name: 'ConcordBottomNav',
+  components: { ConcordGearIcon },
   props: {
     active: {
       type: String,
@@ -113,6 +109,10 @@ export default {
     avatarInitial: {
       type: String,
       default: 'А',
+    },
+    profileLabel: {
+      type: String,
+      default: 'Профиль',
     },
   },
   emits: ['navigate', 'create', 'notifications', 'switch-account'],

@@ -24,11 +24,14 @@
 
     <GeneralSettingsView
       v-else-if="currentView === 'settings'"
-      :groups="profileGroups"
-      @edit-group="openGroupMembersFromSettings"
-      @delete-group="deleteGroup"
       @delete-account="onDeleteAccount"
-      @create-group="goToCreateGroupFromSettings"
+      @open-notification-settings="goToNotificationSettings"
+      @open-groups="goToGroupsManage"
+    />
+
+    <NotificationSettingsView
+      v-else-if="currentView === 'notification-settings'"
+      @back="goToSettings"
     />
 
     <GroupsManageView
@@ -99,6 +102,7 @@
     <ConcordBottomNav
       :active="navActive"
       :avatar-initial="activeAccountInitial"
+      :profile-label="activeAccountLabel"
       :notifications-badge="unreadNotificationsCount"
       @navigate="onNavigate"
       @create="createOpen = true"
@@ -128,6 +132,7 @@ import AgreementsListView from './views/AgreementsListView.vue'
 import FilterSettingsView from './views/FilterSettingsView.vue'
 import FilterEditorView from './views/FilterEditorView.vue'
 import GeneralSettingsView from './views/GeneralSettingsView.vue'
+import NotificationSettingsView from './views/NotificationSettingsView.vue'
 import CreateAgreementView from './views/CreateAgreementView.vue'
 import AgreementEditorView from './views/AgreementEditorView.vue'
 import NotificationsView from './views/NotificationsView.vue'
@@ -137,6 +142,7 @@ import CreateGroupView from './views/CreateGroupView.vue'
 import AccountSwitcherSheet from './concord/AccountSwitcherSheet.vue'
 import ConcordBottomNav from './concord/ConcordBottomNav.vue'
 import CreateProjectSheet from './concord/CreateProjectSheet.vue'
+import { formatAccountNavLabel, getAccountById } from './concord/mock-accounts.js'
 import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, getNextAgreementNumber } from './concord/mock-agreements.js'
 import { useConcordAgreements } from './composables/useConcordAgreements.js'
 import { MOCK_NOTIFICATION_SECTIONS } from './concord/mock-notifications.js'
@@ -155,6 +161,7 @@ export default {
     FilterSettingsView,
     FilterEditorView,
     GeneralSettingsView,
+    NotificationSettingsView,
     CreateAgreementView,
     AgreementEditorView,
     NotificationsView,
@@ -198,13 +205,19 @@ export default {
     const accountOpen = ref(false)
     const activeAccountId = ref('1')
 
-    const activeAccountInitial = computed(() => {
-      const map = { 1: 'А', 2: 'И', 3: 'В' }
-      return map[activeAccountId.value] || 'А'
-    })
+    const activeAccountInitial = computed(() => getAccountById(activeAccountId.value).initial)
+
+    const activeAccountLabel = computed(() =>
+      formatAccountNavLabel(getAccountById(activeAccountId.value).name)
+    )
 
     const navActive = computed(() => {
-      if (currentView.value === 'settings' || currentView.value.startsWith('group')) {
+      if (
+        currentView.value === 'settings'
+        || currentView.value === 'notification-settings'
+        || currentView.value === 'groups-manage'
+        || currentView.value.startsWith('group')
+      ) {
         return 'settings'
       }
       if (currentView.value === 'notifications') {
@@ -264,6 +277,10 @@ export default {
       currentView.value = 'settings'
     }
 
+    function goToNotificationSettings() {
+      currentView.value = 'notification-settings'
+    }
+
     function goToGroupsManage() {
       currentView.value = 'groups-manage'
     }
@@ -271,10 +288,6 @@ export default {
     function goToCreateGroup(returnView = 'groups-manage') {
       groupCreateReturnView.value = returnView
       currentView.value = 'group-create'
-    }
-
-    function goToCreateGroupFromSettings() {
-      goToCreateGroup('settings')
     }
 
     function closeCreateGroup() {
@@ -285,10 +298,6 @@ export default {
       activeGroupId.value = groupId
       groupMembersReturnView.value = returnView
       currentView.value = 'group-members'
-    }
-
-    function openGroupMembersFromSettings(groupId) {
-      openGroupMembers(groupId, 'settings')
     }
 
     function closeGroupMembers() {
@@ -592,17 +601,17 @@ export default {
       accountOpen,
       activeAccountId,
       activeAccountInitial,
+      activeAccountLabel,
       navActive,
       goToFilterSettings,
       goToList,
       onAgreementEditorBack,
       goToSettings,
+      goToNotificationSettings,
       goToGroupsManage,
       goToCreateGroup,
-      goToCreateGroupFromSettings,
       closeCreateGroup,
       openGroupMembers,
-      openGroupMembersFromSettings,
       closeGroupMembers,
       saveGroupMembers,
       deleteGroup,

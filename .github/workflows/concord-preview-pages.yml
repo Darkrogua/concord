@@ -46,7 +46,9 @@ jobs:
         run: |
           cp concord-preview.html index.html
           SHORT_SHA="${BUILD_SHA:0:7}"
+          echo "$SHORT_SHA" > build-id.txt
           for file in index.html concord-preview.html; do
+            perl -pi -e "s/__CONCORD_BUILD__/${SHORT_SHA}/g" "$file"
             perl -pi -e "s/(concord-preview-[^\"?]+\.(?:js|css))/\$1?v=${SHORT_SHA}/g" "$file"
           done
 

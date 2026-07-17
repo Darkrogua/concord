@@ -40,11 +40,13 @@
           {{ tab.label }}
         </button>
       </div>
-      <span v-if="showTabsOverflow" class="concord-tabs__hint" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </span>
+      <div v-if="showTabsOverflow" class="concord-tabs__hint" aria-hidden="true" title="Листайте вправо">
+        <span class="concord-tabs__hint-icon">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </div>
     </div>
 
     <div class="concord-sort">
@@ -75,6 +77,7 @@
 
     <ConcordBottomNav
       :avatar-initial="activeAccountInitial"
+      :profile-label="activeAccountLabel"
       @create="onCreate"
       @settings="onSettings"
       @notifications="onNotifications"
@@ -190,6 +193,7 @@ import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
 import AccountSwitcherSheet from '../concord/AccountSwitcherSheet.vue'
 import ConcordBottomNav from '../concord/ConcordBottomNav.vue'
 import CreateProjectSheet from '../concord/CreateProjectSheet.vue'
+import { formatAccountNavLabel, getAccountById } from '../concord/mock-accounts.js'
 import {
   DEFAULT_TOP_TABS,
   MOCK_AGREEMENTS,
@@ -220,10 +224,11 @@ export default {
     const showTabsOverflow = ref(false)
     let tabsResizeObserver = null
 
-    const activeAccountInitial = computed(() => {
-      const map = { 1: 'А', 2: 'И', 3: 'В' }
-      return map[activeAccountId.value] || 'А'
-    })
+    const activeAccountInitial = computed(() => getAccountById(activeAccountId.value).initial)
+
+    const activeAccountLabel = computed(() =>
+      formatAccountNavLabel(getAccountById(activeAccountId.value).name)
+    )
 
     const allTabs = DEFAULT_TOP_TABS
     const sortOptions = SORT_OPTIONS
@@ -373,6 +378,7 @@ export default {
       createOpen,
       activeAccountId,
       activeAccountInitial,
+      activeAccountLabel,
       quickFilter,
       tabsRef,
       showTabsOverflow,

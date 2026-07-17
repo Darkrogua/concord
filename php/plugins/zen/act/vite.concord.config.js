@@ -23,6 +23,15 @@ export default defineConfig(() => ({
     strictPort: true,
     open: '/concord-preview.html',
   },
+  configureServer(server) {
+    server.middlewares.use((req, _res, next) => {
+      const path = req.url?.split('?')[0] || ''
+      if (path === '/' || path === '/index.html') {
+        req.url = '/concord-preview.html'
+      }
+      next()
+    })
+  },
   build: {
     outDir: path.resolve(__dirname, 'dist/concord-pages'),
     emptyOutDir: true,

@@ -59,7 +59,16 @@
   --concord-nav-separator-bottom: calc(8px + var(--concord-safe-bottom) + 4px + var(--concord-nav-label-block) + 3px + var(--concord-nav-icon-box) + 6px);
   --concord-safe-bottom: env(safe-area-inset-bottom, 0px);
   --concord-badge: #e53935;
-  --concord-tab-badge: #c4564a;
+  --concord-tab-badge: #e53935;
+  --concord-count-badge-size: 18px;
+  --concord-count-badge-padding-x: 4px;
+  --concord-count-badge-font-size: 11px;
+  --concord-count-badge-font-weight: 700;
+  --concord-count-badge-bg: var(--concord-badge);
+  --concord-count-badge-border-width: 2px;
+  --concord-count-badge-border-color: var(--concord-bg);
+  --concord-count-badge-offset-x: -6px;
+  --concord-count-badge-offset-y: -6px;
   --concord-card-meta: #7a869a;
   --concord-card-magenta: #f01473;
   --concord-card-author: #5c61af;

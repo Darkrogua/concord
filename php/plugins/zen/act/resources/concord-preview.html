@@ -6,6 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+    <meta name="concord-build" content="__CONCORD_BUILD__" />
     <title>Concord — превью главной</title>
     <style>
       html, body {
@@ -22,6 +23,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <script>
+      (function () {
+        var meta = document.querySelector('meta[name="concord-build"]')
+        if (!meta) return
+        var expected = meta.getAttribute('content')
+        if (!expected || expected === '__CONCORD_BUILD__') return
+        fetch('build-id.txt?_=' + Date.now(), { cache: 'no-store' })
+          .then(function (res) { return res.ok ? res.text() : '' })
+          .then(function (remote) {
+            remote = (remote || '').trim()
+            if (!remote || remote === expected) return
+            var url = new URL(window.location.href)
+            url.searchParams.set('cb', remote)
+            window.location.replace(url.toString())
+          })
+          .catch(function () {})
+      })()
+    </script>
     <div id="concord-app"></div>
     <script type="module" src="/act_app/js/concord_preview.js"></script>
   </body>
