@@ -635,8 +635,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 2px;
-  padding: 8px 6px calc(8px + var(--concord-safe-bottom));
+  gap: 0;
+  padding: 8px 4px calc(8px + var(--concord-safe-bottom));
   background: var(--concord-surface);
   border-top: none;
   border-radius: 0 0 16px 16px;
@@ -655,20 +655,19 @@
 .concord-nav__item {
   position: relative;
   display: flex;
-  flex: 1;
+  flex: 1 1 0;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
   gap: 3px;
   min-width: 0;
-  max-width: 76px;
-  padding: 6px 4px 4px;
+  padding: 6px 1px 4px;
   border: none;
   background: transparent;
   color: var(--concord-text-secondary);
   font-size: var(--concord-text-nav);
   font-weight: var(--concord-weight-medium);
-  line-height: var(--concord-leading-tight);
+  line-height: var(--concord-nav-label-line-height);
   cursor: pointer;
 }
 
@@ -694,9 +693,9 @@
 
 .concord-nav__icon-wrap--profile {
   width: auto;
-  min-width: 46px;
+  min-width: 40px;
   height: var(--concord-nav-icon-box);
-  gap: 3px;
+  gap: 2px;
 }
 
 .concord-nav__icon {
@@ -705,11 +704,14 @@
 }
 
 .concord-nav__label {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
+  min-height: var(--concord-nav-label-block);
   text-align: center;
+  white-space: normal;
+  letter-spacing: -0.02em;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .concord-nav__label--spacer {
@@ -1163,9 +1165,24 @@
   height: 40px;
 }
 
-.concord-page--settings,
-.concord-page--editor {
+.concord-page--settings {
   padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 80px);
+}
+
+.concord-page--editor {
+  padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 32px);
+}
+
+.concord-page--editor {
+  display: block;
+}
+
+.concord-agreement-editor__tabs-wrap--pinned {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  background: var(--concord-surface);
+  border-bottom: 1px solid var(--concord-border);
 }
 
 .concord-settings {
@@ -1944,6 +1961,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+.concord-agreement-editor__section-anchor {
+  scroll-margin-top: 58px;
 }
 
 .concord-container {

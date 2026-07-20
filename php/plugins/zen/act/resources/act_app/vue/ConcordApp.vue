@@ -100,6 +100,7 @@
     />
 
     <ConcordBottomNav
+      v-if="showBottomNav"
       :active="navActive"
       :avatar-initial="activeAccountInitial"
       :profile-label="activeAccountLabel"
@@ -225,6 +226,11 @@ export default {
       }
       return 'list'
     })
+
+    const showBottomNav = computed(() => ![
+      'create-agreement',
+      'filter-editor',
+    ].includes(currentView.value))
 
     watch(currentView, () => {
       nextTick(() => {
@@ -603,6 +609,7 @@ export default {
       activeAccountInitial,
       activeAccountLabel,
       navActive,
+      showBottomNav,
       goToFilterSettings,
       goToList,
       onAgreementEditorBack,
