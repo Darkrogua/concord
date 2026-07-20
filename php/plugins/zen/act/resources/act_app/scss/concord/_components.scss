@@ -2,6 +2,9 @@
   min-height: 100dvh;
   max-width: 100%;
   overflow-x: visible;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .concord-page {
