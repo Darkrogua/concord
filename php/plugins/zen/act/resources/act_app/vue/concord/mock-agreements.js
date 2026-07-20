@@ -102,10 +102,28 @@ export function formatIsoDateToRu(value = '') {
   return `${day}.${month}.${year}`
 }
 
-export function formatSectionTabTitle(title, maxWords = 2) {
+function normalizeLegacySectionTitle(title) {
   const text = String(title || '').trim()
   if (!text) {
-    return 'Контейнер'
+    return 'Раздел'
+  }
+  if (/^контейнер$/i.test(text)) {
+    return 'Раздел'
+  }
+  if (/^новый контейнер$/i.test(text)) {
+    return 'Новый раздел'
+  }
+  const numbered = text.match(/^контейнер\s+(\d+)$/i)
+  if (numbered) {
+    return `Раздел ${numbered[1]}`
+  }
+  return text
+}
+
+export function formatSectionTabTitle(title, maxWords = 2) {
+  const text = normalizeLegacySectionTitle(title)
+  if (!text) {
+    return 'Раздел'
   }
   const words = text.split(/\s+/).filter(Boolean)
   if (words.length <= maxWords) {
@@ -501,7 +519,7 @@ export function ensureAgreementSections(agreement) {
   }
   if (!Array.isArray(agreement.sections) || agreement.sections.length === 0) {
     agreement.sections = [
-      createAgreementSection('Контейнер 1'),
+      createAgreementSection('Раздел 1'),
     ]
     if (Array.isArray(agreement.blocks) && agreement.blocks.length > 0) {
       agreement.sections[0].blocks = [...agreement.blocks]
@@ -509,6 +527,7 @@ export function ensureAgreementSections(agreement) {
     delete agreement.blocks
   }
   for (const section of agreement.sections) {
+    section.title = normalizeLegacySectionTitle(section.title)
     ensureSectionSettings(section)
     if (!Array.isArray(section.blocks)) {
       section.blocks = []
@@ -554,7 +573,7 @@ export function createEditorDemoBlocks() {
  * @param {number} nextNumber
  */
 export function createDraftAgreement(form, nextNumber) {
-  const section = createAgreementSection('Контейнер 1')
+  const section = createAgreementSection('Раздел 1')
   section.blocks = []
   section.votingStats = { approved: 0, rejected: 0, pending: 100 }
   section.total = 0

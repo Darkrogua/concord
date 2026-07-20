@@ -3,10 +3,10 @@
     <div class="concord-sheet-backdrop" @click="$emit('close')" />
     <div class="concord-sheet concord-section-sheet" role="dialog" aria-label="Настройки раздела">
       <div class="concord-sheet__handle" aria-hidden="true" />
-      <h2 class="concord-sheet__title">{{ isEdit ? 'Контейнер' : 'Новый контейнер' }}</h2>
+      <h2 class="concord-sheet__title">{{ isEdit ? 'Раздел' : 'Новый раздел' }}</h2>
 
       <label class="concord-section-sheet__field">
-        <span class="concord-section-sheet__label">название контейнера</span>
+        <span class="concord-section-sheet__label">название раздела</span>
         <input
           v-model="title"
           type="text"

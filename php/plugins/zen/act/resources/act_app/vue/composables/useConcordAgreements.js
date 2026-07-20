@@ -1,5 +1,5 @@
 import { ref, watch } from 'vue'
-import { MOCK_AGREEMENTS } from '../concord/mock-agreements.js'
+import { MOCK_AGREEMENTS, ensureAgreementSections } from '../concord/mock-agreements.js'
 
 const STORAGE_KEY = 'concord_agreements_v1'
 
@@ -24,19 +24,27 @@ function cloneAgreement(item) {
   }
 }
 
+function normalizeLoadedAgreements(items) {
+  return items.map((item) => {
+    const agreement = cloneAgreement(item)
+    ensureAgreementSections(agreement)
+    return agreement
+  })
+}
+
 function loadAgreements() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) {
-      return MOCK_AGREEMENTS.map(cloneAgreement)
+      return normalizeLoadedAgreements(MOCK_AGREEMENTS)
     }
     const parsed = JSON.parse(raw)
     if (!Array.isArray(parsed) || parsed.length === 0) {
-      return MOCK_AGREEMENTS.map(cloneAgreement)
+      return normalizeLoadedAgreements(MOCK_AGREEMENTS)
     }
-    return parsed.map(cloneAgreement)
+    return normalizeLoadedAgreements(parsed)
   } catch {
-    return MOCK_AGREEMENTS.map(cloneAgreement)
+    return normalizeLoadedAgreements(MOCK_AGREEMENTS)
   }
 }
 

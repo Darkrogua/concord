@@ -1,18 +1,46 @@
 <template>
-  <article class="concord-container">
+  <article class="concord-container" :class="{ 'concord-container--collapsed': !expanded }">
     <header class="concord-container__header">
       <h2 class="concord-container__title">{{ section.title }}</h2>
-      <button
-        type="button"
-        class="concord-icon-btn concord-container__settings"
-        aria-label="Настройки контейнера"
-        @click="$emit('section-settings')"
-      >
-        <ConcordGearIcon :size="20" />
-      </button>
+
+      <div class="concord-container__header-actions">
+        <button
+          type="button"
+          class="concord-icon-btn concord-container__settings"
+          aria-label="Настройки раздела"
+          @click.stop="$emit('section-settings')"
+        >
+          <ConcordGearIcon :size="20" />
+        </button>
+
+        <button
+          type="button"
+          class="concord-container__toggle"
+          :aria-expanded="expanded"
+          :aria-label="expanded ? 'Свернуть раздел' : 'Развернуть раздел'"
+          @click="toggleExpanded"
+        >
+          <svg
+            class="concord-container__toggle-icon"
+            viewBox="0 0 24 24"
+            width="22"
+            height="22"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
     </header>
 
-    <div class="concord-container__body">
+    <div v-show="expanded" class="concord-container__body">
       <slot />
     </div>
 
@@ -27,8 +55,8 @@
         <button
           type="button"
           class="concord-icon-btn concord-container__settings"
-          aria-label="Настройки контейнера"
-          @click="$emit('section-settings')"
+          aria-label="Настройки раздела"
+          @click.stop="$emit('section-settings')"
         >
           <ConcordGearIcon :size="20" />
         </button>
@@ -91,6 +119,7 @@
 </template>
 
 <script>
+import { ref } from 'vue'
 import ConcordGearIcon from './ConcordGearIcon.vue'
 import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
 import ParticipantAvatars from './ParticipantAvatars.vue'
@@ -128,6 +157,15 @@ export default {
     },
   },
   emits: ['section-settings'],
+  setup() {
+    const expanded = ref(true)
+
+    function toggleExpanded() {
+      expanded.value = !expanded.value
+    }
+
+    return { expanded, toggleExpanded }
+  },
   computed: {
     sectionParticipants() {
       return resolveSectionParticipants(this.section, this.groups, this.contacts)

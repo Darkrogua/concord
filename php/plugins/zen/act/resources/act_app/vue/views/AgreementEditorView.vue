@@ -75,7 +75,7 @@
       </header>
 
       <div class="concord-agreement-editor__tabs-wrap">
-        <div class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Контейнеры согласования">
+        <div class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Разделы согласования">
           <button
             v-for="section in agreement.sections"
             :key="section.id"
@@ -190,12 +190,12 @@
         <button
           type="button"
           class="concord-agreement-editor__add-btn concord-agreement-editor__add-btn--section"
-          aria-label="Добавить контейнер"
+          aria-label="Добавить раздел"
           @click="openNewSection"
         >
           <span aria-hidden="true">+</span>
         </button>
-        <p class="concord-agreement-editor__add-section-label">Новый контейнер</p>
+        <p class="concord-agreement-editor__add-section-label">Новый раздел</p>
       </section>
     </main>
 
@@ -542,7 +542,7 @@ export default {
     function openNewSection() {
       const nextIndex = (props.agreement?.sections?.length || 0) + 1
       emit('add-section', {
-        title: `Контейнер ${nextIndex}`,
+        title: `Раздел ${nextIndex}`,
         participantIds: [],
         groupIds: [],
       })
