@@ -45,11 +45,60 @@
     @pick-groups="openSectionGroupPicker"
   />
 
+  <Teleport to="body">
+    <div
+      v-if="showEditorSurface && showSectionTabs"
+      ref="editorChromeRef"
+      class="concord-agreement-editor__chrome"
+    >
+      <header class="concord-header concord-header--editor">
+        <button type="button" class="concord-icon-btn" aria-label="Назад" @click="goBack">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <h1 class="concord-header__title concord-header__title--truncate">
+          {{ agreement?.title || 'Без названия' }}
+        </h1>
+        <button
+          type="button"
+          class="concord-icon-btn"
+          aria-label="Настройки согласования"
+          @click="openAgreementSettings"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+            <circle cx="5" cy="12" r="1.6" fill="currentColor"/>
+            <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+            <circle cx="19" cy="12" r="1.6" fill="currentColor"/>
+          </svg>
+        </button>
+      </header>
+
+      <div class="concord-agreement-editor__tabs-wrap">
+        <div class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Контейнеры согласования">
+          <button
+            v-for="section in agreement.sections"
+            :key="section.id"
+            type="button"
+            role="tab"
+            :class="['concord-tabs__item', { 'concord-tabs__item--active': activeSectionId === section.id }]"
+            :aria-selected="activeSectionId === section.id"
+            :title="section.title"
+            @click="scrollToSection(section.id)"
+          >
+            {{ formatSectionTabTitle(section.title) }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
   <div
     v-if="showEditorSurface"
     class="concord-page concord-page--editor"
+    :style="editorPageStyle"
   >
-    <header class="concord-header concord-header--editor">
+    <header v-if="!showSectionTabs" class="concord-header concord-header--editor">
       <button type="button" class="concord-icon-btn" aria-label="Назад" @click="goBack">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -74,23 +123,10 @@
 
     <div
       v-if="showSectionTabs"
-      class="concord-agreement-editor__tabs-wrap concord-agreement-editor__tabs-wrap--pinned"
-    >
-      <div class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Контейнеры согласования">
-        <button
-          v-for="section in agreement.sections"
-          :key="section.id"
-          type="button"
-          role="tab"
-          :class="['concord-tabs__item', { 'concord-tabs__item--active': activeSectionId === section.id }]"
-          :aria-selected="activeSectionId === section.id"
-          :title="section.title"
-          @click="scrollToSection(section.id)"
-        >
-          {{ formatSectionTabTitle(section.title) }}
-        </button>
-      </div>
-    </div>
+      class="concord-agreement-editor__chrome-spacer"
+      aria-hidden="true"
+      :style="{ height: `${editorChromeHeight}px` }"
+    />
 
     <main ref="editorMainRef" class="concord-agreement-editor">
       <section v-if="showDraftIntro" class="concord-agreement-editor__panel">
@@ -227,9 +263,12 @@ export default {
     const activeSectionId = ref(null)
     const openBlockTypesSectionId = ref(null)
     const editorMainRef = ref(null)
+    const editorChromeRef = ref(null)
+    const editorChromeHeight = ref(118)
     const sectionRefs = new Map()
     const isProgrammaticScroll = ref(false)
     let sectionObserver = null
+    let chromeResizeObserver = null
     const editorBlockTypes = AGREEMENT_EDITOR_BLOCK_TYPES
     const editorIntro = AGREEMENT_EDITOR_INTRO
 
@@ -279,6 +318,10 @@ export default {
 
     const showNewContainer = computed(() => hasAnySectionWithBlocks.value || sectionCount.value > 1)
 
+    const editorPageStyle = computed(() => ({
+      '--concord-editor-scroll-anchor-offset': `${editorChromeHeight.value + 8}px`,
+    }))
+
     const editingGroup = computed(() =>
       props.groups.find((item) => item.id === editingGroupId.value) || null
     )
@@ -297,6 +340,7 @@ export default {
           openBlockTypesSectionId.value = firstSectionId.value
         }
         nextTick(() => {
+          setupChromeResizeObserver()
           setupSectionObserver()
         })
       },
@@ -315,6 +359,28 @@ export default {
         openBlockTypesSectionId.value = firstSectionId.value
       }
     })
+
+    function updateEditorChromeHeight() {
+      const measured = editorChromeRef.value?.offsetHeight || 0
+      editorChromeHeight.value = measured || 118
+    }
+
+    function setupChromeResizeObserver() {
+      chromeResizeObserver?.disconnect()
+      updateEditorChromeHeight()
+      if (!editorChromeRef.value || typeof ResizeObserver === 'undefined') {
+        return
+      }
+      chromeResizeObserver = new ResizeObserver(() => {
+        updateEditorChromeHeight()
+      })
+      chromeResizeObserver.observe(editorChromeRef.value)
+    }
+
+    function getSectionObserverMargin() {
+      const offset = Math.max(editorChromeHeight.value + 8, 72)
+      return `-${offset}px 0px -55% 0px`
+    }
 
     function sectionAnchorId(sectionId) {
       return `concord-section-${sectionId}`
@@ -385,7 +451,7 @@ export default {
         },
         {
           root: null,
-          rootMargin: '-58px 0px -55% 0px',
+          rootMargin: getSectionObserverMargin(),
           threshold: [0, 0.15, 0.35, 0.55, 0.75, 1],
         }
       )
@@ -397,12 +463,14 @@ export default {
 
     onMounted(() => {
       nextTick(() => {
+        setupChromeResizeObserver()
         setupSectionObserver()
       })
     })
 
     onBeforeUnmount(() => {
       sectionObserver?.disconnect()
+      chromeResizeObserver?.disconnect()
     })
 
     watch(showEditorSurface, (visible) => {
@@ -410,14 +478,20 @@ export default {
         return
       }
       nextTick(() => {
+        setupChromeResizeObserver()
         setupSectionObserver()
       })
     })
 
     watch(showSectionTabs, () => {
       nextTick(() => {
+        setupChromeResizeObserver()
         setupSectionObserver()
       })
+    })
+
+    watch(editorChromeHeight, () => {
+      setupSectionObserver()
     })
 
     function openAgreementSettings() {
@@ -564,6 +638,7 @@ export default {
         if (length > prev && props.agreement?.sections?.length) {
           const newSection = props.agreement.sections[props.agreement.sections.length - 1]
           nextTick(() => {
+            setupChromeResizeObserver()
             setupSectionObserver()
             scrollToSection(newSection.id)
             if (isDraft.value) {
@@ -576,6 +651,7 @@ export default {
 
     watch(sectionCount, () => {
       nextTick(() => {
+        setupChromeResizeObserver()
         setupSectionObserver()
       })
     })
@@ -586,6 +662,8 @@ export default {
       showEditorSurface,
       firstSectionId,
       editorMainRef,
+      editorChromeHeight,
+      editorPageStyle,
       isDraft,
       showDraftIntro,
       showSectionTabs,
