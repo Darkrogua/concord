@@ -193,10 +193,11 @@
 
 .concord-list__date-group {
   margin: 8px 0 0;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: var(--concord-weight-semibold);
-  line-height: 1.2;
-  color: var(--concord-text-secondary);
+  line-height: 1.25;
+  color: var(--concord-text);
+  letter-spacing: -0.01em;
 }
 
 .concord-card {

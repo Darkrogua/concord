@@ -133,7 +133,7 @@ export default {
   emits: ['open-agreement', 'edit-agreement', 'duplicate-agreement', 'toggle-favorite', 'open-filter-settings'],
   setup(props, { emit }) {
     const activeTab = ref('agreements')
-    const groupLabel = ref('Последние')
+    const groupLabel = ref('Сегодня')
     const sortId = ref('favorites')
     const searchOpen = ref(false)
     const searchQuery = ref('')
