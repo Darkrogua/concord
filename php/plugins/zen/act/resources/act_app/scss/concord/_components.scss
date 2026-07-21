@@ -691,7 +691,7 @@
   justify-content: center;
   gap: 3px;
   min-width: 0;
-  padding: 6px 1px 4px;
+  padding: 10px 1px 8px;
   border: none;
   background: transparent;
   color: var(--concord-text-secondary);
@@ -719,6 +719,7 @@
   justify-content: center;
   width: 28px;
   height: var(--concord-nav-icon-box);
+  margin-top: 2px;
 }
 
 .concord-nav__icon-wrap--profile {
