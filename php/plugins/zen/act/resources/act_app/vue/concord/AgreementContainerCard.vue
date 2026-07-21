@@ -5,7 +5,6 @@
 
       <div class="concord-container__header-actions">
         <button
-          v-show="expanded"
           type="button"
           class="concord-icon-btn concord-container__settings"
           aria-label="Настройки раздела"
