@@ -237,6 +237,33 @@
   flex-shrink: 0;
 }
 
+.concord-card__role {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px 8px;
+  border-radius: var(--concord-radius-pill);
+  font-size: 12px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.concord-card__role--owner {
+  color: var(--concord-purple-dark);
+  background: var(--concord-purple-light);
+}
+
+.concord-card__role--participant {
+  color: var(--concord-status-blue);
+  background: rgba(74, 111, 212, 0.12);
+}
+
+.concord-card__role-icon {
+  flex-shrink: 0;
+}
+
 .concord-card__title {
   margin: 0 0 16px;
   font-size: 16px;
