@@ -5,6 +5,7 @@
 
       <div class="concord-container__header-actions">
         <button
+          v-show="expanded"
           type="button"
           class="concord-icon-btn concord-container__settings"
           aria-label="Настройки раздела"
@@ -45,7 +46,7 @@
     </div>
 
     <footer class="concord-container__footer">
-      <div class="concord-container__footer-title-row">
+      <div v-show="expanded" class="concord-container__footer-title-row">
         <h3 class="concord-container__footer-title">{{ section.title }}</h3>
         <button
           type="button"
