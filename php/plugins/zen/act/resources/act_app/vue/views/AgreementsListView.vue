@@ -56,7 +56,6 @@
 
     <div class="concord-sort">
       <span class="concord-sort__group">{{ groupLabel }}</span>
-      <span class="concord-sort__sep">Сортировать по:</span>
       <select v-model="sortId" class="concord-sort__select" aria-label="Сортировка">
         <option v-for="opt in sortOptions" :key="opt.id" :value="opt.id">
           {{ opt.label }}

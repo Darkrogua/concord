@@ -149,8 +149,8 @@
 .concord-sort {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-wrap: nowrap;
+  gap: 8px;
   padding: 0 var(--concord-page-gutter) 12px;
   font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-regular);
@@ -167,19 +167,11 @@
   letter-spacing: -0.01em;
 }
 
-.concord-sort__sep {
-  flex-shrink: 0;
-  margin-left: auto;
-  font-size: 12px;
-  font-weight: var(--concord-weight-regular);
-  color: var(--concord-text-secondary);
-}
-
 .concord-sort__select {
   appearance: none;
   flex: 0 1 auto;
-  width: auto;
-  padding: 5px 24px 5px 10px;
+  min-width: 0;
+  padding: 5px 22px 5px 10px;
   border: none;
   border-radius: var(--concord-radius-xs);
   background: var(--concord-purple-light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 12 8'%3E%3Cpath fill='%234a3d8f' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E") no-repeat right 8px center;
