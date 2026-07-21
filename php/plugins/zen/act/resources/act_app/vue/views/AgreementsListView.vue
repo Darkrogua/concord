@@ -65,7 +65,7 @@
 
     <main class="concord-list">
       <template v-for="group in groupedAgreements" :key="group.label">
-        <h2 class="concord-list__date-group">{{ group.label }}</h2>
+        <h2 v-if="group.label !== 'Сегодня'" class="concord-list__date-group">{{ group.label }}</h2>
         <AgreementCard
           v-for="item in group.items"
           :key="item.id"
@@ -133,7 +133,7 @@ export default {
   emits: ['open-agreement', 'edit-agreement', 'duplicate-agreement', 'toggle-favorite', 'open-filter-settings'],
   setup(props, { emit }) {
     const activeTab = ref('agreements')
-    const groupLabel = ref('Сегодня')
+    const groupLabel = ref('Последние')
     const sortId = ref('favorites')
     const searchOpen = ref(false)
     const searchQuery = ref('')
