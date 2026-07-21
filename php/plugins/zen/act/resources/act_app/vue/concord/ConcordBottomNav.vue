@@ -60,7 +60,7 @@
         </svg>
         <span v-if="notificationsBadge" class="concord-nav__badge">{{ notificationsBadge }}</span>
       </span>
-      <span class="concord-nav__label">Алерты</span>
+      <span class="concord-nav__label">События</span>
     </button>
 
     <button
