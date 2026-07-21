@@ -65,7 +65,7 @@
 
     <main class="concord-list">
       <template v-for="group in groupedAgreements" :key="group.label">
-        <h2 v-if="group.label !== 'Сегодня'" class="concord-list__date-group">{{ group.label }}</h2>
+        <h2 v-if="group.label === 'Вчера' || group.label === 'Позавчера'" class="concord-list__date-group">{{ group.label }}</h2>
         <AgreementCard
           v-for="item in group.items"
           :key="item.id"
