@@ -18,7 +18,7 @@
         </svg>
         <span v-if="agreementsBadge" class="concord-nav__badge">{{ agreementsBadge }}</span>
       </span>
-      <span class="concord-nav__label">Согласования</span>
+      <span class="concord-nav__label">Главная</span>
     </button>
 
     <button
@@ -39,7 +39,7 @@
           <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
         </svg>
       </span>
-      <span class="concord-nav__label">Новый проект</span>
+      <span class="concord-nav__label">Создать</span>
     </button>
 
     <button
@@ -60,7 +60,7 @@
         </svg>
         <span v-if="notificationsBadge" class="concord-nav__badge">{{ notificationsBadge }}</span>
       </span>
-      <span class="concord-nav__label">Уведомления</span>
+      <span class="concord-nav__label">Алерты</span>
     </button>
 
     <button
@@ -78,7 +78,7 @@
           <path d="M1 1.5 6 6.5 11 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </span>
-      <span class="concord-nav__label">{{ profileLabel }}</span>
+      <span class="concord-nav__label concord-nav__label--profile">{{ profileLabel }}</span>
     </button>
   </nav>
 </template>

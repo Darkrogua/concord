@@ -751,6 +751,14 @@
   visibility: hidden;
 }
 
+.concord-nav__label--profile {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .concord-nav__avatar {
   width: var(--concord-nav-icon-box);
   height: var(--concord-nav-icon-box);
