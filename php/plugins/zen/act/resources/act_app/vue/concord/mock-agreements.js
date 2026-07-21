@@ -102,6 +102,71 @@ export function formatIsoDateToRu(value = '') {
   return `${day}.${month}.${year}`
 }
 
+function parseRuDateToDate(value = '') {
+  const [day, month, year] = String(value || '').trim().split('.')
+  if (!day || !month || !year) {
+    return null
+  }
+  const date = new Date(Number(year), Number(month) - 1, Number(day))
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export function formatAgreementDateGroup(dateValue) {
+  const date = parseRuDateToDate(dateValue)
+  if (!date) {
+    return 'Ранее'
+  }
+
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const target = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const diffDays = Math.round((today - target) / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) {
+    return 'Сегодня'
+  }
+  if (diffDays === 1) {
+    return 'Вчера'
+  }
+  if (diffDays === 2) {
+    return 'Позавчера'
+  }
+
+  const months = [
+    'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря',
+  ]
+  const day = date.getDate()
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+  const currentYear = now.getFullYear()
+  if (year === currentYear) {
+    return `${day} ${month}`
+  }
+  return `${day} ${month} ${year}`
+}
+
+export function groupAgreementsByDate(agreements) {
+  const groups = new Map()
+  for (const agreement of agreements) {
+    const key = formatAgreementDateGroup(agreement.createdAt)
+    if (!groups.has(key)) {
+      groups.set(key, [])
+    }
+    groups.get(key).push(agreement)
+  }
+  const order = Array.from(groups.keys())
+  order.sort((a, b) => {
+    const dateA = parseRuDateToDate(groups.get(a)[0].createdAt)
+    const dateB = parseRuDateToDate(groups.get(b)[0].createdAt)
+    if (!dateA || !dateB) {
+      return 0
+    }
+    return dateB - dateA
+  })
+  return order.map((label) => ({ label, items: groups.get(label) }))
+}
+
 function normalizeLegacySectionTitle(title) {
   const text = String(title || '').trim()
   if (!text) {

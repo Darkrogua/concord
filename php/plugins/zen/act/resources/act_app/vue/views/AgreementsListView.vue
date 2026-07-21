@@ -64,15 +64,18 @@
     </div>
 
     <main class="concord-list">
-      <AgreementCard
-        v-for="item in displayedAgreements"
-        :key="item.id"
-        :agreement="item"
-        @open="onOpenAgreement"
-        @toggle-favorite="toggleFavorite"
-        @duplicate="onDuplicate"
-        @edit="onEdit"
-      />
+      <template v-for="group in groupedAgreements" :key="group.label">
+        <h2 class="concord-list__date-group">{{ group.label }}</h2>
+        <AgreementCard
+          v-for="item in group.items"
+          :key="item.id"
+          :agreement="item"
+          @open="onOpenAgreement"
+          @toggle-favorite="toggleFavorite"
+          @duplicate="onDuplicate"
+          @edit="onEdit"
+        />
+      </template>
       <p v-if="displayedAgreements.length === 0" class="concord-empty">
         Нет согласований в этом разделе.
       </p>
@@ -110,6 +113,7 @@ import {
   SORT_OPTIONS,
   buildTopTabsFromSections,
   filterAgreements,
+  groupAgreementsByDate,
   sortAgreements,
 } from '../concord/mock-agreements.js'
 
@@ -185,6 +189,8 @@ export default {
       return sortAgreements(list, sortId.value)
     })
 
+    const groupedAgreements = computed(() => groupAgreementsByDate(displayedAgreements.value))
+
     const searchResults = computed(() => {
       const list = filterAgreements(props.agreements, activeTab.value, searchQuery.value, searchScope.value)
       return sortAgreements(list, sortId.value)
@@ -224,6 +230,7 @@ export default {
       showTabsOverflow,
       updateTabsOverflow,
       displayedAgreements,
+      groupedAgreements,
       searchResults,
       toggleFavorite,
       closeSearch,

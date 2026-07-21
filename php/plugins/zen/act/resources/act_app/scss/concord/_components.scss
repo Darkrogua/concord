@@ -191,6 +191,14 @@
   overflow-x: visible;
 }
 
+.concord-list__date-group {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.2;
+  color: var(--concord-text-secondary);
+}
+
 .concord-card {
   border: none;
   border-radius: 16px;
