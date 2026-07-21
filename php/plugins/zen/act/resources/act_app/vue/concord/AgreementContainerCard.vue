@@ -45,11 +45,6 @@
     </div>
 
     <footer class="concord-container__footer">
-      <div class="concord-container__footer-meta">
-        <span class="concord-container__footer-number">#{{ agreement.number }}</span>
-        <span class="concord-container__footer-created">Создана: {{ agreement.createdAt }}</span>
-      </div>
-
       <div class="concord-container__footer-title-row">
         <h3 class="concord-container__footer-title">{{ section.title }}</h3>
         <button
