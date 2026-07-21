@@ -76,6 +76,7 @@
           </svg>
         </button>
         <button
+          v-if="agreement.isOwner"
           type="button"
           class="concord-card__action concord-card__action--copy"
           aria-label="Дублировать"
