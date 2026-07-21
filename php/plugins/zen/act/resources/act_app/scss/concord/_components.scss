@@ -663,10 +663,10 @@
   bottom: 0;
   z-index: 100;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   gap: 0;
-  padding: 8px 4px calc(8px + var(--concord-safe-bottom));
+  padding: 4px 4px calc(4px + var(--concord-safe-bottom));
   background: var(--concord-surface);
   border-top: none;
   border-radius: 0 0 16px 16px;
@@ -689,9 +689,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
-  padding: 14px 1px 10px;
+  padding: 4px 1px;
   border: none;
   background: transparent;
   color: var(--concord-text-secondary);
@@ -719,7 +719,6 @@
   justify-content: center;
   width: 28px;
   height: var(--concord-nav-icon-box);
-  margin-top: 4px;
 }
 
 .concord-nav__icon-wrap--profile {
