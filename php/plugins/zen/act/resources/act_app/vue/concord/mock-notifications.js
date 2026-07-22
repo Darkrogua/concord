@@ -27,6 +27,7 @@ export { DEFAULT_PROFILE_GROUPS } from './mock-groups.js'
  * @property {string} [linkText]
  * @property {number} [agreementNumber]
  * @property {string} [agreementId]
+ * @property {string} [time]
  */
 
 /**
@@ -44,18 +45,24 @@ export const MOCK_NOTIFICATION_SECTIONS = [
         id: 'n-today-1',
         isRead: false,
         avatarInitial: 'А',
-        title: 'Новое уведомление по аккаунту',
-        body: 'Вы получили новый голос',
-        linkText: 'Согласование # 308',
+        title: 'Система',
+        body: 'Вы получили новый голос по',
+        linkText: 'Согласованию #308',
         agreementNumber: 308,
         agreementId: '308',
+        time: '10:24',
       },
-    ],
-  },
-  {
-    dateLabel: 'Вчера',
-    items: [
-      { id: 'n-yesterday-empty', empty: true },
+      {
+        id: 'n-today-2',
+        isRead: false,
+        avatarInitial: 'М',
+        title: 'Мария К.',
+        body: 'Прокомментировала раздел в',
+        linkText: 'Согласовании #305',
+        agreementNumber: 305,
+        agreementId: '305',
+        time: '14:08',
+      },
     ],
   },
   {
@@ -65,11 +72,12 @@ export const MOCK_NOTIFICATION_SECTIONS = [
         id: 'n-140425-1',
         isRead: true,
         avatarInitial: 'А',
-        title: 'Новое уведомление по аккаунту',
-        body: 'Вы получили новый голос по',
-        linkText: 'Согласованию # 308',
+        title: 'Система',
+        body: 'Согласование завершено:',
+        linkText: 'Согласование #308',
         agreementNumber: 308,
         agreementId: '308',
+        time: '18:42',
       },
     ],
   },

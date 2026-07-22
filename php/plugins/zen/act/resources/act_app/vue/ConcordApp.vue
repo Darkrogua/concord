@@ -114,16 +114,9 @@
       :profile-label="activeAccountLabel"
       :notifications-badge="unreadNotificationsCount"
       @navigate="onNavigate"
-      @create="createOpen = true"
+      @create="startCreateAgreement"
       @notifications="onNotifications"
       @switch-account="accountOpen = true"
-    />
-
-    <CreateProjectSheet
-      :open="createOpen"
-      :avatar-initial="activeAccountInitial"
-      @close="createOpen = false"
-      @select="onCreateOption"
     />
 
     <AccountSwitcherSheet
@@ -151,9 +144,8 @@ import GroupMembersView from './views/GroupMembersView.vue'
 import CreateGroupView from './views/CreateGroupView.vue'
 import AccountSwitcherSheet from './concord/AccountSwitcherSheet.vue'
 import ConcordBottomNav from './concord/ConcordBottomNav.vue'
-import CreateProjectSheet from './concord/CreateProjectSheet.vue'
 import { formatAccountNavLabel, getAccountById } from './concord/mock-accounts.js'
-import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, getNextAgreementNumber } from './concord/mock-agreements.js'
+import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, formatDateRu, getNextAgreementNumber } from './concord/mock-agreements.js'
 import { useConcordAgreements } from './composables/useConcordAgreements.js'
 import { MOCK_NOTIFICATION_SECTIONS } from './concord/mock-notifications.js'
 import {
@@ -181,7 +173,6 @@ export default {
     CreateGroupView,
     AccountSwitcherSheet,
     ConcordBottomNav,
-    CreateProjectSheet,
   },
   setup() {
     const { agreements, persist } = useConcordAgreements()
@@ -212,7 +203,6 @@ export default {
     const editorFilters = ref([])
     const pickerOpen = ref(false)
 
-    const createOpen = ref(false)
     const accountOpen = ref(false)
     const activeAccountId = ref('1')
 
@@ -487,12 +477,8 @@ export default {
       console.info('[concord] duplicate agreement', id)
     }
 
-    function onCreateOption(type) {
-      if (type === 'approval') {
-        currentView.value = 'create-agreement'
-        return
-      }
-      console.info('[concord] create voting — not implemented in preview')
+    function startCreateAgreement() {
+      currentView.value = 'create-agreement'
     }
 
     function onSaveAgreementDraft(form) {
@@ -589,6 +575,9 @@ export default {
       if (!agreement) {
         return
       }
+      if (!agreement.createdAt) {
+        agreement.createdAt = formatDateRu()
+      }
       agreement.status = 'awaiting'
       persist()
       goToList()
@@ -663,7 +652,6 @@ export default {
       editorName,
       editorFilters,
       pickerOpen,
-      createOpen,
       accountOpen,
       activeAccountId,
       activeAccountInitial,
@@ -696,7 +684,7 @@ export default {
       onOpenAgreement,
       onEditAgreement,
       onDuplicateAgreement,
-      onCreateOption,
+      startCreateAgreement,
       onSaveAgreementDraft,
       onAddAgreementBlock,
       onDeleteAgreementBlock,

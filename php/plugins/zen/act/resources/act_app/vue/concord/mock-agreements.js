@@ -142,8 +142,13 @@ export function formatAgreementDateGroup(dateValue) {
 }
 
 export function groupAgreementsByDate(agreements) {
+  const drafts = []
   const groups = new Map()
   for (const agreement of agreements) {
+    if (!agreement.createdAt) {
+      drafts.push(agreement)
+      continue
+    }
     const key = formatAgreementDateGroup(agreement.createdAt)
     if (!groups.has(key)) {
       groups.set(key, [])
@@ -159,7 +164,11 @@ export function groupAgreementsByDate(agreements) {
     }
     return dateB - dateA
   })
-  return order.map((label) => ({ label, items: groups.get(label) }))
+  const result = order.map((label) => ({ label, items: groups.get(label) }))
+  if (drafts.length) {
+    result.unshift({ label: 'Черновики', items: drafts })
+  }
+  return result
 }
 
 function normalizeLegacySectionTitle(title) {
@@ -667,7 +676,7 @@ export function createDraftAgreement(form, nextNumber) {
     number: nextNumber,
     title: form.title.trim(),
     description: form.description.trim(),
-    createdAt: formatDateRu(),
+    createdAt: '',
     startDate: formatIsoDateToRu(form.startDate),
     deadline: formatIsoDateToRu(form.endDate),
     publishDate: null,
@@ -778,7 +787,7 @@ export const MOCK_AGREEMENTS = [
     id: '307',
     number: 307,
     title: 'Азимут тур, ТЗ, Релиз 2. Можно название в две строки, и даже...',
-    createdAt: '20.07.2024',
+    createdAt: '',
     deadline: '08.08.2024',
     daysLabel: '15 дней',
     isUrgent: false,
@@ -1074,7 +1083,7 @@ function createOwnerDemoAgreement() {
     id: 'owner-demo-307',
     number: 307,
     title: 'Тестовое согласование для владельца (5 отказов)',
-    createdAt: formatDateRu(),
+    createdAt: '',
     deadline: '31.12.2026',
     daysLabel: 'До конца года',
     isUrgent: false,

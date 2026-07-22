@@ -3,9 +3,34 @@ import { registerSW } from 'virtual:pwa-register'
 import { isTelegramWebApp } from './telegram-webapp.js'
 import { useAppEnvironment } from './app-environment.js'
 
-const BUILD_INFO_URL = '/plugins/zen/act/assets/build-info.json'
+const ACT_BUILD_INFO_URL = '/plugins/zen/act/assets/build-info.json'
 const BUILD_CHECK_INTERVAL_MS = 5 * 60 * 1000
 const SW_UPDATE_INTERVAL_MS = 60 * 60 * 1000
+
+function getCurrentBuildId() {
+  if (typeof __CONCORD_BUILD_ID__ !== 'undefined' && __CONCORD_BUILD_ID__) {
+    return __CONCORD_BUILD_ID__
+  }
+
+  if (typeof __ACT_BUILD_ID__ !== 'undefined' && __ACT_BUILD_ID__) {
+    return __ACT_BUILD_ID__
+  }
+
+  return ''
+}
+
+function isConcordPreviewBuild() {
+  return typeof __CONCORD_BUILD_ID__ !== 'undefined' && __CONCORD_BUILD_ID__ !== 'dev'
+}
+
+function getBuildInfoUrl() {
+  if (isConcordPreviewBuild()) {
+    const base = import.meta.env.BASE_URL || '/'
+    return `${base}build-id.txt`
+  }
+
+  return ACT_BUILD_INFO_URL
+}
 
 const deferredPrompt = ref(null)
 const isInstalled = ref(false)
@@ -49,18 +74,29 @@ export function watchAppBuild() {
     return
   }
 
-  const currentBuildId = typeof __ACT_BUILD_ID__ !== 'undefined' ? __ACT_BUILD_ID__ : ''
+  const currentBuildId = getCurrentBuildId()
   if (!currentBuildId || currentBuildId === 'dev') {
     return
   }
 
+  const buildInfoUrl = getBuildInfoUrl()
+  const concordPreview = isConcordPreviewBuild()
+
   const checkBuild = async () => {
     try {
-      const response = await fetch(`${BUILD_INFO_URL}?v=${Date.now()}`, {
+      const response = await fetch(`${buildInfoUrl}?v=${Date.now()}`, {
         cache: 'no-store',
         credentials: 'same-origin',
       })
       if (!response.ok) {
+        return
+      }
+
+      if (concordPreview) {
+        const remoteBuildId = (await response.text()).trim()
+        if (remoteBuildId && remoteBuildId !== currentBuildId) {
+          reloadForNewBuild()
+        }
         return
       }
 

@@ -10,60 +10,52 @@
     </header>
 
     <main class="concord-alerts">
-      <section
-        v-for="section in sections"
-        :key="section.dateLabel"
-        class="concord-alerts__section"
-      >
-        <h2 class="concord-alerts__date">{{ section.dateLabel }}</h2>
+      <p v-if="!visibleSections.length" class="concord-alerts__empty">
+        Пока нет уведомлений
+      </p>
+
+      <template v-for="section in visibleSections" :key="section.dateLabel">
+        <div class="concord-alerts__day-divider">
+          <span>{{ section.dateLabel }}</span>
+        </div>
 
         <article
           v-for="item in section.items"
           :key="item.id"
           :class="[
-            'concord-alerts__card',
-            item.empty ? 'concord-alerts__card--empty' : '',
-            item.isRead ? 'concord-alerts__card--read' : 'concord-alerts__card--unread',
+            'concord-alerts__message',
+            item.isRead ? 'concord-alerts__message--read' : 'concord-alerts__message--unread',
           ]"
-          @click="onCardClick(item)"
+          @click="openAgreement(item)"
         >
-          <template v-if="!item.empty">
-            <div class="concord-alerts__card-top">
-              <img
-                v-if="item.avatarUrl"
-                :src="item.avatarUrl"
-                alt=""
-                class="concord-alerts__avatar concord-alerts__avatar--image"
-              >
-              <span v-else class="concord-alerts__avatar" aria-hidden="true">{{ item.avatarInitial }}</span>
-
-              <div class="concord-alerts__content">
-                <h3 class="concord-alerts__title">{{ item.title }}</h3>
-                <p class="concord-alerts__text">
-                  {{ item.body }}
-                  <button
-                    v-if="item.linkText"
-                    type="button"
-                    class="concord-alerts__link"
-                    @click.stop="openAgreement(item)"
-                  >
-                    {{ item.linkText }}
-                  </button>
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class="concord-alerts__action"
-              @click.stop="openAgreement(item)"
+          <div class="concord-alerts__avatar-wrap">
+            <img
+              v-if="item.avatarUrl"
+              :src="item.avatarUrl"
+              alt=""
+              class="concord-alerts__avatar concord-alerts__avatar--image"
             >
-              перейти
-              <span class="concord-alerts__action-arrow" aria-hidden="true">→</span>
-            </button>
-          </template>
+            <span v-else class="concord-alerts__avatar" aria-hidden="true">{{ item.avatarInitial }}</span>
+            <span v-if="!item.isRead" class="concord-alerts__unread-dot" aria-hidden="true" />
+          </div>
+
+          <div class="concord-alerts__bubble">
+            <p v-if="item.title" class="concord-alerts__bubble-sender">{{ item.title }}</p>
+            <p class="concord-alerts__bubble-text">
+              {{ item.body }}
+              <button
+                v-if="item.linkText"
+                type="button"
+                class="concord-alerts__link"
+                @click.stop="openAgreement(item)"
+              >
+                {{ item.linkText }}
+              </button>
+            </p>
+            <time v-if="item.time" class="concord-alerts__bubble-time">{{ item.time }}</time>
+          </div>
         </article>
-      </section>
+      </template>
     </main>
   </div>
 </template>
@@ -78,13 +70,17 @@ export default {
     },
   },
   emits: ['back', 'open-agreement', 'mark-read'],
-  methods: {
-    onCardClick(item) {
-      if (item.empty || !item.agreementId) {
-        return
-      }
-      this.openAgreement(item)
+  computed: {
+    visibleSections() {
+      return this.sections
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) => !item.empty),
+        }))
+        .filter((section) => section.items.length > 0)
     },
+  },
+  methods: {
     openAgreement(item) {
       if (!item.agreementId) {
         return

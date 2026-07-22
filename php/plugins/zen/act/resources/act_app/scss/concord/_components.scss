@@ -3990,57 +3990,61 @@
 .concord-alerts {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 8px var(--concord-page-gutter) 0;
+  gap: 2px;
+  padding: 4px var(--concord-page-gutter) 0;
 }
 
-.concord-alerts__section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.concord-alerts__date {
-  margin: 0;
+.concord-alerts__empty {
+  margin: 32px 0 0;
+  text-align: center;
   font-size: var(--concord-text-body);
-  font-weight: var(--concord-weight-medium);
-  line-height: var(--concord-leading-tight);
   color: var(--concord-text-secondary);
 }
 
-.concord-alerts__card {
-  border-radius: var(--concord-radius-sm);
-  padding: 14px 14px 12px;
+.concord-alerts__day-divider {
+  display: flex;
+  justify-content: center;
+  padding: 14px 0 10px;
+}
+
+.concord-alerts__day-divider span {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(94, 77, 178, 0.1);
+  font-size: 12px;
+  font-weight: var(--concord-weight-medium);
+  line-height: 1.3;
+  color: var(--concord-text-secondary);
+}
+
+.concord-alerts__message {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 3px 0;
   cursor: pointer;
 }
 
-.concord-alerts__card--unread {
+.concord-alerts__message--unread .concord-alerts__bubble {
   background: var(--concord-surface);
-  border: 1px solid rgba(138, 132, 152, 0.35);
+  border: 1px solid rgba(138, 132, 152, 0.28);
+  box-shadow: 0 1px 2px rgba(94, 77, 178, 0.06);
 }
 
-.concord-alerts__card--read {
+.concord-alerts__message--read .concord-alerts__bubble {
   background: var(--concord-purple-light);
   border: 1px solid transparent;
 }
 
-.concord-alerts__card--empty {
-  min-height: 88px;
-  padding: 0;
-  cursor: default;
-}
-
-.concord-alerts__card-top {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+.concord-alerts__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .concord-alerts__avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -4055,25 +4059,42 @@
   object-fit: cover;
 }
 
-.concord-alerts__content {
-  flex: 1;
-  min-width: 0;
+.concord-alerts__unread-dot {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--concord-bg);
+  border-radius: 50%;
+  background: var(--concord-purple);
 }
 
-.concord-alerts__title {
-  margin: 0 0 6px;
-  font-size: var(--concord-text-body);
-  font-weight: var(--concord-weight-bold);
-  line-height: var(--concord-leading-tight);
-  color: var(--concord-text);
+.concord-alerts__bubble {
+  max-width: calc(100% - 44px);
+  padding: 8px 12px 6px;
+  border-radius: 14px 14px 14px 4px;
 }
 
-.concord-alerts__text {
+.concord-alerts__bubble-sender {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.3;
+  color: var(--concord-purple);
+}
+
+.concord-alerts__bubble-text {
   margin: 0;
   font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-regular);
   line-height: var(--concord-leading-body);
   color: var(--concord-text);
+  word-break: break-word;
+}
+
+.concord-alerts__message--unread .concord-alerts__bubble-text {
+  font-weight: var(--concord-weight-medium);
 }
 
 .concord-alerts__link {
@@ -4088,27 +4109,17 @@
   cursor: pointer;
 }
 
-.concord-alerts__action {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 12px;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--concord-status-blue);
-  font-size: var(--concord-text-body);
+.concord-alerts__bubble-time {
+  display: block;
+  margin-top: 4px;
+  text-align: right;
+  font-size: 11px;
   font-weight: var(--concord-weight-regular);
-  line-height: var(--concord-leading-tight);
-  cursor: pointer;
+  line-height: 1.2;
+  color: var(--concord-text-secondary);
 }
 
-.concord-alerts__action-arrow {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.concord-alerts__card:active:not(.concord-alerts__card--empty) {
+.concord-alerts__message:active {
   opacity: 0.92;
 }
 

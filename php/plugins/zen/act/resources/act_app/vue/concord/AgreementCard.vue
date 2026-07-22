@@ -2,7 +2,7 @@
   <article class="concord-card" @click="$emit('open', agreement.id)">
     <div class="concord-card__meta">
       <span class="concord-card__number">#{{ agreement.number }}</span>
-      <span class="concord-card__created">Создана: {{ agreement.createdAt }}</span>
+      <span class="concord-card__created">{{ createdLabel }}</span>
       <span :class="['concord-card__role', `concord-card__role--${roleKey}`]">
         <svg class="concord-card__role-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
           <path v-if="roleKey === 'owner'" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -142,6 +142,12 @@ export default {
     },
     statusLabel() {
       return STATUS_LABELS[this.agreement.status] || STATUS_LABELS.awaiting
+    },
+    createdLabel() {
+      if (!this.agreement.createdAt) {
+        return '\u00A0'
+      }
+      return `Создана: ${this.agreement.createdAt}`
     },
     progressPercent() {
       if (!this.agreement.total) {

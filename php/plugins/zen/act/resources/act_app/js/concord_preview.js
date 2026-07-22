@@ -4,6 +4,13 @@
  */
 import { createApp } from 'vue'
 import ConcordApp from '../vue/ConcordApp.vue'
+import { initAppEnvironment } from '../vue/app-environment.js'
+import { initPwaInstall, registerServiceWorker, watchAppBuild } from '../vue/pwa-install.js'
 import '../scss/concord.scss'
+
+initAppEnvironment()
+initPwaInstall()
+registerServiceWorker()
+watchAppBuild()
 
 createApp(ConcordApp).mount('#concord-app')

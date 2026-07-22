@@ -103,7 +103,35 @@
           <span>Группы</span>
         </button>
       </section>
+
+      <section v-if="canShowInstall" class="concord-accordion">
+        <button
+          type="button"
+          class="concord-accordion__header concord-accordion__header--nav"
+          @click="installApp"
+        >
+          <span>Установить приложение</span>
+        </button>
+      </section>
     </main>
+
+    <template v-if="showInstallHint">
+      <div class="concord-sheet-backdrop" @click="dismissInstallHint" />
+      <div class="concord-sheet" role="dialog" aria-labelledby="concord-pwa-install-title">
+        <div class="concord-sheet__handle" aria-hidden="true" />
+        <h2 id="concord-pwa-install-title" class="concord-sheet__title">{{ installHintTitle }}</h2>
+        <p class="concord-confirm-sheet__message">{{ installHintText }}</p>
+        <div class="concord-create-sheet__actions">
+          <button
+            type="button"
+            class="concord-create-sheet__btn concord-create-sheet__btn--save"
+            @click="dismissInstallHint"
+          >
+            Понятно
+          </button>
+        </div>
+      </div>
+    </template>
 
     <ConcordConfirmSheet
       :open="accountDeleteConfirmOpen"
@@ -122,6 +150,7 @@ import { computed, ref } from 'vue'
 import { DEFAULT_PROFILE } from '../concord/mock-notifications.js'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
+import { usePwaInstall } from '../pwa-install.js'
 
 export default {
   name: 'GeneralSettingsView',
@@ -131,6 +160,14 @@ export default {
     const profile = ref({ ...DEFAULT_PROFILE })
     const avatarInputRef = ref(null)
     const accountDeleteConfirmOpen = ref(false)
+    const {
+      canShowInstall,
+      install: installApp,
+      showInstallHint,
+      installHintTitle,
+      installHintText,
+      dismissInstallHint,
+    } = usePwaInstall()
 
     const fullName = computed(() => `${profile.value.firstName} ${profile.value.lastName}`.trim())
 
@@ -171,6 +208,12 @@ export default {
       avatarInputRef,
       fullName,
       accountDeleteConfirmOpen,
+      canShowInstall,
+      installApp,
+      showInstallHint,
+      installHintTitle,
+      installHintText,
+      dismissInstallHint,
       askDeleteAccount,
       cancelDeleteAccount,
       confirmDeleteAccount,
