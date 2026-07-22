@@ -4762,9 +4762,20 @@
 }
 
 .concord-approver__section--inactive .concord-approver__section-card {
+  position: relative;
   background: var(--concord-card-bg);
   border: 1px solid var(--concord-border);
   opacity: 0.85;
+}
+
+.concord-approver__section--inactive .concord-approver__section-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: rgba(220, 220, 225, 0.55);
+  pointer-events: none;
 }
 
 .concord-approver__section-header {

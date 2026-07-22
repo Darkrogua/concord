@@ -908,7 +908,37 @@ function createFullDemoAgreement() {
   const managementSection = createDemoSection({
     title: 'Менеджмент',
     isActive: false,
+    stats: { approved: 20, rejected: 5, pending: 75 },
+    settings: { showResultsBefore: true, showResultsAfter: true },
     blocks: [
+      {
+        id: 'block-mgmt-text',
+        type: 'text',
+        label: 'Текстовый блок',
+        title: 'По менеджменту',
+        description: 'Организационные вопросы и сроки.',
+        content: 'Раздел для руководителей и менеджеров. Здесь описываются бюджет, сроки, зоны ответственности и ключевые контрольные точки. Для текущего пользователя этот раздел доступен только для просмотра.',
+      },
+      {
+        id: 'block-mgmt-files',
+        type: 'files',
+        label: 'Файлы',
+        title: 'Отчёты и документы',
+        files: [
+          { id: 'file-3', name: 'План проекта.pdf', mime: 'application/pdf', previewUrl: '' },
+          { id: 'file-4', name: 'Бюджет.xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', previewUrl: '' },
+        ],
+      },
+      {
+        id: 'block-mgmt-gallery',
+        type: 'gallery',
+        label: 'Галерея',
+        title: 'Схемы и диаграммы',
+        photos: [
+          { id: 'photo-3', name: 'Диаграмма процесса', previewUrl: 'https://picsum.photos/id/1060/400/300' },
+          { id: 'photo-4', name: 'Структура команды', previewUrl: 'https://picsum.photos/id/1070/400/300' },
+        ],
+      },
       {
         id: 'block-mgmt-links',
         type: 'link',
