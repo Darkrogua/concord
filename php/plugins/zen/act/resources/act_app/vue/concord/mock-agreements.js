@@ -837,6 +837,7 @@ export const MOCK_AGREEMENTS = [
     ],
   },
   createFullDemoAgreement(),
+  createOwnerDemoAgreement(),
 ]
 
 function createDemoSection({ title, isActive, blocks, stats, settings, votes, participantIds }) {
@@ -999,6 +1000,85 @@ function createFullDemoAgreement() {
     isOwner: false,
     description: 'Тестовое согласование для проверки активных и неактивных разделов в режиме согласователя.',
     sections: [designSection, programmingSection, managementSection],
+  }
+}
+
+function createOwnerDemoAgreement() {
+  const rejectedVotes = [
+    {
+      participantId: 'elena-vasilyeva',
+      decision: 'rejected',
+      reason: 'Не хватает описания логики работы фильтров в каталоге. Покупатель не поймёт, как искать товар по нескольким параметрам одновременно.',
+      votedAt: '2026-07-22T09:00:00.000Z',
+    },
+    {
+      participantId: 'maria-gorbunova',
+      decision: 'rejected',
+      reason: 'Цветовая палитра главной страницы конфликтует с брендбуком. Нужно вернуть фирменные оттенки и убрать градиенты.',
+      votedAt: '2026-07-22T10:15:00.000Z',
+    },
+    {
+      participantId: 'roman-gorbachev',
+      decision: 'rejected',
+      reason: 'В мобильной версии шрифт слишком мелкий, кнопки «Купить» расположены близко к краю экрана, будет много случайных нажатий.',
+      votedAt: '2026-07-22T11:30:00.000Z',
+    },
+    {
+      participantId: 'sergey-gordienko',
+      decision: 'rejected',
+      reason: 'Не указаны требования к производительности: время отклика страницы, поддерживаемые браузеры и версии мобильных ОС.',
+      votedAt: '2026-07-22T13:45:00.000Z',
+    },
+    {
+      participantId: 'ivan-petrov',
+      decision: 'rejected',
+      reason: 'Отсутствует блок с юридической информацией: политика конфиденциальности, оферта и реквизиты. Без этого нельзя запускать в прод.',
+      votedAt: '2026-07-22T15:20:00.000Z',
+    },
+  ]
+
+  const section = createDemoSection({
+    title: 'Дизайн сайта',
+    isActive: false,
+    participantIds: ['elena-vasilyeva', 'maria-gorbunova', 'roman-gorbachev', 'sergey-gordienko', 'ivan-petrov'],
+    stats: { approved: 0, rejected: 100, pending: 0 },
+    settings: { showResultsBefore: true, showResultsAfter: true },
+    votes: rejectedVotes,
+    blocks: [
+      {
+        id: 'block-owner-text',
+        type: 'text',
+        label: 'Текстовый блок',
+        title: 'Описание задачи',
+        description: 'Требования к дизайну нового сайта.',
+        content: 'Необходимо разработать дизайн главной страницы, каталога и карточки товара. Все макеты должны соответствовать брендбуку и быть адаптированы под мобильные устройства.',
+      },
+    ],
+  })
+
+  return {
+    id: '306',
+    number: 306,
+    title: 'Тестовое согласование для владельца (5 отказов)',
+    createdAt: formatDateRu(),
+    deadline: '31.12.2026',
+    daysLabel: 'До конца года',
+    isUrgent: false,
+    author: { name: 'Александр Аблизин' },
+    participants: [
+      { label: 'Е' },
+      { label: 'М' },
+      { label: 'Р' },
+      { label: 'С' },
+      { label: 'И' },
+    ],
+    status: 'awaiting',
+    voted: 5,
+    total: 5,
+    isFavorite: false,
+    isOwner: true,
+    description: 'Тестовое согласование, в котором текущий пользователь является владельцем. Содержит 5 отказов с комментариями для проверки вида создателя.',
+    sections: [section],
   }
 }
 
