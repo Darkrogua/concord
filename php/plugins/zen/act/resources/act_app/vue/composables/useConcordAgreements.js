@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue'
 import { MOCK_AGREEMENTS, ensureAgreementSections } from '../concord/mock-agreements.js'
 
-const STORAGE_KEY = 'concord_agreements_v1'
+const STORAGE_KEY = 'concord_agreements_v2'
 
 function cloneAgreement(item) {
   return {
