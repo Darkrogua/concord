@@ -4771,7 +4771,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--concord-border);
 }
 
@@ -4817,7 +4817,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px 16px 16px;
+  padding: 16px 20px 18px;
 }
 
 .concord-approver__blocks {
@@ -4953,8 +4953,8 @@
 .concord-approver__section-footer {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding-top: 14px;
+  gap: 16px;
+  padding: 16px 20px 18px;
   border-top: 1px solid var(--concord-border);
 }
 
@@ -5058,13 +5058,13 @@
 .concord-vote-section {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .concord-vote-section__stats {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .concord-vote-section__stat {
@@ -5183,7 +5183,7 @@
 .concord-vote-stats__progress {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .concord-vote-stats__stat {
