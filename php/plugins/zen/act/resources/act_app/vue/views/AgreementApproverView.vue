@@ -126,6 +126,21 @@
                     </li>
                   </ul>
                 </div>
+
+                <div v-if="(block.links || []).length" class="concord-approver__links">
+                  <a
+                    v-for="link in block.links"
+                    :key="link.id"
+                    :href="link.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="concord-approver__link"
+                  >
+                    <span class="concord-approver__link-title">{{ link.title }}</span>
+                    <span v-if="link.description" class="concord-approver__link-desc">{{ link.description }}</span>
+                    <span class="concord-approver__link-url">{{ link.url }}</span>
+                  </a>
+                </div>
               </article>
             </div>
 
@@ -182,7 +197,7 @@
 <script>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { ensureAgreementSections, formatSectionTabTitle, CURRENT_APPROVER_ID } from '../concord/mock-agreements.js'
-import { resolveSectionParticipants } from '../concord/mock-groups.js'
+import { resolveSectionParticipants, MOCK_CONTACTS } from '../concord/mock-groups.js'
 import ParticipantAvatars from '../concord/ParticipantAvatars.vue'
 import ApproverVoteSection from '../concord/ApproverVoteSection.vue'
 import ApproverVoteStats from '../concord/ApproverVoteStats.vue'
@@ -216,13 +231,12 @@ export default {
     const showSectionTabs = computed(() => (props.agreement?.sections?.length || 0) > 1)
 
     function isActiveSection(section) {
-      const ids = section.participantIds || []
-      const groups = section.groupIds || []
-      return ids.includes(CURRENT_APPROVER_ID) || groups.length > 0
+      const participants = resolveSectionParticipants(section, [], MOCK_CONTACTS)
+      return participants.some((person) => person.id === CURRENT_APPROVER_ID)
     }
 
     function sectionParticipants(section) {
-      return resolveSectionParticipants(section, [], [])
+      return resolveSectionParticipants(section, [], MOCK_CONTACTS)
     }
 
     function userVoteForSection(section) {

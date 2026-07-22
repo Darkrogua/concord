@@ -1,5 +1,29 @@
 <template>
-  <div class="concord-vote-section" :class="{ 'concord-vote-section--voted': hasVoted }">
+  <div class="concord-vote-section">
+    <div class="concord-vote-section__stats">
+      <div class="concord-vote-section__stat">
+        <span>Согласовано</span>
+        <span class="concord-vote-section__stat-value">{{ stats.approved }}%</span>
+      </div>
+      <div class="concord-vote-section__stat-bar" aria-hidden="true">
+        <div class="concord-vote-section__stat-fill" :style="{ width: `${stats.approved}%` }" />
+      </div>
+      <div class="concord-vote-section__stat">
+        <span>Не согласовано</span>
+        <span class="concord-vote-section__stat-value">{{ stats.rejected }}%</span>
+      </div>
+      <div class="concord-vote-section__stat-bar" aria-hidden="true">
+        <div class="concord-vote-section__stat-fill concord-vote-section__stat-fill--rejected" :style="{ width: `${stats.rejected}%` }" />
+      </div>
+      <div class="concord-vote-section__stat">
+        <span>Не голосовали</span>
+        <span class="concord-vote-section__stat-value">{{ stats.pending }}%</span>
+      </div>
+      <div class="concord-vote-section__stat-bar" aria-hidden="true">
+        <div class="concord-vote-section__stat-fill concord-vote-section__stat-fill--pending" :style="{ width: `${stats.pending}%` }" />
+      </div>
+    </div>
+
     <div v-if="!hasVoted" class="concord-vote-section__question">
       <span class="concord-vote-section__question-text">Согласовать?</span>
       <div class="concord-vote-section__actions">
@@ -16,21 +40,6 @@
         {{ statusLabel }}
       </span>
       <span v-if="userVote.reason" class="concord-vote-section__reason">{{ userVote.reason }}</span>
-    </div>
-
-    <div class="concord-vote-section__stats">
-      <div class="concord-vote-section__stat">
-        <span>Согласовано</span>
-        <span>{{ stats.approved }}%</span>
-      </div>
-      <div class="concord-vote-section__stat">
-        <span>Не согласовано</span>
-        <span>{{ stats.rejected }}%</span>
-      </div>
-      <div class="concord-vote-section__stat">
-        <span>Не голосовали</span>
-        <span>{{ stats.pending }}%</span>
-      </div>
     </div>
   </div>
 </template>

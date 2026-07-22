@@ -903,15 +903,13 @@ function createFullDemoAgreement() {
     isActive: false,
     blocks: [
       {
-        id: 'block-mgmt-checkbox',
-        type: 'checkbox',
-        label: 'Чекбокс',
-        title: 'Контрольный лист',
-        prompt: 'Пункты, которые проверяет руководитель:',
-        items: [
-          { id: 'item-1', label: 'Бюджет согласован', checked: false },
-          { id: 'item-2', label: 'Сроки утверждены', checked: true },
-          { id: 'item-3', label: 'Риски учтены', checked: false },
+        id: 'block-mgmt-links',
+        type: 'link',
+        label: 'Ссылки',
+        title: 'Полезные ссылки',
+        links: [
+          { id: 'link-1', title: 'Брендбук компании', url: 'https://example.com/brandbook', description: 'Официальный гайд по использованию логотипа и цветов.' },
+          { id: 'link-2', title: 'Требования к контенту', url: 'https://example.com/content', description: 'Правила оформления текстов и изображений.' },
         ],
       },
     ],

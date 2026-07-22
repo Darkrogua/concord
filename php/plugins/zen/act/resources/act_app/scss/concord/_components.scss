@@ -4977,10 +4977,51 @@
 .concord-vote-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   padding: 12px;
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface);
+}
+
+.concord-vote-section__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.concord-vote-section__stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--concord-text-secondary);
+}
+
+.concord-vote-section__stat-value {
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+}
+
+.concord-vote-section__stat-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--concord-bar-track);
+  overflow: hidden;
+}
+
+.concord-vote-section__stat-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--concord-purple);
+  transition: width 0.2s ease;
+}
+
+.concord-vote-section__stat-fill--rejected {
+  background: var(--concord-status-red-text);
+}
+
+.concord-vote-section__stat-fill--pending {
+  background: var(--concord-text-secondary);
 }
 
 .concord-vote-section__question {
@@ -5053,20 +5094,6 @@
   white-space: nowrap;
 }
 
-.concord-vote-section__stats {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.concord-vote-section__stat {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--concord-text-secondary);
-}
-
 /* Inactive vote stats */
 .concord-vote-stats {
   display: flex;
@@ -5083,6 +5110,68 @@
   justify-content: space-between;
   font-size: 12px;
   color: var(--concord-text-secondary);
+}
+
+.concord-vote-stats__stat-value {
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+}
+
+.concord-vote-stats__stat-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--concord-bar-track);
+  overflow: hidden;
+}
+
+.concord-vote-stats__stat-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--concord-text-secondary);
+  transition: width 0.2s ease;
+}
+
+.concord-vote-stats__stat-fill--rejected {
+  background: var(--concord-status-red-text);
+}
+
+.concord-vote-stats__stat-fill--pending {
+  background: var(--concord-text-secondary);
+  opacity: 0.6;
+}
+
+/* Links block */
+.concord-approver__links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.concord-approver__link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-purple-light);
+  color: var(--concord-purple-dark);
+  text-decoration: none;
+}
+
+.concord-approver__link-title {
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-approver__link-desc {
+  font-size: 12px;
+  color: var(--concord-text-secondary);
+}
+
+.concord-approver__link-url {
+  font-size: 12px;
+  color: var(--concord-purple);
+  word-break: break-all;
 }
 
 /* Confirm / reject sheets */

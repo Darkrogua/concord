@@ -2,15 +2,24 @@
   <div class="concord-vote-stats">
     <div class="concord-vote-stats__stat">
       <span>Согласовано</span>
-      <span>{{ stats.approved }}%</span>
+      <span class="concord-vote-stats__stat-value">{{ stats.approved }}%</span>
+    </div>
+    <div class="concord-vote-stats__stat-bar" aria-hidden="true">
+      <div class="concord-vote-stats__stat-fill" :style="{ width: `${stats.approved}%` }" />
     </div>
     <div class="concord-vote-stats__stat">
       <span>Не согласовано</span>
-      <span>{{ stats.rejected }}%</span>
+      <span class="concord-vote-stats__stat-value">{{ stats.rejected }}%</span>
+    </div>
+    <div class="concord-vote-stats__stat-bar" aria-hidden="true">
+      <div class="concord-vote-stats__stat-fill concord-vote-stats__stat-fill--rejected" :style="{ width: `${stats.rejected}%` }" />
     </div>
     <div class="concord-vote-stats__stat">
       <span>Не голосовали</span>
-      <span>{{ stats.pending }}%</span>
+      <span class="concord-vote-stats__stat-value">{{ stats.pending }}%</span>
+    </div>
+    <div class="concord-vote-stats__stat-bar" aria-hidden="true">
+      <div class="concord-vote-stats__stat-fill concord-vote-stats__stat-fill--pending" :style="{ width: `${stats.pending}%` }" />
     </div>
   </div>
 </template>
