@@ -39,14 +39,16 @@
       <span class="concord-vote-section__status" :class="`concord-vote-section__status--${userVote.decision}`">
         {{ statusLabel }}
       </span>
-      <button
-        v-if="userVote.reason"
-        type="button"
-        class="concord-vote-section__reason"
-        @click="$emit('view-reason', userVote.reason)"
-      >
-        {{ userVote.reason }}
-      </button>
+      <div v-if="userVote.reason" class="concord-vote-section__reason-wrap">
+        <p class="concord-vote-section__reason">{{ userVote.reason }}</p>
+        <button
+          type="button"
+          class="concord-vote-section__reason-more"
+          @click="$emit('view-reason', userVote.reason)"
+        >
+          Читать полностью
+        </button>
+      </div>
     </div>
   </div>
 </template>

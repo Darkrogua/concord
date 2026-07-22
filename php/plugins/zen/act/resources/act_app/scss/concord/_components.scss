@@ -5250,16 +5250,34 @@
   color: var(--concord-status-red-text);
 }
 
+.concord-vote-section__reason-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
 .concord-vote-section__reason {
+  margin: 0;
+  font-size: 13px;
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text-secondary);
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.concord-vote-section__reason-more {
+  align-self: flex-start;
   padding: 0;
   border: none;
   background: transparent;
   font: inherit;
-  font-size: 13px;
-  line-height: var(--concord-leading-body);
-  text-align: left;
-  color: var(--concord-text-secondary);
-  word-break: break-word;
+  font-size: 12px;
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-purple);
   cursor: pointer;
 }
 
