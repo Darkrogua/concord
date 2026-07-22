@@ -2300,7 +2300,8 @@
 .concord-block__plate {
   margin: -14px -16px 12px;
   padding: 12px 16px;
-  background: var(--concord-purple-light);
+  background: var(--concord-purple-muted);
+  border-bottom: 1px solid #cbbfdc;
   font-size: var(--concord-text-caption);
   font-weight: var(--concord-weight-bold);
   line-height: var(--concord-leading-tight);
