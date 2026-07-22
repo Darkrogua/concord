@@ -5161,8 +5161,9 @@
 
 .concord-vote-section__result {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .concord-vote-section__status {
@@ -5183,11 +5184,10 @@
 }
 
 .concord-vote-section__reason {
-  font-size: 12px;
+  font-size: 13px;
+  line-height: var(--concord-leading-body);
   color: var(--concord-text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
 }
 
 /* Inactive vote stats */
