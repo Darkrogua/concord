@@ -830,7 +830,81 @@ export const MOCK_AGREEMENTS = [
       },
     ],
   },
+  createFullDemoAgreement(),
 ]
+
+function createFullDemoAgreement() {
+  const section = createAgreementSection('Демо: все блоки')
+  section.blocks = [
+    {
+      id: 'block-demo-text',
+      type: 'text',
+      label: 'Текстовый блок',
+      title: 'По дизайну',
+      description: 'Описание того, что необходимо согласовать.',
+      content: 'Здесь размещается подробный текст с пояснениями для согласующего. Можно описать требования, сроки и ожидаемый результат.',
+    },
+    {
+      id: 'block-demo-files',
+      type: 'files',
+      label: 'Файлы',
+      title: 'Приложенные документы',
+      files: [
+        { id: 'file-1', name: 'Договор.pdf', mime: 'application/pdf', previewUrl: '' },
+        { id: 'file-2', name: 'Смета.xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', previewUrl: '' },
+      ],
+    },
+    {
+      id: 'block-demo-gallery',
+      type: 'gallery',
+      label: 'Галерея',
+      title: 'Макеты и эскизы',
+      photos: [
+        { id: 'photo-1', name: 'Главная страница', previewUrl: 'https://picsum.photos/id/1015/400/300' },
+        { id: 'photo-2', name: 'Каталог', previewUrl: 'https://picsum.photos/id/1036/400/300' },
+      ],
+    },
+    {
+      id: 'block-demo-checkbox',
+      type: 'checkbox',
+      label: 'Чекбокс',
+      title: 'Проверочный лист',
+      prompt: 'Отметьте пункты, которые необходимо проверить перед согласованием:',
+      items: [
+        { id: 'item-1', label: 'Соответствие ТЗ', checked: false },
+        { id: 'item-2', label: 'Наличие всех файлов', checked: false },
+        { id: 'item-3', label: 'Корректность сроков', checked: true },
+      ],
+    },
+  ]
+  section.votingStats = { approved: 0, rejected: 0, pending: 100 }
+
+  return {
+    id: '305',
+    number: 305,
+    title: 'Демо-согласование со всеми блоками',
+    createdAt: formatDateRu(),
+    deadline: '31.12.2026',
+    daysLabel: 'До конца года',
+    isUrgent: true,
+    author: { name: 'Александр Аблизин' },
+    participants: [
+      { label: 'А' },
+      { label: 'И' },
+      { label: 'Е' },
+      { label: 'М' },
+      { label: 'Н' },
+      { label: '+3' },
+    ],
+    status: 'awaiting',
+    voted: 0,
+    total: 15,
+    isFavorite: false,
+    isOwner: false,
+    description: 'Тестовое согласование для проверки всех типов блоков в режиме согласователя.',
+    sections: [section],
+  }
+}
 
 export const DEFAULT_FILTER_SECTIONS = [
   {
