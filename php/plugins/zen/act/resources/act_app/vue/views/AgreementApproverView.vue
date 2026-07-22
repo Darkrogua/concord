@@ -47,7 +47,11 @@
         :id="sectionAnchorId(section.id)"
         :ref="(el) => setSectionRef(section.id, el)"
         class="concord-approver__section"
-        :class="{ 'concord-approver__section--active': isActiveSection(section), 'concord-approver__section--inactive': !isActiveSection(section) }"
+        :class="{
+          'concord-approver__section--active': isActiveSection(section),
+          'concord-approver__section--inactive': !isActiveSection(section),
+          'concord-approver__section--expanded': expandedSections[section.id] !== false,
+        }"
       >
         <div class="concord-approver__section-card">
           <header class="concord-approver__section-header">
@@ -144,29 +148,30 @@
               </article>
             </div>
 
-            <div class="concord-approver__section-footer">
-              <div class="concord-approver__section-meta">
-                <span class="concord-approver__section-id">#{{ agreement.number }}</span>
-                <span class="concord-approver__section-date">Создана: {{ agreement.createdAt }}</span>
-              </div>
-              <div class="concord-approver__section-participants">
-                <span class="concord-approver__section-voters">Согласующих: {{ sectionParticipants(section).length }} чел.</span>
-                <ParticipantAvatars :people="sectionParticipants(section)" :max="5" compact />
-              </div>
+          </div>
 
-              <ApproverVoteSection
-                v-if="isActiveSection(section)"
-                :section="section"
-                :user-vote="userVoteForSection(section)"
-                @vote-yes="openYesConfirm(section.id)"
-                @vote-no="openNoReason(section.id)"
-              />
-
-              <ApproverVoteStats
-                v-else
-                :section="section"
-              />
+          <div class="concord-approver__section-footer">
+            <div class="concord-approver__section-meta">
+              <span class="concord-approver__section-id">#{{ agreement.number }}</span>
+              <span class="concord-approver__section-date">Создана: {{ agreement.createdAt }}</span>
             </div>
+            <div class="concord-approver__section-participants">
+              <span class="concord-approver__section-voters">Согласующих: {{ sectionParticipants(section).length }} чел.</span>
+              <ParticipantAvatars :people="sectionParticipants(section)" :max="5" compact />
+            </div>
+
+            <ApproverVoteSection
+              v-if="isActiveSection(section)"
+              :section="section"
+              :user-vote="userVoteForSection(section)"
+              @vote-yes="openYesConfirm(section.id)"
+              @vote-no="openNoReason(section.id)"
+            />
+
+            <ApproverVoteStats
+              v-else
+              :section="section"
+            />
           </div>
         </div>
       </div>

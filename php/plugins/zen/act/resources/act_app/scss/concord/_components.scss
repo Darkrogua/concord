@@ -4731,6 +4731,13 @@
   padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 24px);
 }
 
+.concord-page--approver .concord-agreement-editor__tabs-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: var(--concord-surface);
+}
+
 .concord-approver {
   display: flex;
   flex-direction: column;
@@ -4796,6 +4803,10 @@
 
 .concord-approver__toggle-icon {
   transition: transform 0.2s ease;
+}
+
+.concord-approver__section--expanded .concord-approver__toggle-icon {
+  transform: rotate(180deg);
 }
 
 .concord-approver__section--active .concord-approver__toggle-icon {
