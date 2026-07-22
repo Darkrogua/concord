@@ -363,14 +363,14 @@ export const AGREEMENT_BLOCK_TYPES = [
   { id: 'files', label: 'Файлы' },
   { id: 'gallery', label: 'Галерея' },
   { id: 'text', label: 'Текстовый блок' },
-  { id: 'checkbox', label: 'Чекбокс' },
+  { id: 'link', label: 'Ссылки' },
 ]
 
 export const AGREEMENT_EDITOR_BLOCK_TYPES = [
   { id: 'gallery', label: 'Галерея' },
   { id: 'files', label: 'Файлы' },
   { id: 'text', label: 'Текстовый блок' },
-  { id: 'checkbox', label: 'Чекбокс' },
+  { id: 'link', label: 'Ссылки' },
 ]
 
 export const AGREEMENT_EDITOR_INTRO =
@@ -470,6 +470,22 @@ export function normalizeCheckboxBlock(block) {
 /**
  * @param {AgreementBlock} block
  */
+export function normalizeLinksBlock(block) {
+  if (!block || block.type !== 'link') {
+    return block
+  }
+  if (block.title === undefined) {
+    block.title = block.label || 'Ссылки'
+  }
+  if (!Array.isArray(block.links)) {
+    block.links = []
+  }
+  return block
+}
+
+/**
+ * @param {AgreementBlock} block
+ */
 export function normalizeAgreementBlock(block) {
   if (!block) {
     return block
@@ -485,6 +501,9 @@ export function normalizeAgreementBlock(block) {
   }
   if (block.type === 'checkbox') {
     return normalizeCheckboxBlock(block)
+  }
+  if (block.type === 'link') {
+    return normalizeLinksBlock(block)
   }
   return block
 }
@@ -697,14 +716,9 @@ export function createAgreementBlock(blockType) {
     block.title = blockType.label
     block.photos = []
   }
-  if (blockType.id === 'checkbox') {
-    block.title = blockType.label
-    block.prompt = ''
-    block.items = []
-  }
   if (blockType.id === 'link') {
-    block.title = ''
-    block.url = ''
+    block.title = blockType.label
+    block.links = []
   }
   if (blockType.id === 'code') {
     block.title = ''

@@ -5357,6 +5357,57 @@
 }
 
 /* Links block */
+.concord-links-block__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.concord-links-block__item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-sm);
+  background: #fff;
+}
+
+.concord-links-block__input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-surface);
+  font: inherit;
+  font-size: var(--concord-text-caption);
+  color: var(--concord-text);
+}
+
+.concord-links-block__input:focus {
+  outline: none;
+  border-color: var(--concord-purple);
+}
+
+.concord-links-block__remove {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-status-red-text);
+  cursor: pointer;
+}
+
+.concord-links-block__empty {
+  margin: 0 0 12px;
+  font-size: var(--concord-text-caption);
+  color: var(--concord-text-secondary);
+}
+
 .concord-approver__links {
   display: flex;
   flex-direction: column;

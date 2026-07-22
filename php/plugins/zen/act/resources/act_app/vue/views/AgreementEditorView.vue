@@ -169,7 +169,7 @@
                 :block="block"
                 @edit="openTextEditor(block)"
               />
-              <ConcordCheckboxBlockCard v-else-if="block.type === 'checkbox'" :block="block" />
+              <ConcordLinksBlockCard v-else-if="block.type === 'link'" :block="block" />
               <article v-else class="concord-agreement-editor__block-card">
                 <h3 class="concord-agreement-editor__block-title">{{ block.label }}</h3>
                 <p class="concord-agreement-editor__block-placeholder">Блок добавлен. Контент появится на следующем этапе.</p>
@@ -218,7 +218,7 @@ import {
 import AgreementContainerCard from '../concord/AgreementContainerCard.vue'
 import BlockAddZone from '../concord/BlockAddZone.vue'
 import ConcordGalleryBlockCard from '../concord/ConcordGalleryBlockCard.vue'
-import ConcordCheckboxBlockCard from '../concord/ConcordCheckboxBlockCard.vue'
+import ConcordLinksBlockCard from '../concord/ConcordLinksBlockCard.vue'
 import ConcordFilesBlockCard from '../concord/ConcordFilesBlockCard.vue'
 import ConcordTextBlockPreview from '../concord/ConcordTextBlockPreview.vue'
 import AgreementSettingsView from './AgreementSettingsView.vue'
@@ -234,7 +234,7 @@ export default {
     AgreementContainerCard,
     AgreementSettingsView,
     BlockAddZone,
-    ConcordCheckboxBlockCard,
+    ConcordLinksBlockCard,
     ConcordFilesBlockCard,
     ConcordGalleryBlockCard,
     ConcordTextBlockPreview,
