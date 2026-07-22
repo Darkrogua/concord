@@ -78,7 +78,7 @@
     />
 
     <AgreementEditorView
-      v-else-if="currentView === 'agreement-editor'"
+      v-else-if="currentView === 'agreement-editor' && editingAgreement?.isOwner"
       :agreement="editingAgreement"
       :contacts="groupContacts"
       :groups="profileGroups"
@@ -89,6 +89,13 @@
       @update-section="onUpdateAgreementSection"
       @create-group="onCreateGroup"
       @update-group="onUpdateGroup"
+    />
+
+    <AgreementApproverView
+      v-else-if="currentView === 'agreement-editor' && editingAgreement && !editingAgreement.isOwner"
+      :agreement="editingAgreement"
+      @back="onAgreementEditorBack"
+      @vote="onVote"
     />
 
     <NotificationsView
@@ -136,6 +143,7 @@ import GeneralSettingsView from './views/GeneralSettingsView.vue'
 import NotificationSettingsView from './views/NotificationSettingsView.vue'
 import CreateAgreementView from './views/CreateAgreementView.vue'
 import AgreementEditorView from './views/AgreementEditorView.vue'
+import AgreementApproverView from './views/AgreementApproverView.vue'
 import NotificationsView from './views/NotificationsView.vue'
 import GroupsManageView from './views/GroupsManageView.vue'
 import GroupMembersView from './views/GroupMembersView.vue'
@@ -165,6 +173,7 @@ export default {
     NotificationSettingsView,
     CreateAgreementView,
     AgreementEditorView,
+    AgreementApproverView,
     NotificationsView,
     GroupsManageView,
     GroupMembersView,
@@ -534,6 +543,26 @@ export default {
       persist()
     }
 
+    function onVote({ agreementId, decision, reason }) {
+      const agreement = agreements.value.find((item) => item.id === agreementId)
+      if (!agreement) {
+        return
+      }
+      agreement.userVote = { decision, reason }
+      const section = agreement.sections?.[0]
+      if (section) {
+        const stats = section.votingStats || { approved: 0, rejected: 0, pending: 100 }
+        if (decision === 'approved') {
+          stats.approved = Math.min(100, (stats.approved || 0) + Math.round(100 / (agreement.total || 1)))
+        } else {
+          stats.rejected = Math.min(100, (stats.rejected || 0) + Math.round(100 / (agreement.total || 1)))
+        }
+        stats.pending = Math.max(0, 100 - stats.approved - stats.rejected)
+        section.votingStats = stats
+      }
+      persist()
+    }
+
     function onUpdateAgreementSection({
       sectionId,
       title,
@@ -642,6 +671,7 @@ export default {
       onDeleteAgreementBlock,
       onAddAgreementSection,
       onUpdateAgreementSection,
+      onVote,
       editingAgreement,
       editingAgreementId,
       onCreateAccount,

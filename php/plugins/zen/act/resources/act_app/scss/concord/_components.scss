@@ -4725,3 +4725,408 @@
   font-size: var(--concord-text-caption);
   color: var(--concord-text-secondary);
 }
+
+/* Approver view */
+.concord-page--approver {
+  padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 210px);
+}
+
+.concord-approver {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px var(--concord-page-gutter);
+}
+
+.concord-approver__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.concord-approver__section-title {
+  margin: 0;
+  font-size: var(--concord-text-sheet);
+  font-weight: var(--concord-weight-bold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-approver__blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.concord-approver__block {
+  padding: 16px;
+  border-radius: var(--concord-radius);
+  background: var(--concord-card-bg);
+}
+
+.concord-approver__block-title {
+  margin: 0 0 8px;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+}
+
+.concord-approver__block-desc,
+.concord-approver__block-content {
+  margin: 0 0 12px;
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  white-space: pre-wrap;
+}
+
+.concord-approver__files {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.concord-approver__file {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.concord-approver__file-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-purple-light);
+  color: var(--concord-purple);
+  overflow: hidden;
+}
+
+.concord-approver__file-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.concord-approver__file-name {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--concord-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.concord-approver__gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.concord-approver__photo {
+  aspect-ratio: 1;
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-purple-light);
+  overflow: hidden;
+}
+
+.concord-approver__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.concord-approver__checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.concord-approver__checkbox-prompt {
+  margin: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-text);
+}
+
+.concord-approver__checkbox-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.concord-approver__checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--concord-text-body);
+  color: var(--concord-text);
+}
+
+.concord-approver__checkbox-box {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--concord-purple);
+  border-radius: 5px;
+  background: var(--concord-surface);
+}
+
+.concord-approver__checkbox-box--checked {
+  background: var(--concord-purple) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center no-repeat;
+  border-color: var(--concord-purple);
+}
+
+/* Vote card */
+.concord-vote-card {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom));
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px;
+  background: var(--concord-surface);
+  border-top: 1px solid var(--concord-border);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.concord-vote-card__info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.concord-vote-card__details {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: stretch;
+  flex: 1;
+  min-width: 0;
+}
+
+.concord-vote-card__flame {
+  grid-row: 1 / span 2;
+  grid-column: 1;
+  display: flex;
+  align-self: stretch;
+  flex-shrink: 0;
+  width: 28px;
+  min-height: 0;
+}
+
+.concord-vote-card__flame .concord-urgency-flame {
+  width: 100%;
+  height: 100%;
+}
+
+.concord-vote-card__meta {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-card-meta);
+}
+
+.concord-vote-card__days {
+  color: var(--concord-text-secondary);
+}
+
+.concord-vote-card__voters {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  font-size: 13px;
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-text);
+}
+
+.concord-vote-card__question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.concord-vote-card__question-text {
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+}
+
+.concord-vote-card__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.concord-vote-card__btn {
+  min-width: 64px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--concord-radius-pill);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  cursor: pointer;
+}
+
+.concord-vote-card__btn--yes {
+  background: var(--concord-purple);
+  color: #fff;
+}
+
+.concord-vote-card__btn--no {
+  background: var(--concord-surface);
+  color: var(--concord-purple);
+  border: 1.5px solid var(--concord-purple);
+}
+
+.concord-vote-card__result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.concord-vote-card__status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.concord-vote-card__status {
+  padding: 4px 12px;
+  border-radius: var(--concord-radius-pill);
+  font-size: 13px;
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-vote-card__status--approved {
+  background: var(--concord-purple-light);
+  color: var(--concord-purple-dark);
+}
+
+.concord-vote-card__status--rejected {
+  background: rgba(192, 24, 24, 0.1);
+  color: var(--concord-status-red-text);
+}
+
+.concord-vote-card__reason {
+  font-size: 12px;
+  color: var(--concord-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.concord-vote-card__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.concord-vote-card__stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--concord-text-secondary);
+}
+
+/* Confirm / reject sheets */
+.concord-confirm-sheet,
+.concord-reject-sheet {
+  text-align: center;
+}
+
+.concord-confirm-sheet__text {
+  margin: 0 0 20px;
+  font-size: var(--concord-text-body);
+  color: var(--concord-text-secondary);
+}
+
+.concord-confirm-sheet__actions,
+.concord-reject-sheet__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.concord-reject-sheet__input {
+  width: 100%;
+  min-height: 80px;
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-surface);
+  color: var(--concord-text);
+  font: inherit;
+  font-size: var(--concord-text-body);
+  resize: none;
+}
+
+.concord-btn {
+  flex: 1 1 0;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--concord-radius-pill);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  cursor: pointer;
+}
+
+.concord-btn--primary {
+  background: var(--concord-purple);
+  color: #fff;
+}
+
+.concord-btn--secondary {
+  background: var(--concord-purple-light);
+  color: var(--concord-purple-dark);
+}
+
+/* Menu sheet */
+.concord-menu-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 160;
+  padding: 20px 16px calc(16px + var(--concord-safe-bottom));
+  border-radius: 16px 16px 0 0;
+  background: var(--concord-surface);
+}
+
+.concord-menu-sheet__item {
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  border: none;
+  border-bottom: 1px solid var(--concord-border);
+  background: transparent;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.concord-menu-sheet__item:last-child {
+  border-bottom: none;
+}
+
+.concord-menu-sheet__item--destructive {
+  color: var(--concord-status-red-text);
+}
