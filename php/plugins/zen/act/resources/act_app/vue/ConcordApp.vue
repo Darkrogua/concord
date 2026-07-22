@@ -462,7 +462,13 @@ export default {
     }
 
     function onOpenAgreement(id) {
-      console.info('[concord] open agreement', id)
+      const item = agreements.value.find((agreement) => agreement.id === id)
+      if (!item) {
+        return
+      }
+      ensureAgreementSections(item)
+      editingAgreementId.value = id
+      currentView.value = 'agreement-editor'
     }
 
     function onEditAgreement(id) {
