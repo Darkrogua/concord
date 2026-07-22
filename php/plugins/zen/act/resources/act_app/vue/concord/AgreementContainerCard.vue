@@ -123,10 +123,23 @@
               <span class="concord-container__comment-name">{{ vote.name }}</span>
             </div>
             <p class="concord-container__comment-text">{{ vote.reason }}</p>
+            <button
+              type="button"
+              class="concord-container__comment-more"
+              @click="openReasonModal(vote.reason)"
+            >
+              Читать полностью
+            </button>
           </li>
         </ul>
       </div>
     </footer>
+
+    <ConcordReasonViewModal
+      :open="reasonModalOpen"
+      :reason="reasonModalText"
+      @close="closeReasonModal"
+    />
   </article>
 </template>
 
@@ -135,6 +148,7 @@ import { ref } from 'vue'
 import ConcordGearIcon from './ConcordGearIcon.vue'
 import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
 import ParticipantAvatars from './ParticipantAvatars.vue'
+import ConcordReasonViewModal from './ConcordReasonViewModal.vue'
 import {
   resolveSectionParticipants,
   resolveSectionVotersCount,
@@ -149,7 +163,7 @@ import {
 
 export default {
   name: 'AgreementContainerCard',
-  components: { ConcordGearIcon, ConcordUrgencyFlame, ParticipantAvatars },
+  components: { ConcordGearIcon, ConcordUrgencyFlame, ParticipantAvatars, ConcordReasonViewModal },
   props: {
     agreement: {
       type: Object,
@@ -171,12 +185,24 @@ export default {
   emits: ['section-settings'],
   setup() {
     const expanded = ref(true)
+    const reasonModalOpen = ref(false)
+    const reasonModalText = ref('')
 
     function toggleExpanded() {
       expanded.value = !expanded.value
     }
 
-    return { expanded, toggleExpanded }
+    function openReasonModal(reason) {
+      reasonModalText.value = reason
+      reasonModalOpen.value = true
+    }
+
+    function closeReasonModal() {
+      reasonModalOpen.value = false
+      reasonModalText.value = ''
+    }
+
+    return { expanded, toggleExpanded, reasonModalOpen, reasonModalText, openReasonModal, closeReasonModal }
   },
   computed: {
     sectionParticipants() {
