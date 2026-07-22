@@ -180,6 +180,7 @@
               :user-vote="userVoteForSection(section)"
               @vote-yes="openYesConfirm(section.id)"
               @vote-no="openNoReason(section.id)"
+              @view-reason="openReasonModal"
             />
 
             <ApproverVoteStats
@@ -210,6 +211,12 @@
       @close="closeImageViewer"
     />
 
+    <ConcordReasonViewModal
+      :open="reasonModalOpen"
+      :reason="reasonModalText"
+      @close="closeReasonModal"
+    />
+
     <div v-if="menuOpen" class="concord-sheet-backdrop" @click="menuOpen = false" />
     <div v-if="menuOpen" class="concord-menu-sheet" role="dialog" aria-label="Меню согласования">
       <div class="concord-sheet__handle" aria-hidden="true" />
@@ -231,10 +238,11 @@ import ApproverVoteSection from '../concord/ApproverVoteSection.vue'
 import ApproverVoteStats from '../concord/ApproverVoteStats.vue'
 import ApproverVoteConfirmModal from '../concord/ApproverVoteConfirmModal.vue'
 import ApproverVoteRejectModal from '../concord/ApproverVoteRejectModal.vue'
+import ConcordReasonViewModal from '../concord/ConcordReasonViewModal.vue'
 
 export default {
   name: 'AgreementApproverView',
-  components: { ParticipantAvatars, ConcordUrgencyFlame, ConcordImageViewer, ApproverVoteSection, ApproverVoteStats, ApproverVoteConfirmModal, ApproverVoteRejectModal },
+  components: { ParticipantAvatars, ConcordUrgencyFlame, ConcordImageViewer, ConcordReasonViewModal, ApproverVoteSection, ApproverVoteStats, ApproverVoteConfirmModal, ApproverVoteRejectModal },
   props: {
     agreement: {
       type: Object,
@@ -256,6 +264,8 @@ export default {
     const imageViewerOpen = ref(false)
     const imageViewerSrc = ref('')
     const imageViewerAlt = ref('')
+    const reasonModalOpen = ref(false)
+    const reasonModalText = ref('')
 
     const expandedSections = reactive({})
 
@@ -434,6 +444,16 @@ export default {
       imageViewerAlt.value = ''
     }
 
+    function openReasonModal(reason) {
+      reasonModalText.value = reason
+      reasonModalOpen.value = true
+    }
+
+    function closeReasonModal() {
+      reasonModalOpen.value = false
+      reasonModalText.value = ''
+    }
+
     function openYesConfirm(sectionId) {
       activeVoteSectionId.value = sectionId
       yesConfirmOpen.value = true
@@ -446,13 +466,13 @@ export default {
 
     function onVoteYes() {
       yesConfirmOpen.value = false
-      emit('vote', { agreementId: props.agreement.id, sectionId: activeVoteSectionId.value, decision: 'approved', reason: '' })
+      emit('vote', { agreementId: props.agreement.id, sectionId: activeVoteSectionId.value, decision: 'approved', reason: '', participantId: CURRENT_APPROVER_ID })
       activeVoteSectionId.value = null
     }
 
     function onVoteNo(reason) {
       noReasonOpen.value = false
-      emit('vote', { agreementId: props.agreement.id, sectionId: activeVoteSectionId.value, decision: 'rejected', reason })
+      emit('vote', { agreementId: props.agreement.id, sectionId: activeVoteSectionId.value, decision: 'rejected', reason, participantId: CURRENT_APPROVER_ID })
       activeVoteSectionId.value = null
     }
 
@@ -467,6 +487,8 @@ export default {
       imageViewerOpen,
       imageViewerSrc,
       imageViewerAlt,
+      reasonModalOpen,
+      reasonModalText,
       formatSectionTabTitle,
       isActiveSection,
       sectionParticipants,
@@ -485,6 +507,8 @@ export default {
       openMenu,
       openImageViewer,
       closeImageViewer,
+      openReasonModal,
+      closeReasonModal,
       openYesConfirm,
       openNoReason,
       onVoteYes,

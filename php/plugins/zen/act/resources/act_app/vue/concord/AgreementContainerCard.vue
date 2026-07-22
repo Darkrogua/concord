@@ -109,6 +109,23 @@
           </div>
         </div>
       </div>
+
+      <div v-if="rejectedVotes.length" class="concord-container__comments">
+        <h4 class="concord-container__comments-title">Комментарии к отказам</h4>
+        <ul class="concord-container__comments-list">
+          <li
+            v-for="vote in rejectedVotes"
+            :key="vote.participantId"
+            class="concord-container__comment"
+          >
+            <div class="concord-container__comment-head">
+              <span class="concord-container__comment-avatar">{{ vote.initial }}</span>
+              <span class="concord-container__comment-name">{{ vote.name }}</span>
+            </div>
+            <p class="concord-container__comment-text">{{ vote.reason }}</p>
+          </li>
+        </ul>
+      </div>
     </footer>
   </article>
 </template>
@@ -212,6 +229,23 @@ export default {
         { key: 'rejected', label: 'Не согласовано', percent: stats.rejected || 0 },
         { key: 'pending', label: 'Не голосовали', percent: stats.pending || 0 },
       ]
+    },
+    rejectedVotes() {
+      const participants = this.sectionParticipants
+      const votes = this.section.votes || []
+      return votes
+        .filter((vote) => vote.decision === 'rejected' && vote.reason)
+        .map((vote) => {
+          const person = participants.find((p) => p.id === vote.participantId)
+          return {
+            participantId: vote.participantId,
+            name: person?.shortName || person?.name || vote.participantId,
+            initial: person?.initial || '?',
+            reason: vote.reason,
+            votedAt: vote.votedAt,
+          }
+        })
+        .sort((a, b) => (a.votedAt || '').localeCompare(b.votedAt || ''))
     },
   },
 }

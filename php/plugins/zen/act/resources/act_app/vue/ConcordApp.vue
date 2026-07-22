@@ -549,7 +549,7 @@ export default {
       persist()
     }
 
-    function onVote({ agreementId, sectionId, decision, reason }) {
+    function onVote({ agreementId, sectionId, decision, reason, participantId }) {
       const agreement = agreements.value.find((item) => item.id === agreementId)
       if (!agreement) {
         return
@@ -559,6 +559,17 @@ export default {
         return
       }
       section.userVote = { decision, reason }
+      if (!Array.isArray(section.votes)) {
+        section.votes = []
+      }
+      const voterId = participantId || activeAccountId.value
+      const existingIndex = section.votes.findIndex((vote) => vote.participantId === voterId)
+      const voteEntry = { participantId: voterId, decision, reason, votedAt: new Date().toISOString() }
+      if (existingIndex >= 0) {
+        section.votes[existingIndex] = voteEntry
+      } else {
+        section.votes.push(voteEntry)
+      }
       const stats = section.votingStats || { approved: 0, rejected: 0, pending: 100 }
       const voters = section.participantIds?.length || agreement.total || 1
       const share = Math.round(100 / voters)

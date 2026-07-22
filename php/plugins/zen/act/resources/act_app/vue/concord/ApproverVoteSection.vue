@@ -39,7 +39,14 @@
       <span class="concord-vote-section__status" :class="`concord-vote-section__status--${userVote.decision}`">
         {{ statusLabel }}
       </span>
-      <span v-if="userVote.reason" class="concord-vote-section__reason">{{ userVote.reason }}</span>
+      <button
+        v-if="userVote.reason"
+        type="button"
+        class="concord-vote-section__reason"
+        @click="$emit('view-reason', userVote.reason)"
+      >
+        {{ userVote.reason }}
+      </button>
     </div>
   </div>
 </template>
@@ -59,7 +66,7 @@ export default {
       default: null,
     },
   },
-  emits: ['vote-yes', 'vote-no'],
+  emits: ['vote-yes', 'vote-no', 'view-reason'],
   setup(props) {
     const hasVoted = computed(() => Boolean(props.userVote?.decision))
 

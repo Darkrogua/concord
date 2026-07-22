@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue'
 import { MOCK_AGREEMENTS, ensureAgreementSections } from '../concord/mock-agreements.js'
 
-const STORAGE_KEY = 'concord_agreements_v5'
+const STORAGE_KEY = 'concord_agreements_v6'
 
 function cloneAgreement(item) {
   return {
@@ -20,6 +20,8 @@ function cloneAgreement(item) {
       groupIds: section.groupIds ? [...section.groupIds] : undefined,
       settings: section.settings ? { ...section.settings } : undefined,
       votingStats: section.votingStats ? { ...section.votingStats } : undefined,
+      votes: (section.votes || []).map((vote) => ({ ...vote })),
+      userVote: section.userVote ? { ...section.userVote } : undefined,
     })),
   }
 }

@@ -565,6 +565,7 @@ export function createAgreementSection(title = 'Новый раздел') {
     leaderId: null,
     blocks: [],
     votingStats: { approved: 0, rejected: 0, pending: 100 },
+    votes: [],
     voted: 0,
     total: 0,
   })
@@ -597,6 +598,9 @@ export function ensureAgreementSections(agreement) {
     }
     if (!section.votingStats) {
       section.votingStats = { approved: 0, rejected: 0, pending: 100 }
+    }
+    if (!Array.isArray(section.votes)) {
+      section.votes = []
     }
   }
   return agreement
@@ -835,14 +839,17 @@ export const MOCK_AGREEMENTS = [
   createFullDemoAgreement(),
 ]
 
-function createDemoSection({ title, isActive, blocks, stats, settings }) {
+function createDemoSection({ title, isActive, blocks, stats, settings, votes, participantIds }) {
   const section = createAgreementSection(title)
   section.blocks = blocks
   section.votingStats = stats || { approved: 0, rejected: 0, pending: 100 }
+  section.votes = votes || []
   if (settings) {
     section.settings = { ...section.settings, ...settings }
   }
-  if (isActive) {
+  if (participantIds) {
+    section.participantIds = participantIds
+  } else if (isActive) {
     section.participantIds = [CURRENT_APPROVER_ID]
   } else {
     section.participantIds = ['elena-vasilyeva', 'maria-gorbunova']
@@ -854,8 +861,14 @@ function createFullDemoAgreement() {
   const designSection = createDemoSection({
     title: 'Дизайн',
     isActive: true,
+    participantIds: [CURRENT_APPROVER_ID, 'elena-vasilyeva', 'maria-gorbunova', 'roman-gorbachev'],
     stats: { approved: 75, rejected: 15, pending: 10 },
     settings: { showResultsBefore: true, showResultsAfter: true },
+    votes: [
+      { participantId: 'elena-vasilyeva', decision: 'approved', reason: '', votedAt: '2026-07-20T10:00:00.000Z' },
+      { participantId: 'maria-gorbunova', decision: 'rejected', reason: 'Главная страница перегружена элементами, нужно упростить навигацию и увеличить контраст кнопок. Также в мобильной версии каталога съезжает сетка.', votedAt: '2026-07-21T14:30:00.000Z' },
+      { participantId: 'roman-gorbachev', decision: 'approved', reason: '', votedAt: '2026-07-21T16:00:00.000Z' },
+    ],
     blocks: [
       {
         id: 'block-design-text',
@@ -881,8 +894,14 @@ function createFullDemoAgreement() {
   const programmingSection = createDemoSection({
     title: 'Программирование',
     isActive: false,
+    participantIds: ['elena-vasilyeva', 'maria-gorbunova', 'sergey-gordienko'],
     stats: { approved: 40, rejected: 10, pending: 50 },
     settings: { showResultsBefore: true, showResultsAfter: true },
+    votes: [
+      { participantId: 'elena-vasilyeva', decision: 'approved', reason: '', votedAt: '2026-07-19T09:00:00.000Z' },
+      { participantId: 'maria-gorbunova', decision: 'rejected', reason: 'В API-спецификации не учтены ограничения по rate limit, а схема БД не поддерживает историю изменений статусов.', votedAt: '2026-07-20T11:15:00.000Z' },
+      { participantId: 'sergey-gordienko', decision: 'approved', reason: '', votedAt: '2026-07-20T13:45:00.000Z' },
+    ],
     blocks: [
       {
         id: 'block-dev-text',
@@ -910,6 +929,10 @@ function createFullDemoAgreement() {
     isActive: false,
     stats: { approved: 20, rejected: 5, pending: 75 },
     settings: { showResultsBefore: true, showResultsAfter: true },
+    votes: [
+      { participantId: 'elena-vasilyeva', decision: 'approved', reason: '', votedAt: '2026-07-18T10:30:00.000Z' },
+      { participantId: 'maria-gorbunova', decision: 'rejected', reason: 'Бюджет не согласован с финансовым отделом, сроки реализации завышены на две недели. Нужно пересмотреть план проекта.', votedAt: '2026-07-19T16:20:00.000Z' },
+    ],
     blocks: [
       {
         id: 'block-mgmt-text',

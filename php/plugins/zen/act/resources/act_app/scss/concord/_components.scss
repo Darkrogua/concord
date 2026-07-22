@@ -2289,6 +2289,73 @@
   background: var(--concord-card-progress-fill);
 }
 
+.concord-container__comments {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--concord-border);
+}
+
+.concord-container__comments-title {
+  margin: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+}
+
+.concord-container__comments-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.concord-container__comment {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+}
+
+.concord-container__comment-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.concord-container__comment-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--concord-purple-light);
+  color: var(--concord-purple);
+  font-size: 10px;
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-container__comment-name {
+  font-size: 13px;
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-text);
+}
+
+.concord-container__comment-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text-secondary);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
 .concord-block {
   padding: 14px 16px;
   border: 1px solid var(--concord-border);
@@ -5184,10 +5251,16 @@
 }
 
 .concord-vote-section__reason {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
   font-size: 13px;
   line-height: var(--concord-leading-body);
+  text-align: left;
   color: var(--concord-text-secondary);
   word-break: break-word;
+  cursor: pointer;
 }
 
 /* Inactive vote stats */
@@ -5283,9 +5356,10 @@
   word-break: break-all;
 }
 
-/* Confirm / reject sheets */
+/* Confirm / reject / reason sheets */
 .concord-confirm-sheet,
-.concord-reject-sheet {
+.concord-reject-sheet,
+.concord-reason-sheet {
   text-align: center;
 }
 
@@ -5296,9 +5370,23 @@
 }
 
 .concord-confirm-sheet__actions,
-.concord-reject-sheet__actions {
+.concord-reject-sheet__actions,
+.concord-reason-sheet__actions {
   display: flex;
   gap: 10px;
+}
+
+.concord-reason-sheet__text {
+  margin: 0 0 20px;
+  padding: 12px;
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  text-align: left;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .concord-reject-sheet__input {
