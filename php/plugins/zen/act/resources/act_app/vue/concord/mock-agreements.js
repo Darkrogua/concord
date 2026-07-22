@@ -1057,8 +1057,8 @@ function createOwnerDemoAgreement() {
   })
 
   return {
-    id: '306',
-    number: 306,
+    id: 'owner-demo-307',
+    number: 307,
     title: 'Тестовое согласование для владельца (5 отказов)',
     createdAt: formatDateRu(),
     deadline: '31.12.2026',
