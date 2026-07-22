@@ -4981,7 +4981,45 @@
 .concord-approver__section-voters {
   font-size: 13px;
   font-weight: var(--concord-weight-medium);
-  color: var(--concord-text);
+  color: var(--concord-purple);
+}
+
+.concord-approver__photo {
+  cursor: pointer;
+}
+
+/* Image viewer */
+.concord-image-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.concord-image-viewer__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+}
+
+.concord-image-viewer__image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 /* Vote per section */
@@ -5206,7 +5244,7 @@
 .concord-reject-sheet__input {
   width: 100%;
   min-height: 80px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   padding: 12px;
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-xs);
@@ -5215,6 +5253,18 @@
   font: inherit;
   font-size: var(--concord-text-body);
   resize: none;
+}
+
+.concord-reject-sheet__error {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--concord-status-red-text);
+  text-align: left;
+}
+
+.concord-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .concord-btn {

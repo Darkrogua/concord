@@ -109,6 +109,7 @@
                     v-for="photo in block.photos"
                     :key="photo.id"
                     class="concord-approver__photo"
+                    @click="openImageViewer(photo.previewUrl, photo.name)"
                   >
                     <img v-if="photo.previewUrl" :src="photo.previewUrl" :alt="photo.name">
                   </div>
@@ -189,6 +190,13 @@
       @close="noReasonOpen = false"
     />
 
+    <ConcordImageViewer
+      :open="imageViewerOpen"
+      :src="imageViewerSrc"
+      :alt="imageViewerAlt"
+      @close="closeImageViewer"
+    />
+
     <div v-if="menuOpen" class="concord-sheet-backdrop" @click="menuOpen = false" />
     <div v-if="menuOpen" class="concord-menu-sheet" role="dialog" aria-label="Меню согласования">
       <div class="concord-sheet__handle" aria-hidden="true" />
@@ -204,6 +212,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } 
 import { ensureAgreementSections, formatSectionTabTitle, CURRENT_APPROVER_ID } from '../concord/mock-agreements.js'
 import { resolveSectionParticipants, MOCK_CONTACTS } from '../concord/mock-groups.js'
 import ParticipantAvatars from '../concord/ParticipantAvatars.vue'
+import ConcordImageViewer from '../concord/ConcordImageViewer.vue'
 import ApproverVoteSection from '../concord/ApproverVoteSection.vue'
 import ApproverVoteStats from '../concord/ApproverVoteStats.vue'
 import ApproverVoteConfirmModal from '../concord/ApproverVoteConfirmModal.vue'
@@ -211,7 +220,7 @@ import ApproverVoteRejectModal from '../concord/ApproverVoteRejectModal.vue'
 
 export default {
   name: 'AgreementApproverView',
-  components: { ParticipantAvatars, ApproverVoteSection, ApproverVoteStats, ApproverVoteConfirmModal, ApproverVoteRejectModal },
+  components: { ParticipantAvatars, ConcordImageViewer, ApproverVoteSection, ApproverVoteStats, ApproverVoteConfirmModal, ApproverVoteRejectModal },
   props: {
     agreement: {
       type: Object,
@@ -230,6 +239,9 @@ export default {
     const noReasonOpen = ref(false)
     const menuOpen = ref(false)
     const activeVoteSectionId = ref(null)
+    const imageViewerOpen = ref(false)
+    const imageViewerSrc = ref('')
+    const imageViewerAlt = ref('')
 
     const expandedSections = reactive({})
 
@@ -361,6 +373,18 @@ export default {
       menuOpen.value = true
     }
 
+    function openImageViewer(src, alt) {
+      imageViewerSrc.value = src
+      imageViewerAlt.value = alt
+      imageViewerOpen.value = true
+    }
+
+    function closeImageViewer() {
+      imageViewerOpen.value = false
+      imageViewerSrc.value = ''
+      imageViewerAlt.value = ''
+    }
+
     function openYesConfirm(sectionId) {
       activeVoteSectionId.value = sectionId
       yesConfirmOpen.value = true
@@ -391,6 +415,9 @@ export default {
       yesConfirmOpen,
       noReasonOpen,
       menuOpen,
+      imageViewerOpen,
+      imageViewerSrc,
+      imageViewerAlt,
       formatSectionTabTitle,
       isActiveSection,
       sectionParticipants,
@@ -402,6 +429,8 @@ export default {
       scrollToSection,
       goBack,
       openMenu,
+      openImageViewer,
+      closeImageViewer,
       openYesConfirm,
       openNoReason,
       onVoteYes,

@@ -10,8 +10,9 @@
         rows="4"
         placeholder="Укажите причину отказа"
       />
+      <p v-if="error" class="concord-reject-sheet__error">{{ error }}</p>
       <div class="concord-reject-sheet__actions">
-        <button type="button" class="concord-btn concord-btn--primary" @click="confirm">
+        <button type="button" class="concord-btn concord-btn--primary" :disabled="!canConfirm" @click="confirm">
           Да
         </button>
         <button type="button" class="concord-btn concord-btn--secondary" @click="$emit('close')">
@@ -23,7 +24,7 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 export default {
   name: 'ApproverVoteRejectModal',
@@ -36,18 +37,27 @@ export default {
   emits: ['confirm', 'close'],
   setup(props, { emit }) {
     const reason = ref('')
+    const error = ref('')
+
+    const canConfirm = computed(() => reason.value.trim().length > 0)
 
     watch(() => props.open, (value) => {
       if (value) {
         reason.value = ''
+        error.value = ''
       }
     })
 
     function confirm() {
+      if (!canConfirm.value) {
+        error.value = 'Укажите причину отказа'
+        return
+      }
+      error.value = ''
       emit('confirm', reason.value.trim())
     }
 
-    return { reason, confirm }
+    return { reason, error, canConfirm, confirm }
   },
 }
 </script>

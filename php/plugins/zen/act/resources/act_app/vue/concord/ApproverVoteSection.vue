@@ -1,6 +1,6 @@
 <template>
   <div class="concord-vote-section">
-    <div class="concord-vote-section__stats">
+    <div v-if="showProgress" class="concord-vote-section__stats">
       <div class="concord-vote-section__stat">
         <span>Согласовано</span>
         <span class="concord-vote-section__stat-value">{{ stats.approved }}%</span>
@@ -63,6 +63,14 @@ export default {
   setup(props) {
     const hasVoted = computed(() => Boolean(props.userVote?.decision))
 
+    const showProgress = computed(() => {
+      const settings = props.section?.settings
+      if (hasVoted.value) {
+        return settings?.showResultsAfter !== false
+      }
+      return settings?.showResultsBefore !== false
+    })
+
     const stats = computed(() => props.section?.votingStats || { approved: 0, rejected: 0, pending: 100 })
 
     const statusLabel = computed(() => {
@@ -75,7 +83,7 @@ export default {
       return 'Ждет согласования'
     })
 
-    return { hasVoted, stats, statusLabel }
+    return { hasVoted, showProgress, stats, statusLabel }
   },
 }
 </script>
