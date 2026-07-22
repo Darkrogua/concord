@@ -1,5 +1,6 @@
 <template>
   <article class="concord-block concord-checkbox-block">
+    <div class="concord-block__plate">Чеклист</div>
     <header class="concord-block__header">
       <input
         v-model="block.title"

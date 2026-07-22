@@ -1,8 +1,6 @@
 <template>
   <article class="concord-block concord-text-block-preview" @click="$emit('edit')">
-    <button type="button" class="concord-text-block-preview__type" @click.stop="$emit('edit')">
-      {{ blockLabel }}
-    </button>
+    <div class="concord-block__plate">Текст</div>
     <h3 class="concord-text-block-preview__title">
       {{ previewTitle }}
     </h3>
@@ -96,15 +94,7 @@ export default {
       return ''
     })
 
-    const blockLabel = computed(() => {
-      const label = props.block.label?.trim()
-      if (!label || label === 'Текст') {
-        return 'Текстовый блок'
-      }
-      return label
-    })
-
-    return { previewTitle, previewDescription, previewExcerpt, blockLabel }
+    return { previewTitle, previewDescription, previewExcerpt }
   },
 }
 </script>

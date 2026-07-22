@@ -2294,6 +2294,19 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface);
+  overflow: hidden;
+}
+
+.concord-block__plate {
+  margin: -14px -16px 12px;
+  padding: 12px 16px;
+  background: var(--concord-purple-light);
+  font-size: var(--concord-text-caption);
+  font-weight: var(--concord-weight-bold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .concord-block__header {
@@ -2471,19 +2484,6 @@
 }
 
 .concord-text-block-preview {
-  cursor: pointer;
-}
-
-.concord-text-block-preview__type {
-  display: inline-block;
-  margin: 0 0 10px;
-  padding: 0;
-  border: none;
-  background: none;
-  font: inherit;
-  font-size: var(--concord-text-caption);
-  font-weight: var(--concord-weight-medium);
-  color: var(--concord-purple);
   cursor: pointer;
 }
 
@@ -4830,6 +4830,11 @@
   padding: 16px;
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface);
+  overflow: hidden;
+}
+
+.concord-approver__block .concord-block__plate {
+  margin: -16px -16px 12px;
 }
 
 .concord-approver__block-title {

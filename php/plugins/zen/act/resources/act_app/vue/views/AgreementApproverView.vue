@@ -83,6 +83,7 @@
                 :key="block.id"
                 class="concord-block concord-approver__block"
               >
+                <div class="concord-block__plate">{{ blockTypeLabel(block) }}</div>
                 <h3 class="concord-approver__block-title">{{ block.title || block.label }}</h3>
                 <p v-if="block.description" class="concord-approver__block-desc">{{ block.description }}</p>
                 <p v-if="block.content" class="concord-approver__block-content">{{ stripContent(block.content) }}</p>
@@ -292,6 +293,22 @@ export default {
       return section.userVote || null
     }
 
+    function blockTypeLabel(block) {
+      switch (block.type) {
+        case 'files':
+          return 'Файлы'
+        case 'gallery':
+          return 'Галерея'
+        case 'checkbox':
+          return 'Чеклист'
+        case 'link':
+          return 'Ссылки'
+        case 'text':
+        default:
+          return 'Текст'
+      }
+    }
+
     function stripContent(value) {
       return String(value || '')
         .replace(/<[^>]+>/g, ' ')
@@ -454,6 +471,7 @@ export default {
       isActiveSection,
       sectionParticipants,
       userVoteForSection,
+      blockTypeLabel,
       daysLabel,
       isUrgent,
       isDeadlineSoon,

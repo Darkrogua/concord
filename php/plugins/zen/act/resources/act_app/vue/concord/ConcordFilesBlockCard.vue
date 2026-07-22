@@ -1,5 +1,6 @@
 <template>
   <article class="concord-block concord-files-block">
+    <div class="concord-block__plate">Файлы</div>
     <header class="concord-block__header">
       <input
         v-model="block.title"
