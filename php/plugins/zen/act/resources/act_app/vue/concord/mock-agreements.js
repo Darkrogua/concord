@@ -833,56 +833,94 @@ export const MOCK_AGREEMENTS = [
   createFullDemoAgreement(),
 ]
 
-function createFullDemoAgreement() {
-  const section = createAgreementSection('Демо: все блоки')
-  section.blocks = [
-    {
-      id: 'block-demo-text',
-      type: 'text',
-      label: 'Текстовый блок',
-      title: 'По дизайну',
-      description: 'Описание того, что необходимо согласовать.',
-      content: 'Здесь размещается подробный текст с пояснениями для согласующего. Можно описать требования, сроки и ожидаемый результат.',
-    },
-    {
-      id: 'block-demo-files',
-      type: 'files',
-      label: 'Файлы',
-      title: 'Приложенные документы',
-      files: [
-        { id: 'file-1', name: 'Договор.pdf', mime: 'application/pdf', previewUrl: '' },
-        { id: 'file-2', name: 'Смета.xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', previewUrl: '' },
-      ],
-    },
-    {
-      id: 'block-demo-gallery',
-      type: 'gallery',
-      label: 'Галерея',
-      title: 'Макеты и эскизы',
-      photos: [
-        { id: 'photo-1', name: 'Главная страница', previewUrl: 'https://picsum.photos/id/1015/400/300' },
-        { id: 'photo-2', name: 'Каталог', previewUrl: 'https://picsum.photos/id/1036/400/300' },
-      ],
-    },
-    {
-      id: 'block-demo-checkbox',
-      type: 'checkbox',
-      label: 'Чекбокс',
-      title: 'Проверочный лист',
-      prompt: 'Отметьте пункты, которые необходимо проверить перед согласованием:',
-      items: [
-        { id: 'item-1', label: 'Соответствие ТЗ', checked: false },
-        { id: 'item-2', label: 'Наличие всех файлов', checked: false },
-        { id: 'item-3', label: 'Корректность сроков', checked: true },
-      ],
-    },
-  ]
+export const CURRENT_APPROVER_ID = 'artem-dmitrenko'
+
+function createDemoSection({ title, isActive, blocks }) {
+  const section = createAgreementSection(title)
+  section.blocks = blocks
   section.votingStats = { approved: 0, rejected: 0, pending: 100 }
+  if (isActive) {
+    section.participantIds = [CURRENT_APPROVER_ID]
+  } else {
+    section.participantIds = ['elena-vasilyeva', 'maria-gorbunova']
+  }
+  return section
+}
+
+function createFullDemoAgreement() {
+  const designSection = createDemoSection({
+    title: 'Дизайн',
+    isActive: true,
+    blocks: [
+      {
+        id: 'block-design-text',
+        type: 'text',
+        label: 'Текстовый блок',
+        title: 'По дизайну',
+        description: 'Основные требования к визуальной части проекта.',
+        content: 'Здесь размещается подробный текст с пояснениями для согласующего. Необходимо проверить соответствие брендбуку, доступность интерфейса и корректность всех макетов.',
+      },
+      {
+        id: 'block-design-gallery',
+        type: 'gallery',
+        label: 'Галерея',
+        title: 'Макеты и эскизы',
+        photos: [
+          { id: 'photo-1', name: 'Главная страница', previewUrl: 'https://picsum.photos/id/1015/400/300' },
+          { id: 'photo-2', name: 'Каталог', previewUrl: 'https://picsum.photos/id/1036/400/300' },
+        ],
+      },
+    ],
+  })
+
+  const programmingSection = createDemoSection({
+    title: 'Программирование',
+    isActive: false,
+    blocks: [
+      {
+        id: 'block-dev-text',
+        type: 'text',
+        label: 'Текстовый блок',
+        title: 'Техническое задание',
+        description: 'Архитектура и требования к разработке.',
+        content: 'Раздел для технических специалистов. Здесь описывается стек, интеграции и требования к производительности. Для текущего пользователя этот раздел доступен только для просмотра.',
+      },
+      {
+        id: 'block-dev-files',
+        type: 'files',
+        label: 'Файлы',
+        title: 'Документация',
+        files: [
+          { id: 'file-1', name: 'API-спецификация.pdf', mime: 'application/pdf', previewUrl: '' },
+          { id: 'file-2', name: 'Схема БД.xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', previewUrl: '' },
+        ],
+      },
+    ],
+  })
+
+  const managementSection = createDemoSection({
+    title: 'Менеджмент',
+    isActive: false,
+    blocks: [
+      {
+        id: 'block-mgmt-checkbox',
+        type: 'checkbox',
+        label: 'Чекбокс',
+        title: 'Контрольный лист',
+        prompt: 'Пункты, которые проверяет руководитель:',
+        items: [
+          { id: 'item-1', label: 'Бюджет согласован', checked: false },
+          { id: 'item-2', label: 'Сроки утверждены', checked: true },
+          { id: 'item-3', label: 'Риски учтены', checked: false },
+        ],
+      },
+    ],
+  })
 
   return {
     id: '305',
     number: 305,
-    title: 'Демо-согласование со всеми блоками',
+    title: 'Демо-согласование с разделами актив/неактив',
     createdAt: formatDateRu(),
     deadline: '31.12.2026',
     daysLabel: 'До конца года',
@@ -901,8 +939,8 @@ function createFullDemoAgreement() {
     total: 15,
     isFavorite: false,
     isOwner: false,
-    description: 'Тестовое согласование для проверки всех типов блоков в режиме согласователя.',
-    sections: [section],
+    description: 'Тестовое согласование для проверки активных и неактивных разделов в режиме согласователя.',
+    sections: [designSection, programmingSection, managementSection],
   }
 }
 

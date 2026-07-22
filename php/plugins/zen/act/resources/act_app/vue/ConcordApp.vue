@@ -549,23 +549,26 @@ export default {
       persist()
     }
 
-    function onVote({ agreementId, decision, reason }) {
+    function onVote({ agreementId, sectionId, decision, reason }) {
       const agreement = agreements.value.find((item) => item.id === agreementId)
       if (!agreement) {
         return
       }
-      agreement.userVote = { decision, reason }
-      const section = agreement.sections?.[0]
-      if (section) {
-        const stats = section.votingStats || { approved: 0, rejected: 0, pending: 100 }
-        if (decision === 'approved') {
-          stats.approved = Math.min(100, (stats.approved || 0) + Math.round(100 / (agreement.total || 1)))
-        } else {
-          stats.rejected = Math.min(100, (stats.rejected || 0) + Math.round(100 / (agreement.total || 1)))
-        }
-        stats.pending = Math.max(0, 100 - stats.approved - stats.rejected)
-        section.votingStats = stats
+      const section = agreement.sections?.find((item) => item.id === sectionId)
+      if (!section) {
+        return
       }
+      section.userVote = { decision, reason }
+      const stats = section.votingStats || { approved: 0, rejected: 0, pending: 100 }
+      const voters = section.participantIds?.length || agreement.total || 1
+      const share = Math.round(100 / voters)
+      if (decision === 'approved') {
+        stats.approved = Math.min(100, (stats.approved || 0) + share)
+      } else {
+        stats.rejected = Math.min(100, (stats.rejected || 0) + share)
+      }
+      stats.pending = Math.max(0, 100 - stats.approved - stats.rejected)
+      section.votingStats = stats
       persist()
     }
 

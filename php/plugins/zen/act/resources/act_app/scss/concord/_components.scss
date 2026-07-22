@@ -4728,20 +4728,48 @@
 
 /* Approver view */
 .concord-page--approver {
-  padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 210px);
+  padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 24px);
 }
 
 .concord-approver {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   padding: 16px var(--concord-page-gutter);
 }
 
 .concord-approver__section {
   display: flex;
   flex-direction: column;
+}
+
+.concord-approver__section-card {
+  border-radius: var(--concord-radius);
+  overflow: hidden;
+}
+
+.concord-approver__section--active .concord-approver__section-card {
+  background: var(--concord-purple-light);
+  border: 1px solid var(--concord-purple-muted);
+}
+
+.concord-approver__section--inactive .concord-approver__section-card {
+  background: var(--concord-card-bg);
+  border: 1px solid var(--concord-border);
+  opacity: 0.85;
+}
+
+.concord-approver__section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--concord-border);
+}
+
+.concord-approver__section--active .concord-approver__section-header {
+  border-bottom-color: var(--concord-purple-muted);
 }
 
 .concord-approver__section-title {
@@ -4752,6 +4780,35 @@
   color: var(--concord-text);
 }
 
+.concord-approver__toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--concord-text-secondary);
+  cursor: pointer;
+}
+
+.concord-approver__toggle-icon {
+  transition: transform 0.2s ease;
+}
+
+.concord-approver__section--active .concord-approver__toggle-icon {
+  color: var(--concord-purple);
+}
+
+.concord-approver__section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+
 .concord-approver__blocks {
   display: flex;
   flex-direction: column;
@@ -4760,8 +4817,8 @@
 
 .concord-approver__block {
   padding: 16px;
-  border-radius: var(--concord-radius);
-  background: var(--concord-card-bg);
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
 }
 
 .concord-approver__block-title {
@@ -4882,148 +4939,113 @@
   border-color: var(--concord-purple);
 }
 
-/* Vote card */
-.concord-vote-card {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom));
-  z-index: 50;
+.concord-approver__section-footer {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px 16px 16px;
-  background: var(--concord-surface);
+  padding-top: 12px;
   border-top: 1px solid var(--concord-border);
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
 }
 
-.concord-vote-card__info {
+.concord-approver__section--active .concord-approver__section-footer {
+  border-top-color: var(--concord-purple-muted);
+}
+
+.concord-approver__section-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-}
-
-.concord-vote-card__details {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  column-gap: 10px;
-  row-gap: 2px;
-  align-items: stretch;
-  flex: 1;
-  min-width: 0;
-}
-
-.concord-vote-card__flame {
-  grid-row: 1 / span 2;
-  grid-column: 1;
-  display: flex;
-  align-self: stretch;
-  flex-shrink: 0;
-  width: 28px;
-  min-height: 0;
-}
-
-.concord-vote-card__flame .concord-urgency-flame {
-  width: 100%;
-  height: 100%;
-}
-
-.concord-vote-card__meta {
-  grid-column: 2;
-  grid-row: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
+  gap: 8px;
   font-size: 13px;
-  font-weight: var(--concord-weight-medium);
   color: var(--concord-card-meta);
 }
 
-.concord-vote-card__days {
-  color: var(--concord-text-secondary);
+.concord-approver__section-participants {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.concord-vote-card__voters {
-  grid-column: 2;
-  grid-row: 2;
-  margin: 0;
+.concord-approver__section-voters {
   font-size: 13px;
   font-weight: var(--concord-weight-medium);
   color: var(--concord-text);
 }
 
-.concord-vote-card__question {
+/* Vote per section */
+.concord-vote-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+}
+
+.concord-vote-section__question {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.concord-vote-card__question-text {
+.concord-vote-section__question-text {
   font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-semibold);
   color: var(--concord-text);
 }
 
-.concord-vote-card__actions {
+.concord-vote-section__actions {
   display: flex;
   gap: 10px;
 }
 
-.concord-vote-card__btn {
-  min-width: 64px;
-  padding: 10px 18px;
+.concord-vote-section__btn {
+  min-width: 56px;
+  padding: 8px 16px;
   border: none;
   border-radius: var(--concord-radius-pill);
-  font-size: var(--concord-text-body);
+  font-size: 13px;
   font-weight: var(--concord-weight-semibold);
   cursor: pointer;
 }
 
-.concord-vote-card__btn--yes {
+.concord-vote-section__btn--yes {
   background: var(--concord-purple);
   color: #fff;
 }
 
-.concord-vote-card__btn--no {
+.concord-vote-section__btn--no {
   background: var(--concord-surface);
   color: var(--concord-purple);
   border: 1.5px solid var(--concord-purple);
 }
 
-.concord-vote-card__result {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.concord-vote-card__status-row {
+.concord-vote-section__result {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.concord-vote-card__status {
+.concord-vote-section__status {
   padding: 4px 12px;
   border-radius: var(--concord-radius-pill);
   font-size: 13px;
   font-weight: var(--concord-weight-semibold);
 }
 
-.concord-vote-card__status--approved {
+.concord-vote-section__status--approved {
   background: var(--concord-purple-light);
   color: var(--concord-purple-dark);
 }
 
-.concord-vote-card__status--rejected {
+.concord-vote-section__status--rejected {
   background: rgba(192, 24, 24, 0.1);
   color: var(--concord-status-red-text);
 }
 
-.concord-vote-card__reason {
+.concord-vote-section__reason {
   font-size: 12px;
   color: var(--concord-text-secondary);
   overflow: hidden;
@@ -5031,13 +5053,31 @@
   white-space: nowrap;
 }
 
-.concord-vote-card__stats {
+.concord-vote-section__stats {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.concord-vote-card__stat {
+.concord-vote-section__stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--concord-text-secondary);
+}
+
+/* Inactive vote stats */
+.concord-vote-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-sm);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.concord-vote-stats__stat {
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -36,7 +36,6 @@
           @click="scrollToSection(section.id)"
         >
           {{ formatSectionTabTitle(section.title) }}
-          <span v-if="sectionBadge(section)" class="concord-tabs__badge">{{ sectionBadge(section) }}</span>
         </button>
       </div>
     </div>
@@ -48,73 +47,115 @@
         :id="sectionAnchorId(section.id)"
         :ref="(el) => setSectionRef(section.id, el)"
         class="concord-approver__section"
+        :class="{ 'concord-approver__section--active': isActiveSection(section), 'concord-approver__section--inactive': !isActiveSection(section) }"
       >
-        <h2 class="concord-approver__section-title">{{ section.title }}</h2>
-
-        <div v-if="section.blocks?.length" class="concord-approver__blocks">
-          <article
-            v-for="block in section.blocks"
-            :key="block.id"
-            class="concord-block concord-approver__block"
-          >
-            <h3 class="concord-approver__block-title">{{ block.title || block.label }}</h3>
-            <p v-if="block.description" class="concord-approver__block-desc">{{ block.description }}</p>
-            <p v-if="block.content" class="concord-approver__block-content">{{ stripContent(block.content) }}</p>
-
-            <div v-if="(block.files || []).length" class="concord-approver__files">
-              <div
-                v-for="file in block.files"
-                :key="file.id"
-                class="concord-approver__file"
+        <div class="concord-approver__section-card">
+          <header class="concord-approver__section-header">
+            <h2 class="concord-approver__section-title">{{ section.title }}</h2>
+            <button
+              type="button"
+              class="concord-approver__toggle"
+              :aria-expanded="expandedSections[section.id] !== false"
+              :aria-label="expandedSections[section.id] !== false ? 'Свернуть раздел' : 'Развернуть раздел'"
+              @click="toggleSection(section.id)"
+            >
+              <svg
+                class="concord-approver__toggle-icon"
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                aria-hidden="true"
               >
-                <div class="concord-approver__file-preview">
-                  <img v-if="file.previewUrl" :src="file.previewUrl" :alt="file.name">
-                  <svg v-else viewBox="0 0 24 24" width="28" height="28" fill="none">
-                    <path d="M8 3h6l5 5v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/>
-                    <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.4"/>
-                  </svg>
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </header>
+
+          <div v-show="expandedSections[section.id] !== false" class="concord-approver__section-body">
+            <div v-if="section.blocks?.length" class="concord-approver__blocks">
+              <article
+                v-for="block in section.blocks"
+                :key="block.id"
+                class="concord-block concord-approver__block"
+              >
+                <h3 class="concord-approver__block-title">{{ block.title || block.label }}</h3>
+                <p v-if="block.description" class="concord-approver__block-desc">{{ block.description }}</p>
+                <p v-if="block.content" class="concord-approver__block-content">{{ stripContent(block.content) }}</p>
+
+                <div v-if="(block.files || []).length" class="concord-approver__files">
+                  <div
+                    v-for="file in block.files"
+                    :key="file.id"
+                    class="concord-approver__file"
+                  >
+                    <div class="concord-approver__file-preview">
+                      <img v-if="file.previewUrl" :src="file.previewUrl" :alt="file.name">
+                      <svg v-else viewBox="0 0 24 24" width="28" height="28" fill="none">
+                        <path d="M8 3h6l5 5v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/>
+                        <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.4"/>
+                      </svg>
+                    </div>
+                    <p class="concord-approver__file-name">{{ file.name }}</p>
+                  </div>
                 </div>
-                <p class="concord-approver__file-name">{{ file.name }}</p>
-              </div>
+
+                <div v-if="(block.photos || []).length" class="concord-approver__gallery">
+                  <div
+                    v-for="photo in block.photos"
+                    :key="photo.id"
+                    class="concord-approver__photo"
+                  >
+                    <img v-if="photo.previewUrl" :src="photo.previewUrl" :alt="photo.name">
+                  </div>
+                </div>
+
+                <div v-if="(block.items || []).length" class="concord-approver__checkboxes">
+                  <p v-if="block.prompt" class="concord-approver__checkbox-prompt">{{ block.prompt }}</p>
+                  <ul class="concord-approver__checkbox-list">
+                    <li
+                      v-for="item in block.items"
+                      :key="item.id"
+                      class="concord-approver__checkbox-item"
+                    >
+                      <span
+                        class="concord-approver__checkbox-box"
+                        :class="{ 'concord-approver__checkbox-box--checked': item.checked }"
+                      />
+                      <span>{{ item.label }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </article>
             </div>
 
-            <div v-if="(block.photos || []).length" class="concord-approver__gallery">
-              <div
-                v-for="photo in block.photos"
-                :key="photo.id"
-                class="concord-approver__photo"
-              >
-                <img v-if="photo.previewUrl" :src="photo.previewUrl" :alt="photo.name">
+            <div class="concord-approver__section-footer">
+              <div class="concord-approver__section-meta">
+                <span class="concord-approver__section-id">#{{ agreement.number }}</span>
+                <span class="concord-approver__section-date">Создана: {{ agreement.createdAt }}</span>
               </div>
-            </div>
+              <div class="concord-approver__section-participants">
+                <span class="concord-approver__section-voters">Согласующих: {{ sectionParticipants(section).length }} чел.</span>
+                <ParticipantAvatars :people="sectionParticipants(section)" :max="5" compact />
+              </div>
 
-            <div v-if="(block.items || []).length" class="concord-approver__checkboxes">
-              <p v-if="block.prompt" class="concord-approver__checkbox-prompt">{{ block.prompt }}</p>
-              <ul class="concord-approver__checkbox-list">
-                <li
-                  v-for="item in block.items"
-                  :key="item.id"
-                  class="concord-approver__checkbox-item"
-                >
-                  <span
-                    class="concord-approver__checkbox-box"
-                    :class="{ 'concord-approver__checkbox-box--checked': item.checked }"
-                  />
-                  <span>{{ item.label }}</span>
-                </li>
-              </ul>
+              <ApproverVoteSection
+                v-if="isActiveSection(section)"
+                :section="section"
+                :user-vote="userVoteForSection(section)"
+                @vote-yes="openYesConfirm(section.id)"
+                @vote-no="openNoReason(section.id)"
+              />
+
+              <ApproverVoteStats
+                v-else
+                :section="section"
+              />
             </div>
-          </article>
+          </div>
         </div>
       </div>
     </main>
-
-    <ApproverVoteCard
-      :agreement="agreement"
-      :user-vote="userVote"
-      @vote-yes="openYesConfirm"
-      @vote-no="openNoReason"
-    />
 
     <ApproverVoteConfirmModal
       :open="yesConfirmOpen"
@@ -131,13 +172,7 @@
     <div v-if="menuOpen" class="concord-sheet-backdrop" @click="menuOpen = false" />
     <div v-if="menuOpen" class="concord-menu-sheet" role="dialog" aria-label="Меню согласования">
       <div class="concord-sheet__handle" aria-hidden="true" />
-      <button type="button" class="concord-menu-sheet__item" @click="goToInfo">
-        Информация о согласовании
-      </button>
-      <button type="button" class="concord-menu-sheet__item" @click="goToParticipants">
-        Участники
-      </button>
-      <button type="button" class="concord-menu-sheet__item concord-menu-sheet__item--destructive" @click="menuOpen = false">
+      <button type="button" class="concord-menu-sheet__item" @click="menuOpen = false">
         Закрыть
       </button>
     </div>
@@ -145,15 +180,18 @@
 </template>
 
 <script>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ensureAgreementSections, formatSectionTabTitle } from '../concord/mock-agreements.js'
-import ApproverVoteCard from '../concord/ApproverVoteCard.vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { ensureAgreementSections, formatSectionTabTitle, CURRENT_APPROVER_ID } from '../concord/mock-agreements.js'
+import { resolveSectionParticipants } from '../concord/mock-groups.js'
+import ParticipantAvatars from '../concord/ParticipantAvatars.vue'
+import ApproverVoteSection from '../concord/ApproverVoteSection.vue'
+import ApproverVoteStats from '../concord/ApproverVoteStats.vue'
 import ApproverVoteConfirmModal from '../concord/ApproverVoteConfirmModal.vue'
 import ApproverVoteRejectModal from '../concord/ApproverVoteRejectModal.vue'
 
 export default {
   name: 'AgreementApproverView',
-  components: { ApproverVoteCard, ApproverVoteConfirmModal, ApproverVoteRejectModal },
+  components: { ParticipantAvatars, ApproverVoteSection, ApproverVoteStats, ApproverVoteConfirmModal, ApproverVoteRejectModal },
   props: {
     agreement: {
       type: Object,
@@ -171,21 +209,31 @@ export default {
     const yesConfirmOpen = ref(false)
     const noReasonOpen = ref(false)
     const menuOpen = ref(false)
+    const activeVoteSectionId = ref(null)
 
-    const userVote = computed(() => props.agreement?.userVote || null)
+    const expandedSections = reactive({})
 
     const showSectionTabs = computed(() => (props.agreement?.sections?.length || 0) > 1)
+
+    function isActiveSection(section) {
+      const ids = section.participantIds || []
+      const groups = section.groupIds || []
+      return ids.includes(CURRENT_APPROVER_ID) || groups.length > 0
+    }
+
+    function sectionParticipants(section) {
+      return resolveSectionParticipants(section, [], [])
+    }
+
+    function userVoteForSection(section) {
+      return section.userVote || null
+    }
 
     function stripContent(value) {
       return String(value || '')
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ')
         .trim()
-    }
-
-    function sectionBadge(section) {
-      const pending = section.blocks?.filter((block) => !block.reviewed).length
-      return pending || section.blocks?.length || 0
     }
 
     function sectionAnchorId(sectionId) {
@@ -208,12 +256,17 @@ export default {
       }
     }
 
+    function toggleSection(sectionId) {
+      expandedSections[sectionId] = expandedSections[sectionId] === false
+    }
+
     function scrollToSection(sectionId) {
       if (!sectionId) {
         return
       }
       isProgrammaticScroll.value = true
       activeSectionId.value = sectionId
+      expandedSections[sectionId] = true
       const target = sectionRefs.get(sectionId) || document.getElementById(sectionAnchorId(sectionId))
       target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       window.setTimeout(() => {
@@ -260,6 +313,11 @@ export default {
           return
         }
         ensureAgreementSections(agreement)
+        for (const section of agreement.sections || []) {
+          if (expandedSections[section.id] === undefined) {
+            expandedSections[section.id] = true
+          }
+        }
         if (!activeSectionId.value || !agreement.sections.some((item) => item.id === activeSectionId.value)) {
           activeSectionId.value = agreement.sections[0]?.id || null
         }
@@ -284,50 +342,47 @@ export default {
       menuOpen.value = true
     }
 
-    function goToInfo() {
-      menuOpen.value = false
-    }
-
-    function goToParticipants() {
-      menuOpen.value = false
-    }
-
-    function openYesConfirm() {
+    function openYesConfirm(sectionId) {
+      activeVoteSectionId.value = sectionId
       yesConfirmOpen.value = true
     }
 
-    function openNoReason() {
+    function openNoReason(sectionId) {
+      activeVoteSectionId.value = sectionId
       noReasonOpen.value = true
     }
 
     function onVoteYes() {
       yesConfirmOpen.value = false
-      emit('vote', { agreementId: props.agreement.id, decision: 'approved', reason: '' })
+      emit('vote', { agreementId: props.agreement.id, sectionId: activeVoteSectionId.value, decision: 'approved', reason: '' })
+      activeVoteSectionId.value = null
     }
 
     function onVoteNo(reason) {
       noReasonOpen.value = false
-      emit('vote', { agreementId: props.agreement.id, decision: 'rejected', reason })
+      emit('vote', { agreementId: props.agreement.id, sectionId: activeVoteSectionId.value, decision: 'rejected', reason })
+      activeVoteSectionId.value = null
     }
 
     return {
       activeSectionId,
       approverMainRef,
       showSectionTabs,
-      userVote,
+      expandedSections,
       yesConfirmOpen,
       noReasonOpen,
       menuOpen,
       formatSectionTabTitle,
+      isActiveSection,
+      sectionParticipants,
+      userVoteForSection,
       stripContent,
-      sectionBadge,
       sectionAnchorId,
       setSectionRef,
+      toggleSection,
       scrollToSection,
       goBack,
       openMenu,
-      goToInfo,
-      goToParticipants,
       openYesConfirm,
       openNoReason,
       onVoteYes,
