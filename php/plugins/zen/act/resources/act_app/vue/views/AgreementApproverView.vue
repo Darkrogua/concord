@@ -152,12 +152,24 @@
           </div>
 
           <div class="concord-approver__section-footer">
-            <div class="concord-approver__section-meta">
-              <span class="concord-approver__section-id">#{{ agreement.number }}</span>
-              <span class="concord-approver__section-date">Создана: {{ agreement.createdAt }}</span>
-            </div>
-            <div class="concord-approver__section-participants">
-              <span class="concord-approver__section-voters">Согласующих: {{ sectionParticipants(section).length }} чел.</span>
+            <div class="concord-approver__section-info">
+              <div class="concord-approver__section-info-main">
+                <span
+                  class="concord-approver__section-flame"
+                  :class="{
+                    'concord-approver__section-flame--urgent': isUrgent,
+                    'concord-approver__section-flame--soon': isDeadlineSoon,
+                    'concord-approver__section-flame--overdue': isDeadlineOverdue,
+                  }"
+                  aria-hidden="true"
+                >
+                  <ConcordUrgencyFlame :urgent="isUrgent" />
+                </span>
+                <div class="concord-approver__section-info-text">
+                  <span class="concord-approver__section-deadline">{{ agreement.deadline }} ({{ daysLabel }})</span>
+                  <span class="concord-approver__section-voters">Согласующих: {{ sectionParticipants(section).length }} чел.</span>
+                </div>
+              </div>
               <ParticipantAvatars :people="sectionParticipants(section)" :max="5" compact />
             </div>
 
@@ -209,9 +221,10 @@
 
 <script>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
-import { ensureAgreementSections, formatSectionTabTitle, CURRENT_APPROVER_ID } from '../concord/mock-agreements.js'
+import { ensureAgreementSections, formatSectionTabTitle, getAgreementDaysRemaining, formatAgreementDaysLabel, CURRENT_APPROVER_ID } from '../concord/mock-agreements.js'
 import { resolveSectionParticipants, MOCK_CONTACTS } from '../concord/mock-groups.js'
 import ParticipantAvatars from '../concord/ParticipantAvatars.vue'
+import ConcordUrgencyFlame from '../concord/ConcordUrgencyFlame.vue'
 import ConcordImageViewer from '../concord/ConcordImageViewer.vue'
 import ApproverVoteSection from '../concord/ApproverVoteSection.vue'
 import ApproverVoteStats from '../concord/ApproverVoteStats.vue'
@@ -220,7 +233,7 @@ import ApproverVoteRejectModal from '../concord/ApproverVoteRejectModal.vue'
 
 export default {
   name: 'AgreementApproverView',
-  components: { ParticipantAvatars, ConcordImageViewer, ApproverVoteSection, ApproverVoteStats, ApproverVoteConfirmModal, ApproverVoteRejectModal },
+  components: { ParticipantAvatars, ConcordUrgencyFlame, ConcordImageViewer, ApproverVoteSection, ApproverVoteStats, ApproverVoteConfirmModal, ApproverVoteRejectModal },
   props: {
     agreement: {
       type: Object,
@@ -246,6 +259,25 @@ export default {
     const expandedSections = reactive({})
 
     const showSectionTabs = computed(() => (props.agreement?.sections?.length || 0) > 1)
+
+    const daysLabel = computed(() =>
+      props.agreement?.daysLabel ||
+      formatAgreementDaysLabel(
+        props.agreement?.startDate || props.agreement?.createdAt,
+        props.agreement?.deadline
+      )
+    )
+
+    const daysRemaining = computed(() => getAgreementDaysRemaining(props.agreement?.deadline))
+    const isDeadlineSoon = computed(() => {
+      const remaining = daysRemaining.value
+      return remaining !== null && remaining >= 0 && remaining <= 3
+    })
+    const isDeadlineOverdue = computed(() => {
+      const remaining = daysRemaining.value
+      return remaining !== null && remaining < 0
+    })
+    const isUrgent = computed(() => Boolean(props.agreement?.isUrgent || isDeadlineSoon.value))
 
     function isActiveSection(section) {
       const participants = resolveSectionParticipants(section, [], MOCK_CONTACTS)
@@ -422,6 +454,10 @@ export default {
       isActiveSection,
       sectionParticipants,
       userVoteForSection,
+      daysLabel,
+      isUrgent,
+      isDeadlineSoon,
+      isDeadlineOverdue,
       stripContent,
       sectionAnchorId,
       setSectionRef,

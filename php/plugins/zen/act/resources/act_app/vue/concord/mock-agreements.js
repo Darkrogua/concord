@@ -835,10 +835,13 @@ export const MOCK_AGREEMENTS = [
   createFullDemoAgreement(),
 ]
 
-function createDemoSection({ title, isActive, blocks }) {
+function createDemoSection({ title, isActive, blocks, stats, settings }) {
   const section = createAgreementSection(title)
   section.blocks = blocks
-  section.votingStats = { approved: 0, rejected: 0, pending: 100 }
+  section.votingStats = stats || { approved: 0, rejected: 0, pending: 100 }
+  if (settings) {
+    section.settings = { ...section.settings, ...settings }
+  }
   if (isActive) {
     section.participantIds = [CURRENT_APPROVER_ID]
   } else {
@@ -851,6 +854,8 @@ function createFullDemoAgreement() {
   const designSection = createDemoSection({
     title: 'Дизайн',
     isActive: true,
+    stats: { approved: 75, rejected: 15, pending: 10 },
+    settings: { showResultsBefore: true, showResultsAfter: true },
     blocks: [
       {
         id: 'block-design-text',
@@ -876,6 +881,8 @@ function createFullDemoAgreement() {
   const programmingSection = createDemoSection({
     title: 'Программирование',
     isActive: false,
+    stats: { approved: 40, rejected: 10, pending: 50 },
+    settings: { showResultsBefore: true, showResultsAfter: true },
     blocks: [
       {
         id: 'block-dev-text',

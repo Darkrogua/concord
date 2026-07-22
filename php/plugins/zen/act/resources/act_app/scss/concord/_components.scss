@@ -4953,8 +4953,8 @@
 .concord-approver__section-footer {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 12px;
+  gap: 14px;
+  padding-top: 14px;
   border-top: 1px solid var(--concord-border);
 }
 
@@ -4962,26 +4962,58 @@
   border-top-color: var(--concord-purple-muted);
 }
 
-.concord-approver__section-meta {
+.concord-approver__section-info {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--concord-card-meta);
+  gap: 12px;
 }
 
-.concord-approver__section-participants {
+.concord-approver__section-info-main {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.concord-approver__section-flame {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
+.concord-approver__section-flame .concord-urgency-flame {
+  width: 100%;
+  height: 100%;
+}
+
+.concord-approver__section-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.concord-approver__section-deadline {
+  font-size: 13px;
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-text);
+  white-space: nowrap;
 }
 
 .concord-approver__section-voters {
   font-size: 13px;
-  font-weight: var(--concord-weight-medium);
+  font-weight: var(--concord-weight-semibold);
   color: var(--concord-purple);
+  white-space: nowrap;
+}
+
+.concord-approver__section-info .concord-avatars {
+  flex-shrink: 0;
 }
 
 .concord-approver__photo {
@@ -5026,10 +5058,7 @@
 .concord-vote-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  border-radius: var(--concord-radius-sm);
-  background: var(--concord-surface);
+  gap: 14px;
 }
 
 .concord-vote-section__stats {
@@ -5075,9 +5104,9 @@
 
 .concord-vote-section__question {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .concord-vote-section__question-text {
@@ -5088,15 +5117,16 @@
 
 .concord-vote-section__actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  width: 100%;
 }
 
 .concord-vote-section__btn {
-  min-width: 56px;
-  padding: 8px 16px;
+  flex: 1;
+  padding: 10px 16px;
   border: none;
-  border-radius: var(--concord-radius-pill);
-  font-size: 13px;
+  border-radius: var(--concord-radius-sm);
+  font-size: 14px;
   font-weight: var(--concord-weight-semibold);
   cursor: pointer;
 }
@@ -5147,10 +5177,13 @@
 .concord-vote-stats {
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+.concord-vote-stats__progress {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  padding: 10px 12px;
-  border-radius: var(--concord-radius-sm);
-  background: rgba(255, 255, 255, 0.55);
 }
 
 .concord-vote-stats__stat {
@@ -5187,6 +5220,16 @@
 .concord-vote-stats__stat-fill--pending {
   background: var(--concord-text-secondary);
   opacity: 0.6;
+}
+
+.concord-vote-stats__status {
+  align-self: center;
+  padding: 4px 12px;
+  border-radius: var(--concord-radius-pill);
+  font-size: 12px;
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text-secondary);
+  background: var(--concord-surface);
 }
 
 /* Links block */
