@@ -714,6 +714,8 @@ export function getNextAgreementNumber(agreements) {
   return max + 1
 }
 
+export const CURRENT_APPROVER_ID = 'artem-dmitrenko'
+
 /** @type {AgreementItem[]} */
 export const MOCK_AGREEMENTS = [
   {
@@ -832,8 +834,6 @@ export const MOCK_AGREEMENTS = [
   },
   createFullDemoAgreement(),
 ]
-
-export const CURRENT_APPROVER_ID = 'artem-dmitrenko'
 
 function createDemoSection({ title, isActive, blocks }) {
   const section = createAgreementSection(title)
