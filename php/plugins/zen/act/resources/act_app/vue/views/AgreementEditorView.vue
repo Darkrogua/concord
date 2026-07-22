@@ -197,6 +197,17 @@
         </button>
         <p class="concord-agreement-editor__add-section-label">Новый раздел</p>
       </section>
+
+      <section v-if="showNewContainer && canLaunch" class="concord-agreement-editor__launch-zone">
+        <button
+          type="button"
+          class="concord-agreement-editor__launch-btn"
+          @click="launchAgreement"
+        >
+          Запустить
+        </button>
+        <p class="concord-agreement-editor__launch-hint">После запуска согласование отправится участникам</p>
+      </section>
     </main>
 
     <TextBlockEditorSheet
@@ -258,7 +269,7 @@ export default {
       default: () => [],
     },
   },
-  emits: ['back', 'add-block', 'add-section', 'update-section', 'create-group', 'update-group'],
+  emits: ['back', 'add-block', 'add-section', 'update-section', 'create-group', 'update-group', 'launch'],
   setup(props, { emit }) {
     const activeSectionId = ref(null)
     const openBlockTypesSectionId = ref(null)
@@ -317,6 +328,8 @@ export default {
     const showSectionTabs = computed(() => sectionCount.value > 1)
 
     const showNewContainer = computed(() => hasAnySectionWithBlocks.value || sectionCount.value > 1)
+
+    const canLaunch = computed(() => props.agreement?.status === 'draft')
 
     const editorPageStyle = computed(() => ({
       '--concord-editor-scroll-anchor-offset': `${editorChromeHeight.value + 8}px`,
@@ -514,6 +527,10 @@ export default {
       emit('back')
     }
 
+    function launchAgreement() {
+      emit('launch')
+    }
+
     function toggleBlockTypes(sectionId) {
       if (!sectionId) {
         return
@@ -668,6 +685,8 @@ export default {
       showDraftIntro,
       showSectionTabs,
       showNewContainer,
+      canLaunch,
+      launchAgreement,
       openBlockTypesSectionId,
       formatSectionTabTitle,
       sectionAnchorId,

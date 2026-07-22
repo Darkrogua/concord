@@ -1086,12 +1086,12 @@ function createOwnerDemoAgreement() {
       { label: 'С' },
       { label: 'И' },
     ],
-    status: 'awaiting',
-    voted: 5,
+    status: 'draft',
+    voted: 0,
     total: 5,
     isFavorite: false,
     isOwner: true,
-    description: 'Тестовое согласование, в котором текущий пользователь является владельцем. Содержит 5 отказов с комментариями для проверки вида создателя.',
+    description: 'Тестовое согласование-черновик для владельца. Содержит 5 отказов с комментариями. Нажмите «Запустить», чтобы отправить его на согласование.',
     sections: [section],
   }
 }

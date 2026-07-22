@@ -2840,6 +2840,39 @@
   color: var(--concord-text-secondary);
 }
 
+.concord-agreement-editor__launch-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--concord-border);
+}
+
+.concord-agreement-editor__launch-btn {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: var(--concord-radius-pill);
+  background: var(--concord-purple);
+  color: #fff;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  cursor: pointer;
+}
+
+.concord-agreement-editor__launch-btn:active {
+  opacity: 0.9;
+}
+
+.concord-agreement-editor__launch-hint {
+  margin: 0;
+  font-size: var(--concord-text-caption);
+  color: var(--concord-text-secondary);
+  text-align: center;
+}
+
 .concord-agreement-editor__add-btn:active {
   opacity: 0.85;
 }

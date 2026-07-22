@@ -87,6 +87,7 @@
       @delete-block="onDeleteAgreementBlock"
       @add-section="onAddAgreementSection"
       @update-section="onUpdateAgreementSection"
+      @launch="onLaunchAgreement"
       @create-group="onCreateGroup"
       @update-group="onUpdateGroup"
     />
@@ -583,6 +584,16 @@ export default {
       persist()
     }
 
+    function onLaunchAgreement() {
+      const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
+      if (!agreement) {
+        return
+      }
+      agreement.status = 'awaiting'
+      persist()
+      goToList()
+    }
+
     function onUpdateAgreementSection({
       sectionId,
       title,
@@ -690,6 +701,7 @@ export default {
       onAddAgreementBlock,
       onDeleteAgreementBlock,
       onAddAgreementSection,
+      onLaunchAgreement,
       onUpdateAgreementSection,
       onVote,
       editingAgreement,
