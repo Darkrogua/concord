@@ -49,7 +49,11 @@
         <p class="concord-card__author-name">{{ agreement.author.name }}</p>
       </div>
 
-      <ParticipantAvatars :people="agreement.participants" :max="5" compact />
+      <ParticipantAvatars
+        :people="agreement.participants"
+        :total="agreement.total || agreement.participants?.length || 0"
+        compact
+      />
     </div>
 
     <div class="concord-card__footer">

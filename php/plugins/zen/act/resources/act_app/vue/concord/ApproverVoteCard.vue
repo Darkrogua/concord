@@ -21,7 +21,11 @@
           Согласующих: {{ agreement.total }} чел.
         </div>
       </div>
-      <ParticipantAvatars :people="agreement.participants" :max="5" compact />
+      <ParticipantAvatars
+        :people="agreement.participants"
+        :total="agreement.total || agreement.participants?.length || 0"
+        compact
+      />
     </div>
 
     <div v-if="!hasVoted" class="concord-vote-card__question">

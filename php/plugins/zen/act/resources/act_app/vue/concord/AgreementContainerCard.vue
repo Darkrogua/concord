@@ -91,7 +91,7 @@
           </p>
           <p class="concord-container__voters">Согласующих: {{ votersLabel }}</p>
         </div>
-        <ParticipantAvatars :people="participants" :max="5" compact />
+        <ParticipantAvatars :people="participants" :total="votersCount" compact />
       </div>
 
       <div class="concord-container__voting">

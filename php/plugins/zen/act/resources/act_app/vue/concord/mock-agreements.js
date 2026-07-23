@@ -688,11 +688,11 @@ export function createDraftAgreement(form, nextNumber) {
     isUrgent: true,
     author: { name: 'Александр Аблизин' },
     participants: [
-      { label: '80' },
       { label: 'И' },
       { label: 'Е' },
       { label: 'И' },
       { label: 'Н' },
+      { label: 'М' },
     ],
     status: 'draft',
     voted: 12,
@@ -743,6 +743,33 @@ export function getNextAgreementNumber(agreements) {
 
 export const CURRENT_APPROVER_ID = 'artem-dmitrenko'
 
+/** @type {Array<{ id: string, name: string, previewUrl: string }>} */
+const DEMO_GALLERY_PHOTOS = [
+  { id: 'demo-photo-1', name: 'Главная страница', previewUrl: 'https://picsum.photos/id/1015/800/500' },
+  { id: 'demo-photo-2', name: 'Каталог товаров', previewUrl: 'https://picsum.photos/id/1036/800/500' },
+  { id: 'demo-photo-3', name: 'Карточка товара', previewUrl: 'https://picsum.photos/id/1040/800/500' },
+  { id: 'demo-photo-4', name: 'Корзина', previewUrl: 'https://picsum.photos/id/1050/800/500' },
+  { id: 'demo-photo-5', name: 'Мобильная версия', previewUrl: 'https://picsum.photos/id/1060/800/500' },
+  { id: 'demo-photo-6', name: 'Личный кабинет', previewUrl: 'https://picsum.photos/id/1070/800/500' },
+  { id: 'demo-photo-7', name: 'Оформление заказа', previewUrl: 'https://picsum.photos/id/1080/800/500' },
+  { id: 'demo-photo-8', name: 'Промо-баннер', previewUrl: 'https://picsum.photos/id/1090/800/500' },
+]
+
+const DEMO_DIAGRAM_PHOTOS = [
+  { id: 'demo-diagram-1', name: 'Диаграмма процесса', previewUrl: 'https://picsum.photos/id/180/800/500' },
+  { id: 'demo-diagram-2', name: 'Структура команды', previewUrl: 'https://picsum.photos/id/181/800/500' },
+  { id: 'demo-diagram-3', name: 'Архитектура системы', previewUrl: 'https://picsum.photos/id/182/800/500' },
+  { id: 'demo-diagram-4', name: 'Потоки данных', previewUrl: 'https://picsum.photos/id/183/800/500' },
+  { id: 'demo-diagram-5', name: 'Интеграции', previewUrl: 'https://picsum.photos/id/184/800/500' },
+  { id: 'demo-diagram-6', name: 'Roadmap', previewUrl: 'https://picsum.photos/id/185/800/500' },
+  { id: 'demo-diagram-7', name: 'Спринты', previewUrl: 'https://picsum.photos/id/186/800/500' },
+  { id: 'demo-diagram-8', name: 'Риски проекта', previewUrl: 'https://picsum.photos/id/187/800/500' },
+]
+
+function cloneDemoPhotos(photos) {
+  return photos.map((photo) => ({ ...photo }))
+}
+
 /** @type {AgreementItem[]} */
 export const MOCK_AGREEMENTS = [
   {
@@ -755,11 +782,11 @@ export const MOCK_AGREEMENTS = [
     isUrgent: true,
     author: { name: 'Александр Аблизин' },
     participants: [
-      { label: '80' },
       { label: 'И' },
       { label: 'Е' },
       { label: 'М' },
       { label: 'Н' },
+      { label: 'А' },
     ],
     status: 'awaiting',
     voted: 10,
@@ -793,11 +820,11 @@ export const MOCK_AGREEMENTS = [
     isUrgent: false,
     author: { name: 'Александр Аблизин' },
     participants: [
-      { label: '80' },
       { label: 'И' },
       { label: 'Е' },
       { label: 'М' },
       { label: 'Н' },
+      { label: 'А' },
     ],
     status: 'draft',
     voted: 10,
@@ -831,11 +858,11 @@ export const MOCK_AGREEMENTS = [
     isUrgent: false,
     author: { name: 'Александр Аблизин' },
     participants: [
-      { label: '80' },
       { label: 'И' },
       { label: 'Е' },
       { label: 'М' },
       { label: 'Н' },
+      { label: 'А' },
     ],
     status: 'approved',
     voted: 30,
@@ -907,10 +934,7 @@ function createFullDemoAgreement() {
         type: 'gallery',
         label: 'Галерея',
         title: 'Макеты и эскизы',
-        photos: [
-          { id: 'photo-1', name: 'Главная страница', previewUrl: 'https://picsum.photos/id/1015/400/300' },
-          { id: 'photo-2', name: 'Каталог', previewUrl: 'https://picsum.photos/id/1036/400/300' },
-        ],
+        photos: cloneDemoPhotos(DEMO_GALLERY_PHOTOS),
       },
     ],
   })
@@ -944,6 +968,13 @@ function createFullDemoAgreement() {
           { id: 'file-1', name: 'API-спецификация.pdf', mime: 'application/pdf', previewUrl: '' },
           { id: 'file-2', name: 'Схема БД.xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', previewUrl: '' },
         ],
+      },
+      {
+        id: 'block-dev-gallery',
+        type: 'gallery',
+        label: 'Галерея',
+        title: 'Скриншоты API и админки',
+        photos: cloneDemoPhotos(DEMO_DIAGRAM_PHOTOS),
       },
     ],
   })
@@ -981,10 +1012,7 @@ function createFullDemoAgreement() {
         type: 'gallery',
         label: 'Галерея',
         title: 'Схемы и диаграммы',
-        photos: [
-          { id: 'photo-3', name: 'Диаграмма процесса', previewUrl: 'https://picsum.photos/id/1060/400/300' },
-          { id: 'photo-4', name: 'Структура команды', previewUrl: 'https://picsum.photos/id/1070/400/300' },
-        ],
+        photos: cloneDemoPhotos(DEMO_DIAGRAM_PHOTOS),
       },
       {
         id: 'block-mgmt-links',
@@ -1014,7 +1042,6 @@ function createFullDemoAgreement() {
       { label: 'Е' },
       { label: 'М' },
       { label: 'Н' },
-      { label: '+3' },
     ],
     status: 'awaiting',
     voted: 0,

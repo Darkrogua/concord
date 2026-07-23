@@ -77,15 +77,18 @@
           </header>
 
           <div v-show="expandedSections[section.id] !== false" class="concord-approver__section-body">
-            <div v-if="section.blocks?.length" class="concord-approver__blocks">
+            <div v-if="section.blocks?.length" class="concord-approver__article">
               <article
                 v-for="block in section.blocks"
                 :key="block.id"
-                class="concord-block concord-approver__block"
+                class="concord-approver__block"
+                :class="`concord-approver__block--${block.type || 'text'}`"
               >
-                <div class="concord-block__plate">{{ blockTypeLabel(block) }}</div>
-                <h3 class="concord-approver__block-title">{{ block.title || block.label }}</h3>
-                <p v-if="block.description" class="concord-approver__block-desc">{{ block.description }}</p>
+                <p class="concord-approver__block-eyebrow">{{ blockTypeLabel(block) }}</p>
+                <h3 v-if="block.title || block.label" class="concord-approver__block-title">
+                  {{ block.title || block.label }}
+                </h3>
+                <p v-if="block.description" class="concord-approver__block-lead">{{ block.description }}</p>
                 <p v-if="block.content" class="concord-approver__block-content">{{ stripContent(block.content) }}</p>
 
                 <div v-if="(block.files || []).length" class="concord-approver__files">
@@ -105,16 +108,11 @@
                   </div>
                 </div>
 
-                <div v-if="(block.photos || []).length" class="concord-approver__gallery">
-                  <div
-                    v-for="photo in block.photos"
-                    :key="photo.id"
-                    class="concord-approver__photo"
-                    @click="openImageViewer(photo.previewUrl, photo.name)"
-                  >
-                    <img v-if="photo.previewUrl" :src="photo.previewUrl" :alt="photo.name">
-                  </div>
-                </div>
+                <ConcordGalleryCarousel
+                  v-if="(block.photos || []).length"
+                  :photos="block.photos"
+                  @open="openGalleryViewer(block.photos, $event)"
+                />
 
                 <div v-if="(block.items || []).length" class="concord-approver__checkboxes">
                   <p v-if="block.prompt" class="concord-approver__checkbox-prompt">{{ block.prompt }}</p>
@@ -171,7 +169,11 @@
                   <span class="concord-approver__section-voters">Согласующих: {{ sectionParticipants(section).length }} чел.</span>
                 </div>
               </div>
-              <ParticipantAvatars :people="sectionParticipants(section)" :max="5" compact />
+              <ParticipantAvatars
+                :people="sectionParticipants(section)"
+                :total="sectionParticipants(section).length"
+                compact
+              />
             </div>
 
             <ApproverVoteSection
@@ -206,8 +208,8 @@
 
     <ConcordImageViewer
       :open="imageViewerOpen"
-      :src="imageViewerSrc"
-      :alt="imageViewerAlt"
+      :photos="imageViewerPhotos"
+      :index="imageViewerIndex"
       @close="closeImageViewer"
     />
 
@@ -234,6 +236,7 @@ import { resolveSectionParticipants, MOCK_CONTACTS } from '../concord/mock-group
 import ParticipantAvatars from '../concord/ParticipantAvatars.vue'
 import ConcordUrgencyFlame from '../concord/ConcordUrgencyFlame.vue'
 import ConcordImageViewer from '../concord/ConcordImageViewer.vue'
+import ConcordGalleryCarousel from '../concord/ConcordGalleryCarousel.vue'
 import ApproverVoteSection from '../concord/ApproverVoteSection.vue'
 import ApproverVoteStats from '../concord/ApproverVoteStats.vue'
 import ApproverVoteConfirmModal from '../concord/ApproverVoteConfirmModal.vue'
@@ -242,7 +245,17 @@ import ConcordReasonViewModal from '../concord/ConcordReasonViewModal.vue'
 
 export default {
   name: 'AgreementApproverView',
-  components: { ParticipantAvatars, ConcordUrgencyFlame, ConcordImageViewer, ConcordReasonViewModal, ApproverVoteSection, ApproverVoteStats, ApproverVoteConfirmModal, ApproverVoteRejectModal },
+  components: {
+    ParticipantAvatars,
+    ConcordUrgencyFlame,
+    ConcordImageViewer,
+    ConcordGalleryCarousel,
+    ConcordReasonViewModal,
+    ApproverVoteSection,
+    ApproverVoteStats,
+    ApproverVoteConfirmModal,
+    ApproverVoteRejectModal,
+  },
   props: {
     agreement: {
       type: Object,
@@ -262,8 +275,8 @@ export default {
     const menuOpen = ref(false)
     const activeVoteSectionId = ref(null)
     const imageViewerOpen = ref(false)
-    const imageViewerSrc = ref('')
-    const imageViewerAlt = ref('')
+    const imageViewerPhotos = ref([])
+    const imageViewerIndex = ref(0)
     const reasonModalOpen = ref(false)
     const reasonModalText = ref('')
 
@@ -432,16 +445,16 @@ export default {
       menuOpen.value = true
     }
 
-    function openImageViewer(src, alt) {
-      imageViewerSrc.value = src
-      imageViewerAlt.value = alt
+    function openGalleryViewer(photos, index = 0) {
+      imageViewerPhotos.value = photos || []
+      imageViewerIndex.value = index
       imageViewerOpen.value = true
     }
 
     function closeImageViewer() {
       imageViewerOpen.value = false
-      imageViewerSrc.value = ''
-      imageViewerAlt.value = ''
+      imageViewerPhotos.value = []
+      imageViewerIndex.value = 0
     }
 
     function openReasonModal(reason) {
@@ -485,8 +498,8 @@ export default {
       noReasonOpen,
       menuOpen,
       imageViewerOpen,
-      imageViewerSrc,
-      imageViewerAlt,
+      imageViewerPhotos,
+      imageViewerIndex,
       reasonModalOpen,
       reasonModalText,
       formatSectionTabTitle,
@@ -505,7 +518,7 @@ export default {
       scrollToSection,
       goBack,
       openMenu,
-      openImageViewer,
+      openGalleryViewer,
       closeImageViewer,
       openReasonModal,
       closeReasonModal,
