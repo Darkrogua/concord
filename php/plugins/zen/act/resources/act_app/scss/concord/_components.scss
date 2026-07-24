@@ -209,59 +209,68 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  padding: 18px 16px 14px;
+  padding: 0 16px 14px;
   cursor: pointer;
   font: inherit;
   color: inherit;
-  overflow: visible;
+  overflow: hidden;
 }
 
-.concord-card__meta {
+.concord-card__plate {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 14px;
-  font-size: 13px;
-  line-height: 1.2;
-  color: var(--concord-card-meta);
-  min-width: 0;
-}
-
-.concord-card__created {
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.concord-card__number {
-  font-weight: var(--concord-weight-bold);
-  flex-shrink: 0;
-}
-
-.concord-card__role {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  padding: 3px 8px;
-  border-radius: var(--concord-radius-pill);
+  gap: 10px;
+  margin: 0 -16px 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid transparent;
   font-size: 12px;
   font-weight: var(--concord-weight-semibold);
   line-height: 1.2;
+}
+
+.concord-card__plate--owner {
+  background: var(--concord-purple-muted);
+  border-bottom-color: #cbbfdc;
+  color: var(--concord-purple-dark);
+}
+
+.concord-card__plate--participant {
+  background: rgba(74, 111, 212, 0.14);
+  border-bottom-color: rgba(74, 111, 212, 0.22);
+  color: var(--concord-status-blue);
+}
+
+.concord-card__plate-number {
+  font-size: 13px;
+  font-weight: var(--concord-weight-bold);
+  letter-spacing: -0.01em;
   flex-shrink: 0;
 }
 
-.concord-card__role--owner {
-  color: var(--concord-purple-dark);
-  background: var(--concord-purple-light);
+.concord-card__plate-start {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.concord-card__role--participant {
-  color: var(--concord-status-blue);
-  background: rgba(74, 111, 212, 0.12);
+.concord-card__plate-created {
+  font-size: 12px;
+  font-weight: var(--concord-weight-medium);
+  opacity: 0.88;
+  white-space: nowrap;
 }
 
-.concord-card__role-icon {
+.concord-card__plate-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  text-align: right;
+}
+
+.concord-card__plate-icon {
   flex-shrink: 0;
 }
 

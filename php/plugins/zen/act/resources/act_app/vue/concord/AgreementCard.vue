@@ -1,10 +1,12 @@
 <template>
   <article class="concord-card" @click="$emit('open', agreement.id)">
-    <div class="concord-card__meta">
-      <span class="concord-card__number">#{{ agreement.number }}</span>
-      <span class="concord-card__created">{{ createdLabel }}</span>
-      <span :class="['concord-card__role', `concord-card__role--${roleKey}`]">
-        <svg class="concord-card__role-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
+    <div :class="['concord-card__plate', `concord-card__plate--${roleKey}`]">
+      <div class="concord-card__plate-start">
+        <span class="concord-card__plate-number">#{{ agreement.number }}</span>
+        <span v-if="agreement.createdAt" class="concord-card__plate-created">{{ createdLabel }}</span>
+      </div>
+      <span class="concord-card__plate-role">
+        <svg class="concord-card__plate-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
           <path v-if="roleKey === 'owner'" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
           <path v-else d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
         </svg>
