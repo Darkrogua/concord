@@ -219,16 +219,16 @@
 
 .concord-card__header {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: 'id status';
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'id status days';
   align-items: center;
-  column-gap: 8px;
+  column-gap: 6px;
   min-width: 0;
 }
 
-.concord-card__header--has-days:not(.concord-card__header--draft) {
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-areas: 'id status days';
+.concord-card__header:not(.concord-card__header--has-days):not(.concord-card__header--draft) {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'id status';
 }
 
 .concord-card__header:not(.concord-card__header--draft) {
@@ -299,19 +299,13 @@
 
 .concord-card__status-text {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 4px 6px;
+  gap: 3px 4px;
   min-width: 0;
   max-width: 100%;
-}
-
-.concord-card--role-participant .concord-card__status-text {
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .concord-card__status-plate--overdue {
@@ -333,10 +327,9 @@
 
 .concord-card__status-date {
   font-size: 12px;
-  font-weight: var(--concord-weight-medium);
+  font-weight: var(--concord-weight-semibold);
   color: var(--concord-card-meta);
-  flex-shrink: 1;
-  min-width: 0;
+  flex-shrink: 0;
   letter-spacing: -0.01em;
 }
 
@@ -419,6 +412,8 @@
   color: var(--concord-card-days-ok-text);
   padding: 0;
   background: transparent;
+  font-size: 11px;
+  font-weight: var(--concord-weight-medium);
 }
 
 .concord-card__days--soon,

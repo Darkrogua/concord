@@ -191,13 +191,7 @@ export default {
       return pluralizeParticipants(this.participantsCount)
     },
     showDaysLabel() {
-      if (this.isDraft || this.isApprovedHeader || !this.agreement.deadline) {
-        return false
-      }
-      if (this.isDeadlineOverdue) {
-        return true
-      }
-      return this.daysRemaining !== null && this.daysRemaining <= 5
+      return !this.isDraft && !this.isApprovedHeader && Boolean(this.agreement.deadline)
     },
     daysLabelText() {
       if (this.isDeadlineOverdue) {
