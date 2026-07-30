@@ -45,14 +45,21 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue'
-import { DEFAULT_NOTIFICATION_SETTINGS, DEFAULT_PROFILE } from '../concord/mock-notifications.js'
+import { computed, ref, toRef } from 'vue'
+import { DEFAULT_NOTIFICATION_SETTINGS } from '../concord/mock-notifications.js'
+import { useConcordProfile } from '../composables/useConcordProfile.js'
 
 export default {
   name: 'NotificationSettingsView',
+  props: {
+    accountId: {
+      type: String,
+      default: '1',
+    },
+  },
   emits: ['back'],
-  setup() {
-    const profile = ref({ ...DEFAULT_PROFILE })
+  setup(props) {
+    const { profile } = useConcordProfile(toRef(props, 'accountId'))
     const notificationSettings = ref({ ...DEFAULT_NOTIFICATION_SETTINGS })
     const fullName = computed(() => `${profile.value.firstName} ${profile.value.lastName}`.trim())
 

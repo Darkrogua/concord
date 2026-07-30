@@ -1,13 +1,20 @@
 <template>
   <div class="concord-page concord-page--notifications">
     <header class="concord-notifications__profile">
-      <img
-        v-if="profile.avatarUrl"
-        :src="profile.avatarUrl"
-        alt=""
-        class="concord-notifications__avatar concord-notifications__avatar--image"
+      <button
+        type="button"
+        class="concord-notifications__avatar-btn"
+        aria-label="Изменить фото профиля"
+        @click="openPhotoSheet"
       >
-      <span v-else class="concord-notifications__avatar" aria-hidden="true">{{ profile.avatarInitial }}</span>
+        <img
+          v-if="profile.avatarUrl"
+          :src="profile.avatarUrl"
+          alt=""
+          class="concord-notifications__avatar concord-notifications__avatar--image"
+        >
+        <span v-else class="concord-notifications__avatar" aria-hidden="true">{{ profile.avatarInitial }}</span>
+      </button>
       <h1 class="concord-notifications__name">{{ fullName }}</h1>
     </header>
 
@@ -16,22 +23,10 @@
         <h2 class="concord-accordion__title">Аккаунт</h2>
 
         <div class="concord-accordion__body concord-accordion__body--open">
-          <div class="concord-notifications__row">
+          <button type="button" class="concord-notifications__row concord-notifications__row--photo" @click="openPhotoSheet">
             <span class="concord-notifications__row-label">Фото</span>
-            <input
-              ref="avatarInputRef"
-              type="file"
-              accept="image/*"
-              class="concord-notifications__file-input"
-              @change="onAvatarSelected"
-            >
-            <button
-              type="button"
-              class="concord-notifications__photo-btn"
-              aria-label="Добавить фото"
-              @click="openAvatarPicker"
-            >
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true">
+            <span class="concord-notifications__photo-action">
+              <svg class="concord-notifications__photo-action-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
                 <path
                   d="M5 8.5A2.5 2.5 0 0 1 7.5 6H9l1.2-2h3.6L15 6h1.5A2.5 2.5 0 0 1 19 8.5v9A2.5 2.5 0 0 1 16.5 20h-9A2.5 2.5 0 0 1 5 17.5v-9Z"
                   stroke="currentColor"
@@ -39,11 +34,26 @@
                   stroke-linejoin="round"
                 />
                 <circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/>
-                <circle cx="17.5" cy="7.5" r="3.8" fill="currentColor"/>
-                <path d="M17.5 5.8v3.4M15.8 7.5h3.4" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/>
               </svg>
-            </button>
-          </div>
+              <span class="concord-notifications__photo-action-text">{{ photoActionLabel }}</span>
+            </span>
+          </button>
+
+          <input
+            ref="cameraInputRef"
+            type="file"
+            accept="image/*"
+            capture="environment"
+            class="concord-notifications__file-input"
+            @change="onCameraSelected"
+          >
+          <input
+            ref="galleryInputRef"
+            type="file"
+            accept="image/*"
+            class="concord-notifications__file-input"
+            @change="onGallerySelected"
+          >
 
           <label class="concord-notifications__row concord-notifications__row--field">
             <span class="concord-notifications__row-label">Имя</span>
@@ -142,24 +152,53 @@
       @confirm="confirmDeleteAccount"
       @cancel="cancelDeleteAccount"
     />
+
+    <ConcordAvatarPhotoSheet
+      :open="photoSheetOpen"
+      :has-avatar="Boolean(profile.avatarUrl)"
+      @close="closePhotoSheet"
+      @take-photo="openCamera"
+      @choose-gallery="openGallery"
+      @remove-photo="removeAvatar"
+    />
+
+    <ConcordAvatarCropSheet
+      :open="cropSheetOpen"
+      :image-src="pendingImageSrc"
+      @close="closeCrop"
+      @save="saveCroppedAvatar"
+    />
   </div>
 </template>
 
 <script>
-import { computed, ref } from 'vue'
-import { DEFAULT_PROFILE } from '../concord/mock-notifications.js'
+import { computed, ref, toRef } from 'vue'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
+import ConcordAvatarPhotoSheet from '../concord/ConcordAvatarPhotoSheet.vue'
+import ConcordAvatarCropSheet from '../concord/ConcordAvatarCropSheet.vue'
 import { usePwaInstall } from '../pwa-install.js'
+import { useConcordProfile } from '../composables/useConcordProfile.js'
+import { useAvatarPhotoFlow } from '../composables/useAvatarPhotoFlow.js'
 
 export default {
   name: 'GeneralSettingsView',
-  components: { ConcordGroupDeleteIcon, ConcordConfirmSheet },
+  components: {
+    ConcordGroupDeleteIcon,
+    ConcordConfirmSheet,
+    ConcordAvatarPhotoSheet,
+    ConcordAvatarCropSheet,
+  },
+  props: {
+    accountId: {
+      type: String,
+      default: '1',
+    },
+  },
   emits: ['delete-account', 'open-notification-settings', 'open-groups'],
   setup(props, { emit }) {
-    const profile = ref({ ...DEFAULT_PROFILE })
-    const avatarInputRef = ref(null)
     const accountDeleteConfirmOpen = ref(false)
+    const { profile, setAvatar, removeAvatar: clearAvatar } = useConcordProfile(toRef(props, 'accountId'))
     const {
       canShowInstall,
       install: installApp,
@@ -169,7 +208,31 @@ export default {
       dismissInstallHint,
     } = usePwaInstall()
 
+    const {
+      photoSheetOpen,
+      cropSheetOpen,
+      pendingImageSrc,
+      cameraInputRef,
+      galleryInputRef,
+      openPhotoSheet,
+      closePhotoSheet,
+      openCamera,
+      openGallery,
+      onCameraSelected,
+      onGallerySelected,
+      closeCrop,
+      saveCroppedAvatar,
+      removeAvatar,
+    } = useAvatarPhotoFlow({
+      onSave: setAvatar,
+      onRemove: clearAvatar,
+    })
+
     const fullName = computed(() => `${profile.value.firstName} ${profile.value.lastName}`.trim())
+
+    const photoActionLabel = computed(() => (
+      profile.value.avatarUrl ? 'Заменить фотографию' : 'Добавить фото'
+    ))
 
     function askDeleteAccount() {
       accountDeleteConfirmOpen.value = true
@@ -184,29 +247,12 @@ export default {
       emit('delete-account')
     }
 
-    function openAvatarPicker() {
-      avatarInputRef.value?.click()
-    }
-
-    function onAvatarSelected(event) {
-      const file = event.target.files?.[0]
-      if (!file) {
-        return
-      }
-      const reader = new FileReader()
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          profile.value.avatarUrl = reader.result
-        }
-      }
-      reader.readAsDataURL(file)
-      event.target.value = ''
-    }
-
     return {
       profile,
-      avatarInputRef,
+      cameraInputRef,
+      galleryInputRef,
       fullName,
+      photoActionLabel,
       accountDeleteConfirmOpen,
       canShowInstall,
       installApp,
@@ -217,8 +263,18 @@ export default {
       askDeleteAccount,
       cancelDeleteAccount,
       confirmDeleteAccount,
-      openAvatarPicker,
-      onAvatarSelected,
+      photoSheetOpen,
+      cropSheetOpen,
+      pendingImageSrc,
+      openPhotoSheet,
+      closePhotoSheet,
+      openCamera,
+      openGallery,
+      onCameraSelected,
+      onGallerySelected,
+      closeCrop,
+      saveCroppedAvatar,
+      removeAvatar,
     }
   },
 }

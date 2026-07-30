@@ -1,137 +1,153 @@
 <template>
-  <article class="concord-card" @click="$emit('open', agreement.id)">
-    <div :class="['concord-card__plate', `concord-card__plate--${roleKey}`]">
-      <div class="concord-card__plate-start">
-        <span class="concord-card__plate-number">#{{ agreement.number }}</span>
-        <span v-if="agreement.createdAt" class="concord-card__plate-created">{{ createdLabel }}</span>
+  <article
+    class="concord-card"
+    :class="cardModifiers"
+    @click="$emit('open', agreement.id)"
+  >
+    <header
+      :class="[
+        'concord-card__header',
+        {
+          'concord-card__header--draft': isDraft,
+          'concord-card__header--approved': isApprovedHeader,
+        },
+      ]"
+    >
+      <div class="concord-card__id">
+        <span
+          v-if="showFlame"
+          class="concord-card__flame"
+          :title="urgencyTitle"
+          aria-hidden="true"
+        >
+          <ConcordUrgencyFlame urgent />
+        </span>
+        <span class="concord-card__number">#{{ agreement.number }}</span>
       </div>
-      <span class="concord-card__plate-role">
-        <svg class="concord-card__plate-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
-          <path v-if="roleKey === 'owner'" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-          <path v-else d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg>
-        {{ roleLabel }}
+
+      <div class="concord-card__status-area">
+        <span v-if="isDraft" class="concord-card__draft-label">Черновик</span>
+
+        <span
+          v-else-if="isApprovedHeader"
+          class="concord-card__status-plate concord-card__status-plate--approved"
+        >
+          {{ approvedHeaderText }}
+        </span>
+
+        <span
+          v-else-if="isDeadlineOverdue"
+          class="concord-card__status-plate concord-card__status-plate--overdue"
+        >
+          <template v-if="agreement.isOwner">
+            <span class="concord-card__badge concord-card__badge--overdue">Создано мной</span>
+            <span v-if="agreement.deadline">до {{ agreement.deadline }}</span>
+          </template>
+          <template v-else>
+            <span class="concord-card__status-label">Ждёт согласования до:</span>
+            <span class="concord-card__status-date">{{ agreement.deadline }}</span>
+          </template>
+        </span>
+
+        <template v-else-if="agreement.isOwner">
+          <span class="concord-card__badge concord-card__badge--owner">Создано мной</span>
+          <span v-if="agreement.deadline" class="concord-card__deadline-prefix">
+            до <span class="concord-card__status-date">{{ agreement.deadline }}</span>
+          </span>
+        </template>
+
+        <span v-else class="concord-card__status-text">
+          <span class="concord-card__status-label">Ждёт согласования до:</span>
+          <span class="concord-card__status-date">{{ agreement.deadline }}</span>
+        </span>
+      </div>
+
+      <span
+        v-if="showDaysLabel"
+        :class="['concord-card__days', `concord-card__days--${daysLabelTone}`]"
+      >
+        ({{ daysLabelText }})
       </span>
-    </div>
+    </header>
+
+    <div
+      v-if="!isDraft"
+      :class="['concord-card__rule', `concord-card__rule--${ruleTone}`]"
+      aria-hidden="true"
+    />
 
     <h2 class="concord-card__title">{{ agreement.title }}</h2>
 
     <div class="concord-card__info">
-      <div class="concord-card__details">
-        <span
-          class="concord-card__flame"
-          :class="{
-            'concord-card__flame--urgent': showUrgency && !isDeadlineSoon,
-            'concord-card__flame--soon': isDeadlineSoon && !isDeadlineOverdue,
-            'concord-card__flame--overdue': isDeadlineOverdue,
-          }"
-          :title="urgencyTitle"
-          aria-hidden="true"
-        >
-          <ConcordUrgencyFlame :urgent="showUrgency" tall />
-        </span>
-        <p
-          class="concord-card__deadline"
-          :class="{
-            'concord-card__deadline--soon': isDeadlineSoon && !isDeadlineOverdue,
-            'concord-card__deadline--overdue': isDeadlineOverdue,
-          }"
-        >
-          <span class="concord-card__deadline-date">{{ agreement.deadline }}</span>
-          <span
-            class="concord-card__days"
-            :class="{
-              'concord-card__days--soon': isDeadlineSoon && !isDeadlineOverdue,
-              'concord-card__days--overdue': isDeadlineOverdue,
-            }"
-          >
-            ({{ deadlineHint }})
-          </span>
-        </p>
-        <p class="concord-card__author-name">{{ agreement.author.name }}</p>
+      <div class="concord-card__author">
+        <span class="concord-card__author-avatar" aria-hidden="true">{{ authorInitials }}</span>
+        <span class="concord-card__author-name">{{ agreement.author.name }}</span>
       </div>
 
-      <ParticipantAvatars
-        :people="agreement.participants"
-        :total="agreement.total || agreement.participants?.length || 0"
-        compact
-      />
+      <div class="concord-card__participants" aria-label="Участники согласования">
+        <span class="concord-card__participants-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v1.5h16V18c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="concord-card__participants-label">{{ participantsLabel }}</span>
+      </div>
     </div>
 
-    <div class="concord-card__footer">
-      <span :class="['concord-card__status', `concord-card__status--${agreement.status}`]">
-        {{ statusLabel }}
+    <div class="concord-card__footer" @click.stop>
+      <button
+        type="button"
+        class="concord-card__action concord-card__action--star"
+        :class="{ 'concord-card__action--active': agreement.isFavorite }"
+        aria-label="Избранное"
+        @click="$emit('toggle-favorite', agreement.id)"
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+          <path
+            :fill="agreement.isFavorite ? 'currentColor' : 'none'"
+            d="M12 17.3 6.2 21l1.6-6.7L2 9.3l6.9-.6L12 2l3.1 6.7 6.9.6-5.8 4.9 1.6 6.7z"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <div class="concord-card__progress" aria-hidden="true">
+        <div class="concord-card__progress-track">
+          <div class="concord-card__progress-fill" :style="{ width: `${progressPercent}%` }" />
+        </div>
+      </div>
+
+      <span class="concord-card__count" aria-label="Прогресс голосования">
+        <span class="concord-card__count-voted">{{ agreement.voted }}</span><span class="concord-card__count-sep"> из </span><span class="concord-card__count-total">{{ agreement.total }}</span>
       </span>
-
-      <div class="concord-card__actions" @click.stop>
-        <button
-          type="button"
-          class="concord-card__action concord-card__action--star"
-          :class="{ 'concord-card__action--active': agreement.isFavorite }"
-          aria-label="Избранное"
-          @click="$emit('toggle-favorite', agreement.id)"
-        >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-            <path
-              :fill="agreement.isFavorite ? 'currentColor' : 'none'"
-              d="M12 17.3 6.2 21l1.6-6.7L2 9.3l6.9-.6L12 2l3.1 6.7 6.9.6-5.8 4.9 1.6 6.7z"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-        <button
-          v-if="agreement.isOwner"
-          type="button"
-          class="concord-card__action concord-card__action--copy"
-          aria-label="Дублировать"
-          @click="$emit('duplicate', agreement.id)"
-        >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-            <rect x="8" y="8" width="11" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M6 16H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-        </button>
-        <button
-          v-if="agreement.isOwner"
-          type="button"
-          class="concord-card__action concord-card__action--edit"
-          aria-label="Редактировать"
-          @click="$emit('edit', agreement.id)"
-        >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-            <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <span class="concord-card__count" aria-label="Прогресс голосования">
-          <span class="concord-card__count-voted">{{ agreement.voted }}</span><span class="concord-card__count-total">/{{ agreement.total }}</span>
-        </span>
-      </div>
-    </div>
-
-    <div class="concord-card__progress" aria-hidden="true">
-      <div class="concord-card__progress-track">
-        <div class="concord-card__progress-fill" :style="{ width: `${progressPercent}%` }" />
-      </div>
     </div>
   </article>
 </template>
 
 <script>
-import ParticipantAvatars from './ParticipantAvatars.vue'
 import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
-import { formatAgreementDaysLabel, getAgreementDaysRemaining, getAgreementDeadlineHint, isAgreementDeadlineSoon } from './mock-agreements.js'
+import {
+  getAgreementDaysRemaining,
+  pluralizeDays,
+  pluralizeParticipants,
+} from './mock-agreements.js'
 
-const STATUS_LABELS = {
-  draft: 'Черновик',
-  awaiting: 'Ждет согласования',
-  approved: 'Согласовано',
+function getPersonInitials(name = '') {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean)
+  if (!parts.length) {
+    return '?'
+  }
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+  return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase()
 }
 
 export default {
   name: 'AgreementCard',
-  components: { ParticipantAvatars, ConcordUrgencyFlame },
+  components: { ConcordUrgencyFlame },
   props: {
     agreement: {
       type: Object,
@@ -140,55 +156,100 @@ export default {
   },
   emits: ['open', 'toggle-favorite', 'duplicate', 'edit'],
   computed: {
-    roleKey() {
-      return this.agreement.isOwner ? 'owner' : 'participant'
+    isDraft() {
+      return this.agreement.status === 'draft' || !this.agreement.createdAt
     },
-    roleLabel() {
-      return this.agreement.isOwner ? 'Создано мной' : 'Я согласую'
+    daysRemaining() {
+      return getAgreementDaysRemaining(this.agreement.deadline)
     },
-    statusLabel() {
-      return STATUS_LABELS[this.agreement.status] || STATUS_LABELS.awaiting
+    isDeadlineOverdue() {
+      return this.daysRemaining !== null && this.daysRemaining < 0
     },
-    createdLabel() {
-      if (!this.agreement.createdAt) {
-        return '\u00A0'
+    showFlame() {
+      return Boolean(this.agreement.isUrgent)
+    },
+    isOwnerApproved() {
+      return this.agreement.isOwner && this.agreement.status === 'approved'
+    },
+    isParticipantSectionApproved() {
+      return !this.agreement.isOwner && Boolean(this.agreement.mySectionApproved)
+    },
+    isApprovedHeader() {
+      return this.isOwnerApproved || this.isParticipantSectionApproved
+    },
+    approvedHeaderText() {
+      if (this.isOwnerApproved) {
+        return `Согласовано: ${this.agreement.approvedAt || this.agreement.deadline}`
       }
-      return `Создана: ${this.agreement.createdAt}`
+      return `Согласовано мной: ${this.agreement.mySectionApprovedAt || this.agreement.deadline}`
+    },
+    participantsCount() {
+      return this.agreement.total || this.agreement.participants?.length || 0
+    },
+    participantsLabel() {
+      return pluralizeParticipants(this.participantsCount)
+    },
+    showDaysLabel() {
+      return !this.isDraft && !this.isApprovedHeader && Boolean(this.agreement.deadline)
+    },
+    daysLabelText() {
+      if (this.isDeadlineOverdue) {
+        return 'просрочено'
+      }
+      if (this.daysRemaining !== null) {
+        return pluralizeDays(this.daysRemaining)
+      }
+      return '—'
+    },
+    daysLabelTone() {
+      if (this.isDeadlineOverdue) {
+        return 'overdue'
+      }
+      if (this.daysRemaining !== null && this.daysRemaining >= 0 && this.daysRemaining <= 5) {
+        return 'soon'
+      }
+      return 'ok'
     },
     progressPercent() {
       if (!this.agreement.total) {
         return 0
       }
+      if (this.isOwnerApproved || this.agreement.status === 'approved') {
+        return 100
+      }
       return Math.min(100, Math.round((this.agreement.voted / this.agreement.total) * 100))
     },
-    daysLabel() {
-      return formatAgreementDaysLabel(
-        this.agreement.startDate || this.agreement.createdAt,
-        this.agreement.deadline
-      )
+    progressTone() {
+      if (this.isDraft) {
+        return 'draft'
+      }
+      if (this.isOwnerApproved || this.agreement.status === 'approved') {
+        return 'done'
+      }
+      if (this.agreement.isOwner) {
+        return 'owner'
+      }
+      return 'participant'
     },
-    daysRemaining() {
-      return getAgreementDaysRemaining(this.agreement.deadline)
+    cardModifiers() {
+      return [
+        `concord-card--role-${this.agreement.isOwner ? 'owner' : 'participant'}`,
+        `concord-card--progress-${this.progressTone}`,
+      ]
     },
-    isDeadlineSoon() {
-      return isAgreementDeadlineSoon(this.agreement.deadline)
+    ruleTone() {
+      if (this.isApprovedHeader) {
+        return 'approved'
+      }
+      if (this.isDeadlineOverdue) {
+        return 'overdue'
+      }
+      return this.agreement.isOwner ? 'owner' : 'participant'
     },
-    isDeadlineOverdue() {
-      return this.daysRemaining !== null && this.daysRemaining < 0
-    },
-    showUrgency() {
-      return Boolean(this.agreement.isUrgent || this.isDeadlineSoon)
-    },
-    deadlineHint() {
-      return getAgreementDeadlineHint(this.agreement.deadline, this.daysLabel)
+    authorInitials() {
+      return getPersonInitials(this.agreement.author?.name)
     },
     urgencyTitle() {
-      if (this.isDeadlineOverdue) {
-        return 'Срок согласования истёк'
-      }
-      if (this.isDeadlineSoon) {
-        return this.deadlineHint
-      }
       return this.agreement.isUrgent ? 'Срочность установлена' : 'Срочность не установлена'
     },
   },

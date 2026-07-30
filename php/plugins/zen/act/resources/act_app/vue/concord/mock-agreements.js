@@ -223,6 +223,19 @@ export function pluralizeDays(count) {
   return `${value} дней`
 }
 
+export function pluralizeParticipants(count) {
+  const value = Math.abs(Number(count) || 0)
+  const mod10 = value % 10
+  const mod100 = value % 100
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${value} участник`
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return `${value} участника`
+  }
+  return `${value} участников`
+}
+
 export function formatAgreementDaysLabel(startValue, endValue) {
   const start = parseRuDate(startValue)
   const end = parseRuDate(endValue)
@@ -253,7 +266,7 @@ export function isAgreementDeadlineSoon(deadlineValue, thresholdDays = 5) {
   if (remaining === null) {
     return false
   }
-  return remaining < thresholdDays
+  return remaining <= thresholdDays
 }
 
 export function formatAgreementRemainingLabel(deadlineValue) {
@@ -366,6 +379,9 @@ export function formatStatusFilterLabel(status, match = 'is') {
  * @property {number} total
  * @property {boolean} isFavorite
  * @property {boolean} isOwner
+ * @property {string} [approvedAt]
+ * @property {boolean} [mySectionApproved]
+ * @property {string} [mySectionApprovedAt]
  */
 
 export const AGREEMENT_BLOCK_TYPES = [
@@ -777,7 +793,7 @@ export const MOCK_AGREEMENTS = [
     number: 308,
     title: 'Азимут тур, ТЗ, Релиз 2. Можно название в две строки, и даже...',
     createdAt: '20.07.2024',
-    deadline: '08.08.2024',
+    deadline: '31.12.2026',
     daysLabel: '25 дней',
     isUrgent: true,
     author: { name: 'Александр Аблизин' },
@@ -789,8 +805,8 @@ export const MOCK_AGREEMENTS = [
       { label: 'А' },
     ],
     status: 'awaiting',
-    voted: 10,
-    total: 50,
+    voted: 13,
+    total: 34,
     isFavorite: false,
     isOwner: true,
     description: 'Спецификация интеграции API и схема обмена данными.',
@@ -853,8 +869,8 @@ export const MOCK_AGREEMENTS = [
     number: 306,
     title: 'Азимут тур, ТЗ, Релиз 2. Можно название в две строки, и даже...',
     createdAt: '20.07.2024',
-    deadline: '08.08.2024',
-    daysLabel: '15 дней',
+    deadline: '31.12.2026',
+    daysLabel: '25 дней',
     isUrgent: false,
     author: { name: 'Александр Аблизин' },
     participants: [
@@ -864,12 +880,14 @@ export const MOCK_AGREEMENTS = [
       { label: 'Н' },
       { label: 'А' },
     ],
-    status: 'approved',
-    voted: 30,
-    total: 30,
+    status: 'awaiting',
+    voted: 12,
+    total: 80,
     isFavorite: false,
     isOwner: false,
-    description: 'Итоговый отчёт по проекту и закрывающие документы.',
+    mySectionApproved: true,
+    mySectionApprovedAt: '08.08.2024',
+    description: 'Согласователь уже проголосовал по своему разделу.',
     sections: [
       {
         id: 'section-306',
@@ -881,6 +899,83 @@ export const MOCK_AGREEMENTS = [
             label: 'Текст',
             title: 'Заключение',
             content: 'Все этапы релиза завершены, акты подписаны.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: '304',
+    number: 304,
+    title: 'Азимут тур, ТЗ, Релиз 2. Можно название в две строки, и даже...',
+    createdAt: '20.07.2024',
+    deadline: '08.08.2024',
+    daysLabel: '25 дней',
+    isUrgent: false,
+    author: { name: 'Александр Аблизин' },
+    participants: [
+      { label: 'И' },
+      { label: 'Е' },
+      { label: 'М' },
+      { label: 'Н' },
+      { label: 'А' },
+    ],
+    status: 'approved',
+    approvedAt: '08.08.2024',
+    voted: 34,
+    total: 34,
+    isFavorite: false,
+    isOwner: true,
+    description: 'Полностью согласованное согласование автора.',
+    sections: [
+      {
+        id: 'section-304',
+        title: 'Релиз',
+        blocks: [
+          {
+            id: 'block-304-text',
+            type: 'text',
+            label: 'Текст',
+            title: 'Итог',
+            content: 'Все разделы согласованы.',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: '309',
+    number: 309,
+    title: 'Азимут тур, ТЗ, Релиз 2. Можно название в две строки, и даже...',
+    createdAt: '20.07.2024',
+    deadline: '04.08.2026',
+    daysLabel: '5 дней',
+    isUrgent: false,
+    author: { name: 'Александр Аблизин' },
+    participants: [
+      { label: 'И' },
+      { label: 'Е' },
+      { label: 'М' },
+      { label: 'Н' },
+      { label: 'А' },
+    ],
+    status: 'awaiting',
+    voted: 12,
+    total: 80,
+    isFavorite: false,
+    isOwner: false,
+    description: 'Демо: осталось 5 дней — красная капсула в шапке.',
+    sections: [
+      {
+        id: 'section-309',
+        title: 'Сроки',
+        blocks: [
+          {
+            id: 'block-309-text',
+            type: 'text',
+            label: 'Текст',
+            title: 'Дедлайн',
+            content: 'Срок согласования истёк.',
           },
         ],
       },
@@ -1044,8 +1139,8 @@ function createFullDemoAgreement() {
       { label: 'Н' },
     ],
     status: 'awaiting',
-    voted: 0,
-    total: 15,
+    voted: 12,
+    total: 80,
     isFavorite: false,
     isOwner: false,
     description: 'Тестовое согласование для проверки активных и неактивных разделов в режиме согласователя.',

@@ -24,6 +24,7 @@
 
     <GeneralSettingsView
       v-else-if="currentView === 'settings'"
+      :account-id="activeAccountId"
       @delete-account="onDeleteAccount"
       @open-notification-settings="goToNotificationSettings"
       @open-groups="goToGroupsManage"
@@ -31,11 +32,13 @@
 
     <NotificationSettingsView
       v-else-if="currentView === 'notification-settings'"
+      :account-id="activeAccountId"
       @back="goToSettings"
     />
 
     <GroupsManageView
       v-else-if="currentView === 'groups-manage'"
+      :account-id="activeAccountId"
       :groups="profileGroups"
       @back="goToSettings"
       @edit-group="openGroupMembers"
@@ -110,6 +113,7 @@
     <ConcordBottomNav
       v-if="showBottomNav"
       :active="navActive"
+      :avatar-url="activeAccountAvatarUrl"
       :avatar-initial="activeAccountInitial"
       :profile-label="activeAccountLabel"
       :notifications-badge="unreadNotificationsCount"
@@ -147,6 +151,7 @@ import ConcordBottomNav from './concord/ConcordBottomNav.vue'
 import { formatAccountNavLabel, getAccountById } from './concord/mock-accounts.js'
 import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, formatDateRu, getNextAgreementNumber } from './concord/mock-agreements.js'
 import { useConcordAgreements } from './composables/useConcordAgreements.js'
+import { useConcordProfile } from './composables/useConcordProfile.js'
 import { MOCK_NOTIFICATION_SECTIONS } from './concord/mock-notifications.js'
 import {
   MOCK_CONTACTS,
@@ -205,8 +210,11 @@ export default {
 
     const accountOpen = ref(false)
     const activeAccountId = ref('1')
+    const { profile: activeProfile } = useConcordProfile(activeAccountId)
 
     const activeAccountInitial = computed(() => getAccountById(activeAccountId.value).initial)
+
+    const activeAccountAvatarUrl = computed(() => activeProfile.value.avatarUrl || '')
 
     const activeAccountLabel = computed(() =>
       formatAccountNavLabel(getAccountById(activeAccountId.value).name)
@@ -655,6 +663,7 @@ export default {
       accountOpen,
       activeAccountId,
       activeAccountInitial,
+      activeAccountAvatarUrl,
       activeAccountLabel,
       navActive,
       showBottomNav,

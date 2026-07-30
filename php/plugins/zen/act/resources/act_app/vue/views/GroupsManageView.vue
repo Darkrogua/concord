@@ -136,16 +136,20 @@
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue'
-import { DEFAULT_PROFILE } from '../concord/mock-notifications.js'
+import { computed, ref, toRef, watch } from 'vue'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
+import { useConcordProfile } from '../composables/useConcordProfile.js'
 
 export default {
   name: 'GroupsManageView',
   components: { ConcordGroupDeleteIcon, ConcordGroupHeaderActions, ConcordConfirmSheet },
   props: {
+    accountId: {
+      type: String,
+      default: '1',
+    },
     groups: {
       type: Array,
       required: true,
@@ -161,7 +165,7 @@ export default {
   },
   emits: ['back', 'edit-group', 'delete-group', 'create-group', 'confirm'],
   setup(props, { emit }) {
-    const profile = ref({ ...DEFAULT_PROFILE })
+    const { profile } = useConcordProfile(toRef(props, 'accountId'))
     const searchQuery = ref('')
     const selectedGroupIds = ref([...props.initialSelectedIds])
     const pendingDeleteGroup = ref(null)
