@@ -10,6 +10,7 @@
         {
           'concord-card__header--draft': isDraft,
           'concord-card__header--approved': isApprovedHeader,
+          'concord-card__header--has-days': showDaysLabel,
         },
       ]"
     >
@@ -190,7 +191,13 @@ export default {
       return pluralizeParticipants(this.participantsCount)
     },
     showDaysLabel() {
-      return !this.isDraft && !this.isApprovedHeader && Boolean(this.agreement.deadline)
+      if (this.isDraft || this.isApprovedHeader || !this.agreement.deadline) {
+        return false
+      }
+      if (this.isDeadlineOverdue) {
+        return true
+      }
+      return this.daysRemaining !== null && this.daysRemaining <= 5
     },
     daysLabelText() {
       if (this.isDeadlineOverdue) {
