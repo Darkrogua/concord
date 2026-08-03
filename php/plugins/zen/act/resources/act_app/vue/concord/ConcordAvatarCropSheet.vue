@@ -1,11 +1,11 @@
 <template>
-  <div v-if="open" class="concord-avatar-crop" role="dialog" aria-label="Обрезка фото">
-    <header class="concord-avatar-crop__header">
-      <button type="button" class="concord-avatar-crop__action" @click="$emit('close')">
+  <div v-if="open" class="concord-avatar-crop" role="dialog" aria-label="Обрезка фото" @click.stop>
+      <header class="concord-avatar-crop__header">
+      <button type="button" class="concord-avatar-crop__action" @click.stop="$emit('close')">
         Отмена
       </button>
       <span class="concord-avatar-crop__title">Фото профиля</span>
-      <button type="button" class="concord-avatar-crop__action concord-avatar-crop__action--primary" @click="save">
+      <button type="button" class="concord-avatar-crop__action concord-avatar-crop__action--primary" @click.stop="save">
         Готово
       </button>
     </header>

@@ -123,11 +123,30 @@
         </div>
 
         <div v-else-if="step === 'participant'" class="concord-filter-modal__body concord-filter-modal__body--scroll">
-          <label class="concord-filter-modal__radio concord-filter-modal__radio--static">
-            <input type="radio" name="participant-match" value="is" checked>
-            <span class="concord-filter-modal__radio-mark" />
-            <span>это</span>
-          </label>
+          <div class="concord-filter-modal__match-row">
+            <label class="concord-filter-modal__radio">
+              <input
+                type="radio"
+                name="participant-match"
+                value="is"
+                :checked="participantMatch === 'is'"
+                @change="participantMatch = 'is'"
+              >
+              <span class="concord-filter-modal__radio-mark" />
+              <span>это</span>
+            </label>
+            <label class="concord-filter-modal__radio">
+              <input
+                type="radio"
+                name="participant-match"
+                value="is_not"
+                :checked="participantMatch === 'is_not'"
+                @change="participantMatch = 'is_not'"
+              >
+              <span class="concord-filter-modal__radio-mark" />
+              <span>это не</span>
+            </label>
+          </div>
 
           <div class="concord-filter-modal__combobox">
             <input
@@ -337,6 +356,7 @@ export default {
     const createdDate = ref(formatDateRu())
     const participantQuery = ref('')
     const selectedParticipantIds = ref([])
+    const participantMatch = ref('is')
     const statusMatch = ref('is')
     const selectedStatusId = ref('planned')
     const categories = FILTER_CATEGORIES
@@ -384,6 +404,7 @@ export default {
       createdDate.value = formatDateRu()
       participantQuery.value = ''
       selectedParticipantIds.value = []
+      participantMatch.value = 'is'
       statusMatch.value = 'is'
       selectedStatusId.value = 'planned'
     }
@@ -404,6 +425,9 @@ export default {
       }
       if (filter.category === 'participant' && Array.isArray(filter.value)) {
         selectedParticipantIds.value = [...filter.value]
+        if (filter.match) {
+          participantMatch.value = filter.match
+        }
       }
       if (filter.category === 'status') {
         if (filter.match) {
@@ -473,7 +497,7 @@ export default {
       }
       emit('add-participant', {
         participants: selected,
-        match: 'is',
+        match: participantMatch.value,
       })
     }
 
@@ -500,6 +524,7 @@ export default {
       createdDate,
       participantQuery,
       selectedParticipantIds,
+      participantMatch,
       isParticipantSelected,
       toggleParticipant,
       statusMatch,

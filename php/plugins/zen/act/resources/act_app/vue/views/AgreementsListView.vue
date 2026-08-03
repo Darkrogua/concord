@@ -40,18 +40,20 @@
           <span v-if="tab.badge" class="concord-tabs__badge">{{ tab.badge }}</span>
         </button>
       </div>
-      <div
+      <button
         v-if="showTabsOverflow"
+        type="button"
         class="concord-tabs__hint"
-        aria-hidden="true"
+        aria-label="Прокрутить вкладки вправо"
         title="Листайте вправо"
+        @click="scrollTabsRight"
       >
-        <span class="concord-tabs__hint-icon">
+        <span class="concord-tabs__hint-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </span>
-      </div>
+      </button>
     </div>
 
     <div class="concord-sort">
@@ -106,9 +108,10 @@
 </template>
 
 <script>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import AgreementCard from '../concord/AgreementCard.vue'
 import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
+import { useTabsScrollHint } from '../composables/useTabsScrollHint.js'
 import {
   SORT_OPTIONS,
   buildTopTabsFromSections,
@@ -138,39 +141,19 @@ export default {
     const searchOpen = ref(false)
     const searchQuery = ref('')
     const searchScope = ref('content')
-    const tabsRef = ref(null)
-    const showTabsOverflow = ref(false)
-    let tabsResizeObserver = null
+    const {
+      tabsRef,
+      showTabsOverflow,
+      updateTabsOverflow,
+      scrollTabsRight,
+    } = useTabsScrollHint()
 
     const allTabs = computed(() => buildTopTabsFromSections(props.filterSections, props.agreements))
     const sortOptions = SORT_OPTIONS
     const visibleTabs = computed(() => allTabs.value)
 
-    function updateTabsOverflow() {
-      const el = tabsRef.value
-      if (!el) {
-        showTabsOverflow.value = false
-        return
-      }
-      const hasOverflow = el.scrollWidth > el.clientWidth + 1
-      const canScrollRight = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
-      showTabsOverflow.value = hasOverflow && canScrollRight
-    }
-
-    onMounted(() => {
-      nextTick(() => {
-        updateTabsOverflow()
-        if (typeof ResizeObserver !== 'undefined' && tabsRef.value) {
-          tabsResizeObserver = new ResizeObserver(updateTabsOverflow)
-          tabsResizeObserver.observe(tabsRef.value)
-        }
-      })
-      window.addEventListener('resize', updateTabsOverflow)
-    })
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('resize', updateTabsOverflow)
-      tabsResizeObserver?.disconnect()
+    watch(visibleTabs, () => {
+      nextTick(updateTabsOverflow)
     })
 
     watch(
@@ -229,6 +212,7 @@ export default {
       tabsRef,
       showTabsOverflow,
       updateTabsOverflow,
+      scrollTabsRight,
       displayedAgreements,
       groupedAgreements,
       searchResults,

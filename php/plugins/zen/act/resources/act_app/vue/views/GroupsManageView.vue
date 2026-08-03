@@ -82,34 +82,36 @@
         <h2 class="concord-accordion__title">Группы</h2>
 
         <div class="concord-accordion__body concord-accordion__body--open">
-          <button
-            v-for="group in filteredGroups"
-            :key="group.id"
-            type="button"
-            class="concord-notifications__group-row concord-notifications__group-row--clickable"
-            @click="$emit('edit-group', group.id)"
-          >
-            <span class="concord-notifications__group-icon-wrap" aria-hidden="true">
-              <span class="concord-notifications__group-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-                  <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
-                  <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
+          <div class="concord-profile-card">
+            <button
+              v-for="group in filteredGroups"
+              :key="group.id"
+              type="button"
+              class="concord-notifications__group-row concord-notifications__group-row--clickable"
+              @click="$emit('edit-group', group.id)"
+            >
+              <span class="concord-notifications__group-icon-wrap" aria-hidden="true">
+                <span class="concord-notifications__group-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+                    <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <span class="concord-notifications__group-badge">{{ groupMemberCount(group) }}</span>
               </span>
-              <span class="concord-notifications__group-badge">{{ groupMemberCount(group) }}</span>
-            </span>
-            <span class="concord-notifications__group-title">{{ group.title }}</span>
-            <div class="concord-notifications__group-actions">
-              <button
-                type="button"
-                class="concord-notifications__group-action-btn"
-                aria-label="Удалить группу"
-                @click.stop="askDeleteGroup(group)"
-              >
-                <ConcordGroupDeleteIcon />
-              </button>
-            </div>
-          </button>
+              <span class="concord-notifications__group-title">{{ group.title }}</span>
+              <div class="concord-notifications__group-actions">
+                <button
+                  type="button"
+                  class="concord-notifications__group-action-btn"
+                  aria-label="Удалить группу"
+                  @click.stop="askDeleteGroup(group)"
+                >
+                  <ConcordGroupDeleteIcon />
+                </button>
+              </div>
+            </button>
+          </div>
 
           <button
             type="button"

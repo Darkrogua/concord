@@ -24,20 +24,22 @@
         <h2 class="concord-accordion__title">Уведомления</h2>
 
         <div class="concord-accordion__body concord-accordion__body--open">
-          <label class="concord-notifications__toggle-row">
-            <span>Общие чаты</span>
-            <input v-model="notificationSettings.generalChats" type="checkbox" class="concord-toggle">
-          </label>
+          <div class="concord-profile-card">
+            <label class="concord-notifications__toggle-row">
+              <span>Общие чаты</span>
+              <input v-model="notificationSettings.generalChats" type="checkbox" class="concord-toggle">
+            </label>
 
-          <label class="concord-notifications__toggle-row">
-            <span>Личные чаты</span>
-            <input v-model="notificationSettings.personalChats" type="checkbox" class="concord-toggle">
-          </label>
+            <label class="concord-notifications__toggle-row">
+              <span>Личные чаты</span>
+              <input v-model="notificationSettings.personalChats" type="checkbox" class="concord-toggle">
+            </label>
 
-          <label class="concord-notifications__toggle-row">
-            <span>Группы</span>
-            <input v-model="notificationSettings.groups" type="checkbox" class="concord-toggle">
-          </label>
+            <label class="concord-notifications__toggle-row">
+              <span>Группы</span>
+              <input v-model="notificationSettings.groups" type="checkbox" class="concord-toggle">
+            </label>
+          </div>
         </div>
       </section>
     </main>

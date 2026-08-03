@@ -42,6 +42,13 @@ function ensureProfile(accountId) {
   const id = String(accountId || '1')
   if (!profiles[id]) {
     profiles[id] = cloneProfile(DEFAULT_PROFILE)
+    return profiles[id]
+  }
+  const defaults = cloneProfile(DEFAULT_PROFILE)
+  for (const key of Object.keys(defaults)) {
+    if (profiles[id][key] === undefined) {
+      profiles[id][key] = defaults[key]
+    }
   }
   return profiles[id]
 }

@@ -1,8 +1,11 @@
 export const DEFAULT_PROFILE = {
+  login: 'alex-ablizin',
   firstName: 'Александр',
   lastName: 'Аблизин',
+  email: '',
   phone: '+78888952222',
   birthDate: '',
+  timezone: '',
   avatarInitial: 'А',
   avatarUrl: '',
 }

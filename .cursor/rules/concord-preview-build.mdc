@@ -1,0 +1,14 @@
+---
+description: Rebuild the Concord frontend after frontend changes
+globs: php/plugins/zen/act/resources/act_app/**/*
+alwaysApply: false
+---
+
+# Concord frontend preview
+
+After any edit to Concord frontend source, rebuild or restart the Concord Vite preview before handing the work off.
+
+- Clear `php/plugins/zen/act/node_modules/.vite` when a fresh preview is needed.
+- Start a fresh server on an available port with:
+  `cd php/plugins/zen/act && npx vite --config vite.concord.config.js --host 127.0.0.1 --port <port>`
+- Tell the user the exact preview URL to open.

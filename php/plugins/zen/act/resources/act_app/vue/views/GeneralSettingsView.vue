@@ -12,10 +12,13 @@
           :src="profile.avatarUrl"
           alt=""
           class="concord-notifications__avatar concord-notifications__avatar--image"
-        >
+        />
         <span v-else class="concord-notifications__avatar" aria-hidden="true">{{ profile.avatarInitial }}</span>
       </button>
-      <h1 class="concord-notifications__name">{{ fullName }}</h1>
+      <div class="concord-notifications__profile-text">
+        <h1 class="concord-notifications__name">{{ fullName }}</h1>
+        <p class="concord-notifications__handle">@{{ profile.login }}</p>
+      </div>
     </header>
 
     <main class="concord-notifications">
@@ -23,20 +26,50 @@
         <h2 class="concord-accordion__title">Аккаунт</h2>
 
         <div class="concord-accordion__body concord-accordion__body--open">
-          <button type="button" class="concord-notifications__row concord-notifications__row--photo" @click="openPhotoSheet">
-            <span class="concord-notifications__row-label">Фото</span>
-            <span class="concord-notifications__photo-action">
-              <svg class="concord-notifications__photo-action-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-                <path
-                  d="M5 8.5A2.5 2.5 0 0 1 7.5 6H9l1.2-2h3.6L15 6h1.5A2.5 2.5 0 0 1 19 8.5v9A2.5 2.5 0 0 1 16.5 20h-9A2.5 2.5 0 0 1 5 17.5v-9Z"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linejoin="round"
-                />
-                <circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/>
-              </svg>
-              <span class="concord-notifications__photo-action-text">{{ photoActionLabel }}</span>
-            </span>
+          <div class="concord-profile-card">
+            <ConcordProfileFieldRow
+              label="Логин"
+              :value="loginLabel"
+              strong
+            />
+            <ConcordProfileFieldRow
+              label="Имя"
+              :value="fullName"
+              interactive
+              @click="openMenu('name')"
+            />
+            <ConcordProfileFieldRow
+              label="Email"
+              :value="profile.email"
+              interactive
+              @click="openMenu('email')"
+            />
+            <ConcordProfileFieldRow
+              label="Телефон"
+              :value="profile.phone"
+              interactive
+              @click="openMenu('phone')"
+            />
+            <ConcordProfileFieldRow
+              label="Пароль"
+              value="••••••"
+              interactive
+              @click="openMenu('password')"
+            />
+            <ConcordProfileFieldRow
+              label="Часовой пояс"
+              :value="timezoneLabel"
+              interactive
+              @click="openMenu('timezone')"
+            />
+          </div>
+
+          <button
+            type="button"
+            class="concord-profile-delete"
+            @click="askDeleteAccount"
+          >
+            Удалить аккаунт
           </button>
 
           <input
@@ -46,51 +79,14 @@
             capture="environment"
             class="concord-notifications__file-input"
             @change="onCameraSelected"
-          >
+          />
           <input
             ref="galleryInputRef"
             type="file"
             accept="image/*"
             class="concord-notifications__file-input"
             @change="onGallerySelected"
-          >
-
-          <label class="concord-notifications__row concord-notifications__row--field">
-            <span class="concord-notifications__row-label">Имя</span>
-            <input v-model="profile.firstName" type="text" class="concord-notifications__input">
-          </label>
-
-          <label class="concord-notifications__row concord-notifications__row--field">
-            <span class="concord-notifications__row-label">Фамилия</span>
-            <input v-model="profile.lastName" type="text" class="concord-notifications__input">
-          </label>
-
-          <label class="concord-notifications__row concord-notifications__row--field">
-            <span class="concord-notifications__row-label">Телефон</span>
-            <input v-model="profile.phone" type="tel" class="concord-notifications__input">
-          </label>
-
-          <label class="concord-notifications__row concord-notifications__row--field">
-            <span class="concord-notifications__row-label">Дата рождения</span>
-            <input
-              v-model="profile.birthDate"
-              type="text"
-              class="concord-notifications__input"
-              placeholder="Ведите текст"
-            >
-          </label>
-
-          <div class="concord-notifications__row">
-            <span class="concord-notifications__row-label">Удаление</span>
-            <button
-              type="button"
-              class="concord-notifications__group-action-btn"
-              aria-label="Удалить аккаунт"
-              @click="askDeleteAccount"
-            >
-              <ConcordGroupDeleteIcon />
-            </button>
-          </div>
+          />
         </div>
       </section>
 
@@ -124,6 +120,100 @@
         </button>
       </section>
     </main>
+
+    <ConcordProfileFieldMenu
+      :open="menuOpen"
+      :title="menuTitle"
+      :label="menuLabel"
+      :value="menuValue"
+      :actions="menuActions"
+      @close="closeMenu"
+      @select="onMenuSelect"
+    />
+
+    <ConcordProfileFieldSheet
+      :open="activeField === 'name'"
+      title="Имя"
+      title-id="concord-profile-edit-name"
+      @close="closeField"
+      @save="saveName"
+    >
+      <label class="concord-profile-field-sheet__field">
+        <span class="concord-profile-field-sheet__label">Имя</span>
+        <input v-model="draftFirstName" type="text" class="concord-profile-field-sheet__input" autocomplete="given-name">
+      </label>
+      <label class="concord-profile-field-sheet__field">
+        <span class="concord-profile-field-sheet__label">Фамилия</span>
+        <input v-model="draftLastName" type="text" class="concord-profile-field-sheet__input" autocomplete="family-name">
+      </label>
+    </ConcordProfileFieldSheet>
+
+    <ConcordProfileFieldSheet
+      :open="activeField === 'email'"
+      title="Email"
+      title-id="concord-profile-edit-email"
+      :save-disabled="!draftEmail.trim()"
+      @close="closeField"
+      @save="saveEmail"
+    >
+      <label class="concord-profile-field-sheet__field">
+        <span class="concord-profile-field-sheet__label">Email</span>
+        <input v-model="draftEmail" type="email" class="concord-profile-field-sheet__input" autocomplete="email">
+      </label>
+    </ConcordProfileFieldSheet>
+
+    <ConcordProfileFieldSheet
+      :open="activeField === 'phone'"
+      title="Телефон"
+      title-id="concord-profile-edit-phone"
+      @close="closeField"
+      @save="savePhone"
+    >
+      <label class="concord-profile-field-sheet__field">
+        <span class="concord-profile-field-sheet__label">Телефон</span>
+        <input v-model="draftPhone" type="tel" class="concord-profile-field-sheet__input" autocomplete="tel">
+      </label>
+    </ConcordProfileFieldSheet>
+
+    <ConcordProfileFieldSheet
+      :open="activeField === 'password'"
+      title="Пароль"
+      title-id="concord-profile-edit-password"
+      :save-disabled="!draftOldPassword.trim() || !draftNewPassword.trim()"
+      @close="closeField"
+      @save="savePassword"
+    >
+      <label class="concord-profile-field-sheet__field">
+        <span class="concord-profile-field-sheet__label">Старый пароль</span>
+        <input v-model="draftOldPassword" type="password" class="concord-profile-field-sheet__input" autocomplete="current-password">
+      </label>
+      <label class="concord-profile-field-sheet__field">
+        <span class="concord-profile-field-sheet__label">Новый пароль</span>
+        <input v-model="draftNewPassword" type="password" class="concord-profile-field-sheet__input" autocomplete="new-password">
+      </label>
+    </ConcordProfileFieldSheet>
+
+    <ConcordProfileFieldSheet
+      :open="activeField === 'timezone'"
+      title="Часовой пояс"
+      title-id="concord-profile-edit-timezone"
+      @close="closeField"
+      @save="saveTimezone"
+    >
+      <label class="concord-profile-field-sheet__field">
+        <span class="concord-profile-field-sheet__label">Часовой пояс</span>
+        <select v-model="draftTimezone" class="concord-profile-field-sheet__select">
+          <option value="">Авто ({{ browserTimezoneLabel }})</option>
+          <option
+            v-for="option in timezoneOptions"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </label>
+    </ConcordProfileFieldSheet>
 
     <template v-if="showInstallHint">
       <div class="concord-sheet-backdrop" @click="dismissInstallHint" />
@@ -173,21 +263,30 @@
 
 <script>
 import { computed, ref, toRef } from 'vue'
-import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import ConcordAvatarPhotoSheet from '../concord/ConcordAvatarPhotoSheet.vue'
 import ConcordAvatarCropSheet from '../concord/ConcordAvatarCropSheet.vue'
+import ConcordProfileFieldRow from '../concord/ConcordProfileFieldRow.vue'
+import ConcordProfileFieldSheet from '../concord/ConcordProfileFieldSheet.vue'
+import ConcordProfileFieldMenu from '../concord/ConcordProfileFieldMenu.vue'
 import { usePwaInstall } from '../pwa-install.js'
 import { useConcordProfile } from '../composables/useConcordProfile.js'
 import { useAvatarPhotoFlow } from '../composables/useAvatarPhotoFlow.js'
+import { formatTimezoneLabel, formatTimezoneSetting, listTimezoneOptions } from '../timezone.js'
+
+const EDIT_ICON = 'M4 20h4l10-10-4-4L4 16v4z M13 7l4 4'
+const COPY_ICON = 'M8 4v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4l-2-2H8a2 2 0 0 0-2 2z M16 8v10H8'
+const PASSWORD_ICON = 'M12 4.5c-5 0-9 3.5-9 7.5s4 7.5 9 7.5 9-3.5 9-7.5-4-7.5-9-7.5z M12 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'
 
 export default {
   name: 'GeneralSettingsView',
   components: {
-    ConcordGroupDeleteIcon,
     ConcordConfirmSheet,
     ConcordAvatarPhotoSheet,
     ConcordAvatarCropSheet,
+    ConcordProfileFieldRow,
+    ConcordProfileFieldSheet,
+    ConcordProfileFieldMenu,
   },
   props: {
     accountId: {
@@ -198,7 +297,18 @@ export default {
   emits: ['delete-account', 'open-notification-settings', 'open-groups'],
   setup(props, { emit }) {
     const accountDeleteConfirmOpen = ref(false)
-    const { profile, setAvatar, removeAvatar: clearAvatar } = useConcordProfile(toRef(props, 'accountId'))
+    const activeField = ref(null)
+    const menuField = ref(null)
+    const draftFirstName = ref('')
+    const draftLastName = ref('')
+    const draftEmail = ref('')
+    const draftPhone = ref('')
+    const draftOldPassword = ref('')
+    const draftNewPassword = ref('')
+    const draftTimezone = ref('')
+    const timezoneOptions = listTimezoneOptions()
+
+    const { profile, updateProfile, setAvatar, removeAvatar: clearAvatar } = useConcordProfile(toRef(props, 'accountId'))
     const {
       canShowInstall,
       install: installApp,
@@ -229,10 +339,143 @@ export default {
     })
 
     const fullName = computed(() => `${profile.value.firstName} ${profile.value.lastName}`.trim())
+    const loginLabel = computed(() => `@${profile.value.login || ''}`)
+    const timezoneLabel = computed(() => formatTimezoneSetting(profile.value.timezone))
+    const browserTimezoneLabel = computed(() => formatTimezoneLabel(null))
 
-    const photoActionLabel = computed(() => (
-      profile.value.avatarUrl ? 'Заменить фотографию' : 'Добавить фото'
-    ))
+    const menuOpen = computed(() => Boolean(menuField.value))
+    const menuTitle = computed(() => {
+      const titles = {
+        name: 'Имя',
+        email: 'Email',
+        phone: 'Телефон',
+        password: 'Пароль',
+        timezone: 'Часовой пояс',
+      }
+      return titles[menuField.value] || ''
+    })
+    const menuLabel = computed(() => {
+      const labels = {
+        name: 'имя',
+        email: 'email',
+        phone: 'мобильный',
+        password: 'пароль',
+        timezone: 'часовой пояс',
+      }
+      return labels[menuField.value] || ''
+    })
+    const menuValue = computed(() => {
+      const values = {
+        name: fullName.value,
+        email: profile.value.email,
+        phone: profile.value.phone,
+        password: '••••••',
+        timezone: timezoneLabel.value,
+      }
+      return values[menuField.value] || ''
+    })
+    const menuActions = computed(() => {
+      const actions = []
+      if (menuField.value === 'name') {
+        actions.push({ id: 'edit', label: 'Изменить имя', iconPath: EDIT_ICON })
+      }
+      if (menuField.value === 'email') {
+        actions.push({ id: 'edit', label: 'Изменить email', iconPath: EDIT_ICON })
+        if (profile.value.email?.trim()) {
+          actions.push({ id: 'copy', label: 'Копировать email', iconPath: COPY_ICON })
+        }
+      }
+      if (menuField.value === 'phone') {
+        actions.push({ id: 'edit', label: 'Изменить номер', iconPath: EDIT_ICON })
+        if (profile.value.phone?.trim()) {
+          actions.push({ id: 'copy', label: 'Копировать номер', iconPath: COPY_ICON })
+        }
+      }
+      if (menuField.value === 'password') {
+        actions.push({ id: 'edit', label: 'Изменить пароль', iconPath: EDIT_ICON })
+      }
+      if (menuField.value === 'timezone') {
+        actions.push({ id: 'edit', label: 'Изменить часовой пояс', iconPath: EDIT_ICON })
+      }
+      return actions
+    })
+
+    function openMenu(field) {
+      requestAnimationFrame(() => {
+        menuField.value = field
+      })
+    }
+
+    function closeMenu() {
+      menuField.value = null
+    }
+
+    function onMenuSelect(actionId) {
+      const field = menuField.value
+      closeMenu()
+      if (actionId === 'edit') {
+        window.setTimeout(() => openField(field), 120)
+        return
+      }
+      if (actionId === 'copy') {
+        const value = field === 'email' ? profile.value.email : profile.value.phone
+        if (value) {
+          navigator.clipboard?.writeText(value).catch(() => {})
+        }
+      }
+    }
+
+    function openField(field) {
+      activeField.value = field
+      if (field === 'name') {
+        draftFirstName.value = profile.value.firstName
+        draftLastName.value = profile.value.lastName
+      }
+      if (field === 'email') {
+        draftEmail.value = profile.value.email
+      }
+      if (field === 'phone') {
+        draftPhone.value = profile.value.phone
+      }
+      if (field === 'password') {
+        draftOldPassword.value = ''
+        draftNewPassword.value = ''
+      }
+      if (field === 'timezone') {
+        draftTimezone.value = profile.value.timezone || ''
+      }
+    }
+
+    function closeField() {
+      activeField.value = null
+    }
+
+    function saveName() {
+      updateProfile({
+        firstName: draftFirstName.value.trim(),
+        lastName: draftLastName.value.trim(),
+      })
+      closeField()
+    }
+
+    function saveEmail() {
+      updateProfile({ email: draftEmail.value.trim() })
+      closeField()
+    }
+
+    function savePhone() {
+      updateProfile({ phone: draftPhone.value.trim() })
+      closeField()
+    }
+
+    function savePassword() {
+      closeField()
+    }
+
+    function saveTimezone() {
+      updateProfile({ timezone: draftTimezone.value.trim() })
+      closeField()
+    }
 
     function askDeleteAccount() {
       accountDeleteConfirmOpen.value = true
@@ -252,7 +495,23 @@ export default {
       cameraInputRef,
       galleryInputRef,
       fullName,
-      photoActionLabel,
+      loginLabel,
+      timezoneLabel,
+      browserTimezoneLabel,
+      timezoneOptions,
+      activeField,
+      menuOpen,
+      menuTitle,
+      menuLabel,
+      menuValue,
+      menuActions,
+      draftFirstName,
+      draftLastName,
+      draftEmail,
+      draftPhone,
+      draftOldPassword,
+      draftNewPassword,
+      draftTimezone,
       accountDeleteConfirmOpen,
       canShowInstall,
       installApp,
@@ -260,6 +519,16 @@ export default {
       installHintTitle,
       installHintText,
       dismissInstallHint,
+      openMenu,
+      closeMenu,
+      onMenuSelect,
+      openField,
+      closeField,
+      saveName,
+      saveEmail,
+      savePhone,
+      savePassword,
+      saveTimezone,
       askDeleteAccount,
       cancelDeleteAccount,
       confirmDeleteAccount,

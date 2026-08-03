@@ -11,6 +11,7 @@
           'concord-card__header--draft': isDraft,
           'concord-card__header--approved': isApprovedHeader,
           'concord-card__header--has-days': showDaysLabel,
+          'concord-card__header--urgent': showFlame && !isDraft && !isApprovedHeader,
         },
       ]"
     >
@@ -27,7 +28,12 @@
       </div>
 
       <div class="concord-card__status-area">
-        <span v-if="isDraft" class="concord-card__draft-label">Черновик</span>
+        <span
+          v-if="isDraft"
+          class="concord-card__status-plate concord-card__status-plate--draft"
+        >
+          Черновик
+        </span>
 
         <span
           v-else-if="isApprovedHeader"
@@ -45,10 +51,7 @@
             <span v-if="agreement.deadline">до {{ agreement.deadline }}</span>
           </template>
           <template v-else>
-            <span class="concord-card__status-label">
-              <span class="concord-card__status-label--long">Ждёт согласования до:</span>
-              <span class="concord-card__status-label--short">До:</span>
-            </span>
+            <span class="concord-card__status-label">Ждёт согласования до:</span>
             <span class="concord-card__status-date">{{ agreement.deadline }}</span>
           </template>
         </span>
@@ -61,10 +64,7 @@
         </template>
 
         <span v-else class="concord-card__status-text">
-          <span class="concord-card__status-label">
-            <span class="concord-card__status-label--long">Ждёт согласования до:</span>
-            <span class="concord-card__status-label--short">До:</span>
-          </span>
+          <span class="concord-card__status-label">Ждёт согласования до:</span>
           <span class="concord-card__status-date">{{ agreement.deadline }}</span>
         </span>
       </div>
@@ -78,7 +78,6 @@
     </header>
 
     <div
-      v-if="!isDraft"
       :class="['concord-card__rule', `concord-card__rule--${ruleTone}`]"
       aria-hidden="true"
     />
@@ -245,6 +244,9 @@ export default {
       ]
     },
     ruleTone() {
+      if (this.isDraft) {
+        return 'draft'
+      }
       if (this.isApprovedHeader) {
         return 'approved'
       }
