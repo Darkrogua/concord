@@ -555,14 +555,33 @@
   letter-spacing: -0.02em;
 }
 
+.concord-card__author-urgency {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+}
+
+.concord-card__author-urgency .concord-urgency-flame {
+  width: 48px;
+  height: 48px;
+}
+
 .concord-card__author-name {
+  min-width: 0;
   font-size: 14px;
   font-weight: var(--concord-weight-semibold);
   line-height: 1.2;
   color: var(--concord-card-author);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .concord-card__participants {

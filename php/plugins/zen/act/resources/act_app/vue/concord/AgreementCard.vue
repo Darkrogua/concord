@@ -11,19 +11,10 @@
           'concord-card__header--draft': isDraft,
           'concord-card__header--approved': isApprovedHeader,
           'concord-card__header--has-days': showDaysLabel,
-          'concord-card__header--urgent': showFlame && !isDraft && !isApprovedHeader,
         },
       ]"
     >
       <div class="concord-card__id">
-        <span
-          v-if="showFlame"
-          class="concord-card__flame"
-          :title="urgencyTitle"
-          aria-hidden="true"
-        >
-          <ConcordUrgencyFlame urgent />
-        </span>
         <span class="concord-card__number">#{{ agreement.number }}</span>
       </div>
 
@@ -86,7 +77,15 @@
 
     <div class="concord-card__info">
       <div class="concord-card__author">
-        <span class="concord-card__author-avatar" aria-hidden="true">{{ authorInitials }}</span>
+        <span
+          v-if="showFlame"
+          class="concord-card__author-urgency"
+          :title="urgencyTitle"
+          aria-label="Срочное согласование"
+        >
+          <ConcordUrgencyFlame urgent />
+        </span>
+        <span v-else class="concord-card__author-avatar" aria-hidden="true">{{ authorInitials }}</span>
         <span class="concord-card__author-name">{{ agreement.author.name }}</span>
       </div>
 
