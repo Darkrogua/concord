@@ -280,15 +280,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 4px 6px;
+  flex-wrap: nowrap;
+  gap: 4px;
   grid-area: status;
   min-width: 0;
   text-align: center;
+  white-space: nowrap;
 }
 
 .concord-card__header--approved .concord-card__status-area {
   justify-content: center;
+  white-space: normal;
 }
 
 .concord-card__draft-label {
@@ -301,21 +303,27 @@
   display: inline-flex;
   align-items: baseline;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 3px 4px;
+  flex-wrap: nowrap;
+  gap: 3px;
   min-width: 0;
   max-width: 100%;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .concord-card__status-plate--overdue {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 4px 6px;
+  flex-wrap: nowrap;
+  gap: 4px;
   min-width: 0;
   max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  background: var(--concord-card-header-overdue-bg);
+  color: var(--concord-card-header-overdue-text);
 }
 
 .concord-card__status-label {
@@ -323,6 +331,11 @@
   font-weight: var(--concord-weight-semibold);
   color: var(--concord-card-participant-status);
   letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.concord-card__status-label--short {
+  display: none;
 }
 
 .concord-card__status-date {
@@ -331,6 +344,7 @@
   color: var(--concord-card-meta);
   flex-shrink: 0;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .concord-card__status-plate--overdue .concord-card__status-label,
@@ -347,24 +361,12 @@
   text-align: center;
 }
 
-.concord-card__status-plate--overdue {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  background: var(--concord-card-header-overdue-bg);
-  color: var(--concord-card-header-overdue-text);
-}
-
 .concord-card__status-plate--approved {
   display: inline-block;
   width: auto;
   max-width: 100%;
   line-height: 1.3;
+  white-space: nowrap;
   background: var(--concord-card-header-approved-bg);
   color: var(--concord-card-header-approved-text);
 }
@@ -395,6 +397,8 @@
   font-size: 12px;
   font-weight: var(--concord-weight-medium);
   color: var(--concord-card-meta);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .concord-card__days {
@@ -425,15 +429,51 @@
 }
 
 @media (max-width: 480px) {
-  .concord-card__status-plate--approved {
-    font-size: 11px;
-    padding: 5px 8px;
-    line-height: 1.3;
+  .concord-card__header {
+    column-gap: 4px;
+  }
+
+  .concord-card__status-label--long {
+    display: none;
+  }
+
+  .concord-card__status-label--short {
+    display: inline;
+  }
+
+  .concord-card__status-label,
+  .concord-card__status-date,
+  .concord-card__deadline-prefix {
+    font-size: 10px;
   }
 
   .concord-card__badge {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  .concord-card__days {
+    font-size: 10px;
+  }
+
+  .concord-card__number {
+    font-size: 12px;
+  }
+
+  .concord-card__flame {
+    width: 22px;
+    height: 22px;
+  }
+
+  .concord-card__flame .concord-urgency-flame {
+    width: 20px;
+    height: 20px;
+  }
+
+  .concord-card__status-plate--approved {
+    font-size: 10px;
     padding: 4px 8px;
-    font-size: 11px;
+    line-height: 1.2;
   }
 }
 

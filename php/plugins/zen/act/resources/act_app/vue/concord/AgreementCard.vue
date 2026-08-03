@@ -45,7 +45,10 @@
             <span v-if="agreement.deadline">до {{ agreement.deadline }}</span>
           </template>
           <template v-else>
-            <span class="concord-card__status-label">Ждёт согласования до:</span>
+            <span class="concord-card__status-label">
+              <span class="concord-card__status-label--long">Ждёт согласования до:</span>
+              <span class="concord-card__status-label--short">До:</span>
+            </span>
             <span class="concord-card__status-date">{{ agreement.deadline }}</span>
           </template>
         </span>
@@ -58,7 +61,10 @@
         </template>
 
         <span v-else class="concord-card__status-text">
-          <span class="concord-card__status-label">Ждёт согласования до:</span>
+          <span class="concord-card__status-label">
+            <span class="concord-card__status-label--long">Ждёт согласования до:</span>
+            <span class="concord-card__status-label--short">До:</span>
+          </span>
           <span class="concord-card__status-date">{{ agreement.deadline }}</span>
         </span>
       </div>
