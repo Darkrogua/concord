@@ -245,6 +245,18 @@
   box-sizing: border-box;
 }
 
+.concord-card__header:not(.concord-card__header--draft) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'id status days';
+  column-gap: 6px;
+}
+
+.concord-card__header:not(.concord-card__header--draft):not(.concord-card__header--has-days) {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'id status';
+}
+
 .concord-card__header--has-days {
   --concord-card-header-wing-right: 88px;
 }
@@ -277,8 +289,15 @@
   flex-shrink: 0;
 }
 
+.concord-card__header:not(.concord-card__header--draft) .concord-card__id {
+  grid-area: id;
+  position: static;
+  transform: none;
+  min-width: 0;
+}
+
 .concord-card__number {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: var(--concord-weight-bold);
   color: var(--concord-card-number);
   letter-spacing: -0.01em;
@@ -298,6 +317,13 @@
   box-sizing: border-box;
   text-align: center;
   white-space: nowrap;
+}
+
+.concord-card__header:not(.concord-card__header--draft) .concord-card__status-area {
+  grid-area: status;
+  width: auto;
+  padding: 0;
+  overflow: visible;
 }
 
 .concord-card__status-text {
@@ -422,6 +448,12 @@
   line-height: 18px;
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+.concord-card__header:not(.concord-card__header--draft) .concord-card__days {
+  grid-area: days;
+  position: static;
+  transform: none;
 }
 
 .concord-card__days--ok {
