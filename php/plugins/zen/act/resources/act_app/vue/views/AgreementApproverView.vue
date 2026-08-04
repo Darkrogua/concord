@@ -1,13 +1,61 @@
 <template>
-  <div class="concord-page concord-page--approver">
-    <header class="concord-header concord-header--approver">
+  <Teleport to="body">
+    <div
+      v-if="showSectionTabs"
+      ref="approverChromeRef"
+      class="concord-agreement-editor__chrome"
+    >
+      <header class="concord-header concord-header--editor">
+        <button type="button" class="concord-icon-btn" aria-label="Назад" @click="goBack">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <h1 class="concord-header__title concord-header__title--truncate">
+          {{ agreement?.title || 'Без названия' }}
+        </h1>
+        <button
+          type="button"
+          class="concord-icon-btn"
+          aria-label="Меню согласования"
+          @click="openMenu"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+            <circle cx="5" cy="12" r="1.6" fill="currentColor"/>
+            <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+            <circle cx="19" cy="12" r="1.6" fill="currentColor"/>
+          </svg>
+        </button>
+      </header>
+
+      <div class="concord-agreement-editor__tabs-wrap">
+        <div ref="sectionTabsRef" class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Разделы согласования">
+          <button
+            v-for="section in agreement.sections"
+            :key="section.id"
+            type="button"
+            role="tab"
+            :class="['concord-tabs__item', { 'concord-tabs__item--active': activeSectionId === section.id }]"
+            :aria-selected="activeSectionId === section.id"
+            :title="section.title"
+            @click="scrollToSection(section.id)"
+          >
+            {{ formatSectionTabTitle(section.title) }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <div class="concord-page concord-page--approver" :style="[approverPageStyle, { viewTransitionName }]">
+    <header v-if="!showSectionTabs" class="concord-header concord-header--editor">
       <button type="button" class="concord-icon-btn" aria-label="Назад" @click="goBack">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
       <h1 class="concord-header__title concord-header__title--truncate">
-        Согласование #{{ agreement?.number }}
+        {{ agreement?.title || 'Без названия' }}
       </h1>
       <button
         type="button"
@@ -23,22 +71,12 @@
       </button>
     </header>
 
-    <div v-if="showSectionTabs" class="concord-agreement-editor__tabs-wrap">
-      <div class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Разделы согласования">
-        <button
-          v-for="section in agreement.sections"
-          :key="section.id"
-          type="button"
-          role="tab"
-          :class="['concord-tabs__item', { 'concord-tabs__item--active': activeSectionId === section.id }]"
-          :aria-selected="activeSectionId === section.id"
-          :title="section.title"
-          @click="scrollToSection(section.id)"
-        >
-          {{ formatSectionTabTitle(section.title) }}
-        </button>
-      </div>
-    </div>
+    <div
+      v-if="showSectionTabs"
+      class="concord-agreement-editor__chrome-spacer"
+      aria-hidden="true"
+      :style="{ height: `${approverChromeHeight}px` }"
+    />
 
     <main ref="approverMainRef" class="concord-approver">
       <div
@@ -261,14 +299,23 @@ export default {
       type: Object,
       default: null,
     },
+    viewTransitionName: {
+      type: String,
+      default: '',
+    },
   },
   emits: ['back', 'vote'],
   setup(props, { emit }) {
     const activeSectionId = ref(null)
     const approverMainRef = ref(null)
+    const approverChromeRef = ref(null)
+    const approverChromeHeight = ref(118)
+    const sectionTabsRef = ref(null)
     const sectionRefs = new Map()
     const isProgrammaticScroll = ref(false)
     let sectionObserver = null
+    let chromeResizeObserver = null
+    let scrollFrame = null
 
     const yesConfirmOpen = ref(false)
     const noReasonOpen = ref(false)
@@ -283,6 +330,10 @@ export default {
     const expandedSections = reactive({})
 
     const showSectionTabs = computed(() => (props.agreement?.sections?.length || 0) > 1)
+
+    const approverPageStyle = computed(() => ({
+      '--concord-editor-scroll-anchor-offset': `${approverChromeHeight.value + 8}px`,
+    }))
 
     const daysLabel = computed(() =>
       props.agreement?.daysLabel ||
@@ -354,13 +405,36 @@ export default {
         if (sectionObserver) {
           sectionObserver.observe(el)
         }
-      } else {
-        sectionRefs.delete(sectionId)
+        return
       }
+      sectionRefs.delete(sectionId)
+    }
+
+    function updateApproverChromeHeight() {
+      const measured = approverChromeRef.value?.offsetHeight || 0
+      approverChromeHeight.value = measured || 118
+    }
+
+    function setupChromeResizeObserver() {
+      chromeResizeObserver?.disconnect()
+      updateApproverChromeHeight()
+      if (!approverChromeRef.value || typeof ResizeObserver === 'undefined') {
+        return
+      }
+      chromeResizeObserver = new ResizeObserver(() => {
+        updateApproverChromeHeight()
+      })
+      chromeResizeObserver.observe(approverChromeRef.value)
+    }
+
+    function getSectionObserverMargin() {
+      const offset = Math.max(approverChromeHeight.value + 8, 72)
+      return `-${offset}px 0px -55% 0px`
     }
 
     function toggleSection(sectionId) {
       expandedSections[sectionId] = expandedSections[sectionId] === false
+      nextTick(updateActiveSectionFromScroll)
     }
 
     function scrollToSection(sectionId) {
@@ -374,7 +448,42 @@ export default {
       target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       window.setTimeout(() => {
         isProgrammaticScroll.value = false
+        updateActiveSectionFromScroll()
       }, 700)
+    }
+
+    function updateActiveSectionFromScroll() {
+      const chromeBottom = approverChromeRef.value?.getBoundingClientRect().bottom
+      const scrollAnchor = chromeBottom || Math.max(approverChromeHeight.value, 72)
+      let closestSectionId = null
+      let closestDistance = Number.POSITIVE_INFINITY
+
+      for (const [sectionId, element] of sectionRefs) {
+        const rect = element.getBoundingClientRect()
+        if (rect.top <= scrollAnchor && rect.bottom > scrollAnchor) {
+          activeSectionId.value = sectionId
+          return
+        }
+        const distance = Math.abs(rect.top - scrollAnchor)
+        if (distance < closestDistance) {
+          closestDistance = distance
+          closestSectionId = sectionId
+        }
+      }
+
+      if (closestSectionId) {
+        activeSectionId.value = closestSectionId
+      }
+    }
+
+    function onScroll() {
+      if (scrollFrame) {
+        return
+      }
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = null
+        updateActiveSectionFromScroll()
+      })
     }
 
     function setupSectionObserver() {
@@ -383,6 +492,7 @@ export default {
       if (!showSectionTabs.value) {
         return
       }
+
       sectionObserver = new IntersectionObserver(
         (entries) => {
           if (isProgrammaticScroll.value) {
@@ -402,11 +512,14 @@ export default {
         },
         {
           root: null,
-          rootMargin: '-72px 0px -55% 0px',
+          rootMargin: getSectionObserverMargin(),
           threshold: [0, 0.15, 0.35, 0.55, 0.75, 1],
         }
       )
-      sectionRefs.forEach((element) => sectionObserver.observe(element))
+
+      sectionRefs.forEach((element) => {
+        sectionObserver.observe(element)
+      })
     }
 
     watch(
@@ -424,17 +537,44 @@ export default {
         if (!activeSectionId.value || !agreement.sections.some((item) => item.id === activeSectionId.value)) {
           activeSectionId.value = agreement.sections[0]?.id || null
         }
-        nextTick(() => setupSectionObserver())
+        nextTick(() => {
+          setupChromeResizeObserver()
+          setupSectionObserver()
+          updateActiveSectionFromScroll()
+        })
       },
       { immediate: true }
     )
 
     onMounted(() => {
-      nextTick(() => setupSectionObserver())
+      nextTick(() => {
+        setupChromeResizeObserver()
+        setupSectionObserver()
+        updateActiveSectionFromScroll()
+      })
+      window.addEventListener('scroll', onScroll, { passive: true })
+      document.addEventListener('scroll', onScroll, { passive: true, capture: true })
     })
 
     onBeforeUnmount(() => {
       sectionObserver?.disconnect()
+      chromeResizeObserver?.disconnect()
+      window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('scroll', onScroll, true)
+      if (scrollFrame) {
+        cancelAnimationFrame(scrollFrame)
+      }
+    })
+
+    watch(showSectionTabs, () => {
+      nextTick(() => {
+        setupChromeResizeObserver()
+        setupSectionObserver()
+      })
+    })
+
+    watch(approverChromeHeight, () => {
+      setupSectionObserver()
     })
 
     function goBack() {
@@ -492,6 +632,10 @@ export default {
     return {
       activeSectionId,
       approverMainRef,
+      approverChromeRef,
+      approverChromeHeight,
+      approverPageStyle,
+      sectionTabsRef,
       showSectionTabs,
       expandedSections,
       yesConfirmOpen,

@@ -10,10 +10,6 @@
     </header>
 
     <main ref="sectionsRef" class="concord-settings">
-      <p v-if="canReorderSections" class="concord-settings__sections-hint">
-        Потяните ≡ слева от названия — порядок табов на главной изменится
-      </p>
-
       <section
         v-for="section in sections"
         :key="section.id"
@@ -36,25 +32,14 @@
               <path d="M4 8h16M4 12h16M4 16h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             </svg>
           </button>
-          <h2 class="concord-settings__title">{{ section.title }}</h2>
           <button
             type="button"
-            class="concord-settings__section-toggle"
+            class="concord-settings__section-title-button"
             :aria-expanded="isSectionExpanded(section.id)"
             :aria-label="isSectionExpanded(section.id) ? 'Свернуть раздел' : 'Развернуть раздел'"
             @click="toggleSection(section.id)"
           >
-            <svg
-              class="concord-settings__section-chevron"
-              :class="{ 'concord-settings__section-chevron--open': isSectionExpanded(section.id) }"
-              viewBox="0 0 24 24"
-              width="22"
-              height="22"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <span class="concord-settings__title">{{ section.title }}</span>
           </button>
         </div>
 

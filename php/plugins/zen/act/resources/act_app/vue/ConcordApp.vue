@@ -4,6 +4,11 @@
       v-if="currentView === 'list'"
       :agreements="agreements"
       :filter-sections="filterSections"
+      :groups="profileGroups"
+      :contacts="groupContacts"
+      :loading="agreementsLoading"
+      :opening-agreement-id="viewTransitionAgreementId"
+      :new-agreement-id="newlyCreatedAgreementId"
       @open-agreement="onOpenAgreement"
       @edit-agreement="onEditAgreement"
       @duplicate-agreement="onDuplicateAgreement"
@@ -85,6 +90,7 @@
       :agreement="editingAgreement"
       :contacts="groupContacts"
       :groups="profileGroups"
+      :view-transition-name="viewTransitionAgreementId ? 'concord-agreement-card' : ''"
       @back="onAgreementEditorBack"
       @add-block="onAddAgreementBlock"
       @delete-block="onDeleteAgreementBlock"
@@ -98,6 +104,7 @@
     <AgreementApproverView
       v-else-if="currentView === 'agreement-editor' && editingAgreement && !editingAgreement.isOwner"
       :agreement="editingAgreement"
+      :view-transition-name="viewTransitionAgreementId ? 'concord-agreement-card' : ''"
       @back="onAgreementEditorBack"
       @vote="onVote"
     />
@@ -180,7 +187,7 @@ export default {
     ConcordBottomNav,
   },
   setup() {
-    const { agreements, persist } = useConcordAgreements()
+    const { agreements, loading: agreementsLoading, persist } = useConcordAgreements()
     const filterSections = ref(
       DEFAULT_FILTER_SECTIONS.map((section) => ({
         ...section,
@@ -202,6 +209,8 @@ export default {
 
     const currentView = ref('list')
     const editingAgreementId = ref(null)
+    const viewTransitionAgreementId = ref(null)
+    const newlyCreatedAgreementId = ref(null)
     const editingSectionId = ref(null)
     const editorTitle = ref('Новый фильтр')
     const editorName = ref('')
@@ -465,9 +474,24 @@ export default {
       if (!item) {
         return
       }
-      ensureAgreementSections(item)
-      editingAgreementId.value = id
-      currentView.value = 'agreement-editor'
+      viewTransitionAgreementId.value = id
+      const open = () => {
+        ensureAgreementSections(item)
+        editingAgreementId.value = id
+        currentView.value = 'agreement-editor'
+      }
+      if (!document.startViewTransition) {
+        open()
+        viewTransitionAgreementId.value = null
+        return
+      }
+      const transition = document.startViewTransition(() => {
+        open()
+        return nextTick()
+      })
+      transition.finished.finally(() => {
+        viewTransitionAgreementId.value = null
+      })
     }
 
     function onEditAgreement(id) {
@@ -493,6 +517,7 @@ export default {
       const nextNumber = getNextAgreementNumber(agreements.value)
       const draft = createDraftAgreement(form, nextNumber)
       agreements.value.unshift(draft)
+      newlyCreatedAgreementId.value = draft.id
       editingAgreementId.value = draft.id
       currentView.value = 'agreement-editor'
       persist()
@@ -654,8 +679,11 @@ export default {
 
     return {
       agreements,
+      agreementsLoading,
       filterSections,
       currentView,
+      viewTransitionAgreementId,
+      newlyCreatedAgreementId,
       editorTitle,
       editorName,
       editorFilters,

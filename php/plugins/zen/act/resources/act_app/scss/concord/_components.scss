@@ -66,6 +66,38 @@
   overflow: visible;
 }
 
+.concord-header--scroll-reveal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 92;
+  transition: transform 0.22s ease;
+  will-change: transform;
+}
+
+.concord-header--scroll-reveal-hidden {
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+
+.concord-list-header-spacer {
+  flex-shrink: 0;
+}
+
+.concord-list-tabs-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: var(--concord-surface);
+  border-bottom: 1px solid var(--concord-border);
+  transition: top 0.22s ease;
+}
+
+.concord-list-tabs-sticky--header-visible {
+  top: var(--concord-list-header-height, 65px);
+}
+
 .concord-tabs-wrap--scrollable .concord-tabs {
   padding-right: 36px;
 }
@@ -201,19 +233,28 @@
 .concord-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 8px var(--concord-page-gutter) 0;
+  gap: 8px;
+  padding: 6px var(--concord-page-gutter) 0;
   max-width: 100%;
   overflow-x: visible;
   background: var(--concord-bg);
 }
 
-.concord-list__date-group {
-  margin: 8px 0 0;
-  font-size: 16px;
-  font-weight: var(--concord-weight-semibold);
-  line-height: 1.25;
-  color: var(--concord-text);
+.concord-list__date-separator {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 2px;
+}
+
+.concord-list__date-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(60, 60, 67, 0.36);
+  color: #fff;
+  font-size: 11px;
+  font-weight: var(--concord-weight-medium);
+  line-height: 1.15;
   letter-spacing: -0.01em;
 }
 
@@ -231,6 +272,47 @@
   font: inherit;
   color: inherit;
   overflow: hidden;
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  transition:
+    transform var(--concord-motion-hover) var(--concord-motion-spring),
+    box-shadow var(--concord-motion-hover) var(--concord-motion-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .concord-card:hover {
+    cursor: pointer;
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  }
+}
+
+.concord-card:active {
+  transform: scale(0.98);
+  transition-duration: var(--concord-motion-press);
+  transition-timing-function: var(--concord-motion-ease);
+}
+
+.concord-card--new {
+  animation: concord-card-enter var(--concord-motion-enter) var(--concord-motion-spring);
+}
+
+@keyframes concord-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+::view-transition-old(concord-agreement-card),
+::view-transition-new(concord-agreement-card) {
+  animation-duration: var(--concord-motion-enter);
+  animation-timing-function: var(--concord-motion-ease);
 }
 
 .concord-card__header {
@@ -334,8 +416,18 @@
   gap: 4px;
   min-width: 0;
   max-width: 100%;
+  height: 24px;
+  padding: 3px 9px;
+  border-radius: var(--concord-radius-pill);
+  background: color-mix(in srgb, var(--concord-primary) 12%, var(--concord-surface));
+  box-sizing: border-box;
   line-height: 18px;
   white-space: nowrap;
+}
+
+.concord-card__status-text .concord-card__status-label,
+.concord-card__status-text .concord-card__status-date {
+  color: var(--concord-primary);
 }
 
 .concord-card__status-plate--overdue {
@@ -474,15 +566,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
 .concord-card__flame .concord-urgency-flame {
-  width: 24px;
-  height: 24px;
-  background-color: #e53935;
+  width: 20px;
+  height: 20px;
+  mix-blend-mode: screen;
 }
 
 .concord-card__rule {
@@ -719,7 +811,7 @@
   height: 100%;
   border-radius: var(--concord-radius-pill);
   background: var(--concord-card-progress-fill);
-  transition: width 0.25s ease;
+  transition: width var(--concord-motion-progress) var(--concord-motion-ease);
 }
 
 .concord-card--progress-owner {
@@ -771,6 +863,77 @@
 
 .concord-card__action--active {
   color: var(--concord-card-icon);
+}
+
+.concord-card__action--star {
+  transition:
+    color var(--concord-motion-press) var(--concord-motion-ease),
+    transform var(--concord-motion-press) var(--concord-motion-spring),
+    filter var(--concord-motion-press) var(--concord-motion-ease);
+}
+
+.concord-card__action--star.concord-card__action--favorite-motion {
+  animation: concord-card-favorite var(--concord-motion-enter) var(--concord-motion-spring);
+}
+
+@keyframes concord-card-favorite {
+  0% { transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
+  45% { transform: scale(1.2); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--concord-primary) 55%, transparent)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0 transparent); }
+}
+
+.concord-card-list-enter-active,
+.concord-card-list-leave-active,
+.concord-card-list-move {
+  transition:
+    transform var(--concord-motion-list) var(--concord-motion-ease),
+    opacity var(--concord-motion-list) var(--concord-motion-ease);
+}
+
+.concord-card-list-enter-from {
+  opacity: 0;
+  transform: translateY(-12px) scale(0.98);
+}
+
+.concord-card-list-leave-active {
+  position: absolute;
+  width: calc(100% - (var(--concord-page-gutter) * 2));
+}
+
+.concord-card-list-leave-to {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.concord-card-skeleton {
+  display: grid;
+  gap: 12px;
+}
+
+.concord-card-skeleton__item {
+  height: 176px;
+  border-radius: var(--concord-radius);
+  background:
+    linear-gradient(100deg, var(--concord-surface-muted) 30%, #fff 50%, var(--concord-surface-muted) 70%)
+    0 / 200% 100%;
+  animation: concord-card-shimmer 1.2s linear infinite;
+}
+
+@keyframes concord-card-shimmer {
+  to { background-position-x: -200%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .concord-card,
+  .concord-card__progress-fill,
+  .concord-card__action--star,
+  .concord-card-list-enter-active,
+  .concord-card-list-leave-active,
+  .concord-card-list-move,
+  .concord-card-skeleton__item {
+    animation: none;
+    transition-duration: 0.01ms;
+  }
 }
 
 .concord-card__count {
@@ -1524,8 +1687,26 @@
 
 .concord-settings__section-head .concord-settings__title {
   margin: 0;
-  flex: 1;
   min-width: 0;
+}
+
+.concord-settings__section-title-button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--concord-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.concord-settings__section-title-button:active {
+  opacity: 0.72;
 }
 
 .concord-settings__section-body {
@@ -2019,6 +2200,11 @@
   line-height: var(--concord-leading-body);
 }
 
+.concord-agreement-create__hint--error {
+  margin: 8px 0 0;
+  color: #dc2626;
+}
+
 .concord-agreement-create__select-wrap {
   position: relative;
 }
@@ -2124,6 +2310,12 @@
   font-size: var(--concord-text-caption);
   font-weight: var(--concord-weight-medium);
   color: var(--concord-text-secondary);
+}
+
+.concord-agreement-create__importance-row {
+  margin-top: 4px;
+  padding: 14px 0 0;
+  border-bottom: none;
 }
 
 .concord-agreement-create__actions {
@@ -2233,6 +2425,11 @@
 
 .concord-page--agreement-settings {
   padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 72px);
+}
+
+.concord-page--agreement-settings .concord-section-settings__done {
+  background: var(--concord-primary-subtle);
+  color: var(--concord-primary);
 }
 
 .concord-agreement-editor__add-divider {
@@ -3054,6 +3251,17 @@
 .concord-agreement-editor__add-zone--section {
   margin-top: 4px;
   padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.concord-agreement-editor__add-zone--section .concord-agreement-editor__launch-btn--inline {
+  width: 100%;
+  max-width: 280px;
+  margin-top: 4px;
+}
+
+.concord-agreement-editor__add-zone--section .concord-agreement-editor__launch-hint {
+  max-width: 280px;
 }
 
 .concord-agreement-editor__add-btn {
@@ -5491,6 +5699,7 @@
 .concord-approver__section {
   display: flex;
   flex-direction: column;
+  scroll-margin-top: var(--concord-editor-scroll-anchor-offset, 118px);
 }
 
 .concord-approver__section-card {

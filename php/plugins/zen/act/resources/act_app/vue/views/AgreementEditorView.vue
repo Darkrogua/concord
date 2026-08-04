@@ -96,7 +96,7 @@
   <div
     v-if="showEditorSurface"
     class="concord-page concord-page--editor"
-    :style="editorPageStyle"
+    :style="[editorPageStyle, { viewTransitionName }]"
   >
     <header v-if="!showSectionTabs" class="concord-header concord-header--editor">
       <button type="button" class="concord-icon-btn" aria-label="Назад" @click="goBack">
@@ -196,17 +196,17 @@
           <span aria-hidden="true">+</span>
         </button>
         <p class="concord-agreement-editor__add-section-label">Новый раздел</p>
-      </section>
-
-      <section v-if="showNewContainer && canLaunch" class="concord-agreement-editor__launch-zone">
         <button
+          v-if="canLaunch"
           type="button"
-          class="concord-agreement-editor__launch-btn"
+          class="concord-agreement-editor__launch-btn concord-agreement-editor__launch-btn--inline"
           @click="launchAgreement"
         >
           Запустить
         </button>
-        <p class="concord-agreement-editor__launch-hint">После запуска согласование отправится участникам</p>
+        <p v-if="canLaunch" class="concord-agreement-editor__launch-hint">
+          После запуска согласование отправится участникам
+        </p>
       </section>
     </main>
 
@@ -268,6 +268,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    viewTransitionName: {
+      type: String,
+      default: '',
+    },
   },
   emits: ['back', 'add-block', 'add-section', 'update-section', 'create-group', 'update-group', 'launch'],
   setup(props, { emit }) {
@@ -280,6 +284,7 @@ export default {
     const isProgrammaticScroll = ref(false)
     let sectionObserver = null
     let chromeResizeObserver = null
+    let scrollFrame = null
     const editorBlockTypes = AGREEMENT_EDITOR_BLOCK_TYPES
     const editorIntro = AGREEMENT_EDITOR_INTRO
 
@@ -435,7 +440,42 @@ export default {
       target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       window.setTimeout(() => {
         isProgrammaticScroll.value = false
+        updateActiveSectionFromScroll()
       }, 700)
+    }
+
+    function updateActiveSectionFromScroll() {
+      const chromeBottom = editorChromeRef.value?.getBoundingClientRect().bottom
+      const scrollAnchor = chromeBottom || Math.max(editorChromeHeight.value, 72)
+      let closestSectionId = null
+      let closestDistance = Number.POSITIVE_INFINITY
+
+      for (const [sectionId, element] of sectionRefs) {
+        const rect = element.getBoundingClientRect()
+        if (rect.top <= scrollAnchor && rect.bottom > scrollAnchor) {
+          activeSectionId.value = sectionId
+          return
+        }
+        const distance = Math.abs(rect.top - scrollAnchor)
+        if (distance < closestDistance) {
+          closestDistance = distance
+          closestSectionId = sectionId
+        }
+      }
+
+      if (closestSectionId) {
+        activeSectionId.value = closestSectionId
+      }
+    }
+
+    function onScroll() {
+      if (scrollFrame) {
+        return
+      }
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = null
+        updateActiveSectionFromScroll()
+      })
     }
 
     function setupSectionObserver() {
@@ -478,12 +518,20 @@ export default {
       nextTick(() => {
         setupChromeResizeObserver()
         setupSectionObserver()
+        updateActiveSectionFromScroll()
       })
+      window.addEventListener('scroll', onScroll, { passive: true })
+      document.addEventListener('scroll', onScroll, { passive: true, capture: true })
     })
 
     onBeforeUnmount(() => {
       sectionObserver?.disconnect()
       chromeResizeObserver?.disconnect()
+      window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('scroll', onScroll, true)
+      if (scrollFrame) {
+        cancelAnimationFrame(scrollFrame)
+      }
     })
 
     watch(showEditorSurface, (visible) => {

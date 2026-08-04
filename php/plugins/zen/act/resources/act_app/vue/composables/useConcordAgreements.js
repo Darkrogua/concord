@@ -60,6 +60,17 @@ function persistAgreements(agreements) {
 
 export function useConcordAgreements() {
   const agreements = ref(loadAgreements())
+  const loading = ref(true)
+
+  if (typeof window !== 'undefined') {
+    window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        loading.value = false
+      }, 120)
+    })
+  } else {
+    loading.value = false
+  }
 
   function persist() {
     persistAgreements(agreements.value)
@@ -72,5 +83,5 @@ export function useConcordAgreements() {
     window.addEventListener('pagehide', persist)
   }
 
-  return { agreements, persist }
+  return { agreements, loading, persist }
 }

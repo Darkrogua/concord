@@ -597,12 +597,15 @@ export function ensureSectionSettings(section) {
  * @property {number} [total]
  */
 
+let agreementSectionSequence = 0
+
 /**
  * @param {string} [title]
  */
 export function createAgreementSection(title = 'Новый раздел') {
+  agreementSectionSequence += 1
   return ensureSectionSettings({
-    id: `section-${Date.now()}`,
+    id: `section-${Date.now()}-${agreementSectionSequence}`,
     title: title.trim() || 'Новый раздел',
     participantIds: [],
     groupIds: [],
@@ -656,6 +659,7 @@ export function ensureAgreementSections(agreement) {
  * @property {string} description
  * @property {string} startDate
  * @property {string} endDate
+ * @property {boolean} [isImportant]
  */
 
 /**
@@ -701,7 +705,7 @@ export function createDraftAgreement(form, nextNumber) {
       formatIsoDateToRu(form.startDate) || formatDateRu(),
       formatIsoDateToRu(form.endDate)
     ),
-    isUrgent: true,
+    isUrgent: Boolean(form.isImportant),
     author: { name: 'Александр Аблизин' },
     participants: [
       { label: 'И' },
@@ -1121,6 +1125,10 @@ function createFullDemoAgreement() {
       },
     ],
   })
+
+  designSection.id = 'section-demo-design'
+  programmingSection.id = 'section-demo-programming'
+  managementSection.id = 'section-demo-management'
 
   return {
     id: '305',

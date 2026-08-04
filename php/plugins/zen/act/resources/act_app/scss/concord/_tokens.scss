@@ -27,6 +27,15 @@
   --concord-radius-pill: 999px;
   --concord-shadow: none;
 
+  /* === Motion === */
+  --concord-motion-hover: 180ms;
+  --concord-motion-press: 120ms;
+  --concord-motion-progress: 360ms;
+  --concord-motion-list: 260ms;
+  --concord-motion-enter: 300ms;
+  --concord-motion-ease: cubic-bezier(0.2, 0, 0, 1);
+  --concord-motion-spring: cubic-bezier(0.22, 1.25, 0.36, 1);
+
   /* Typography */
   --concord-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --concord-text-title: 22px;

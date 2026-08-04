@@ -1,7 +1,8 @@
 <template>
   <article
     class="concord-card"
-    :class="cardModifiers"
+    :class="[cardModifiers, { 'concord-card--new': isNew }]"
+    :style="cardStyle"
     @click="$emit('open', agreement.id)"
   >
     <header
@@ -15,6 +16,14 @@
       ]"
     >
       <div class="concord-card__id">
+        <span
+          v-if="showFlame"
+          class="concord-card__flame"
+          :title="urgencyTitle"
+          aria-label="Срочное согласование"
+        >
+          <ConcordUrgencyFlame urgent />
+        </span>
         <span class="concord-card__number">#{{ agreement.number }}</span>
       </div>
 
@@ -42,7 +51,7 @@
             <span v-if="agreement.deadline">до {{ agreement.deadline }}</span>
           </template>
           <template v-else>
-            <span class="concord-card__status-label">Ждёт согласования до:</span>
+            <span class="concord-card__status-label">Ждёт решения до:</span>
             <span class="concord-card__status-date">{{ agreement.deadline }}</span>
           </template>
         </span>
@@ -55,7 +64,7 @@
         </template>
 
         <span v-else class="concord-card__status-text">
-          <span class="concord-card__status-label">Ждёт согласования до:</span>
+          <span class="concord-card__status-label">Ждёт решения до:</span>
           <span class="concord-card__status-date">{{ agreement.deadline }}</span>
         </span>
       </div>
@@ -68,24 +77,11 @@
       </span>
     </header>
 
-    <div
-      :class="['concord-card__rule', `concord-card__rule--${ruleTone}`]"
-      aria-hidden="true"
-    />
-
     <h2 class="concord-card__title">{{ agreement.title }}</h2>
 
     <div class="concord-card__info">
       <div class="concord-card__author">
-        <span
-          v-if="showFlame"
-          class="concord-card__author-urgency"
-          :title="urgencyTitle"
-          aria-label="Срочное согласование"
-        >
-          <ConcordUrgencyFlame urgent />
-        </span>
-        <span v-else class="concord-card__author-avatar" aria-hidden="true">{{ authorInitials }}</span>
+        <span class="concord-card__author-avatar" aria-hidden="true">{{ authorInitials }}</span>
         <span class="concord-card__author-name">{{ agreement.author.name }}</span>
       </div>
 
@@ -103,9 +99,12 @@
       <button
         type="button"
         class="concord-card__action concord-card__action--star"
-        :class="{ 'concord-card__action--active': agreement.isFavorite }"
+        :class="{
+          'concord-card__action--active': agreement.isFavorite,
+          'concord-card__action--favorite-motion': favoriteAnimating,
+        }"
         aria-label="Избранное"
-        @click="$emit('toggle-favorite', agreement.id)"
+        @click="onToggleFavorite"
       >
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
           <path
@@ -120,19 +119,21 @@
 
       <div class="concord-card__progress" aria-hidden="true">
         <div class="concord-card__progress-track">
-          <div class="concord-card__progress-fill" :style="{ width: `${progressPercent}%` }" />
+          <div class="concord-card__progress-fill" :style="{ width: `${displayedProgress}%` }" />
         </div>
       </div>
 
       <span class="concord-card__count" aria-label="Прогресс голосования">
-        <span class="concord-card__count-voted">{{ agreement.voted }}</span><span class="concord-card__count-sep"> из </span><span class="concord-card__count-total">{{ agreement.total }}</span>
+        <span class="concord-card__count-voted">{{ displayedVoted }}</span><span class="concord-card__count-sep"> из </span><span class="concord-card__count-total">{{ participantsCount }}</span>
       </span>
     </div>
   </article>
 </template>
 
 <script>
+import { onBeforeUnmount, ref, watch } from 'vue'
 import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
+import { resolveSectionParticipants } from './mock-groups.js'
 import {
   getAgreementDaysRemaining,
   pluralizeDays,
@@ -150,6 +151,35 @@ function getPersonInitials(name = '') {
   return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase()
 }
 
+function getSectionParticipantIds(agreement, groups, contacts) {
+  const participantIds = new Set()
+  for (const section of agreement?.sections || []) {
+    for (const participant of resolveSectionParticipants(section, groups, contacts)) {
+      participantIds.add(participant.id)
+    }
+  }
+  return participantIds
+}
+
+function getAgreementMetrics(agreement, groups, contacts) {
+  const participantIds = getSectionParticipantIds(agreement, groups, contacts)
+  const total = participantIds.size || agreement?.total || agreement?.participants?.length || 0
+  const voterIds = new Set()
+
+  for (const section of agreement?.sections || []) {
+    for (const vote of section.votes || []) {
+      if (vote?.participantId) {
+        voterIds.add(vote.participantId)
+      }
+    }
+  }
+
+  return {
+    total,
+    voted: Math.min(total, voterIds.size || agreement?.voted || 0),
+  }
+}
+
 export default {
   name: 'AgreementCard',
   components: { ConcordUrgencyFlame },
@@ -158,9 +188,104 @@ export default {
       type: Object,
       required: true,
     },
+    viewTransitionName: {
+      type: String,
+      default: '',
+    },
+    isNew: {
+      type: Boolean,
+      default: false,
+    },
+    groups: {
+      type: Array,
+      default: () => [],
+    },
+    contacts: {
+      type: Array,
+      default: () => [],
+    },
   },
   emits: ['open', 'toggle-favorite', 'duplicate', 'edit'],
+  setup(props, { emit }) {
+    const displayedProgress = ref(0)
+    const displayedVoted = ref(0)
+    const favoriteAnimating = ref(false)
+    let progressTimer = null
+    let favoriteTimer = null
+
+    function progressFor(agreement) {
+      const metrics = getAgreementMetrics(agreement, props.groups, props.contacts)
+      if (!metrics.total) {
+        return 0
+      }
+      if (agreement.isOwner && agreement.status === 'approved') {
+        return 100
+      }
+      return Math.min(100, Math.round((metrics.voted / metrics.total) * 100))
+    }
+
+    function clearProgressTimer() {
+      window.clearTimeout(progressTimer)
+      progressTimer = null
+    }
+
+    watch(
+      () => [
+        props.agreement.voted,
+        props.agreement.total,
+        props.agreement.status,
+        JSON.stringify(props.agreement.sections || []),
+      ],
+      (_next, _previous, onCleanup) => {
+        const metrics = getAgreementMetrics(props.agreement, props.groups, props.contacts)
+        const nextProgress = progressFor(props.agreement)
+        if (_previous === undefined) {
+          displayedProgress.value = nextProgress
+          displayedVoted.value = metrics.voted
+          return
+        }
+        clearProgressTimer()
+        displayedProgress.value = nextProgress
+        progressTimer = window.setTimeout(() => {
+          displayedVoted.value = metrics.voted
+          progressTimer = null
+        }, 360)
+        onCleanup(clearProgressTimer)
+      },
+      { immediate: true }
+    )
+
+    function onToggleFavorite() {
+      window.clearTimeout(favoriteTimer)
+      favoriteAnimating.value = false
+      requestAnimationFrame(() => {
+        favoriteAnimating.value = true
+        favoriteTimer = window.setTimeout(() => {
+          favoriteAnimating.value = false
+          favoriteTimer = null
+        }, 300)
+      })
+      emit('toggle-favorite', props.agreement.id)
+    }
+
+    onBeforeUnmount(() => {
+      clearProgressTimer()
+      window.clearTimeout(favoriteTimer)
+    })
+
+    return {
+      displayedProgress,
+      displayedVoted,
+      favoriteAnimating,
+      onToggleFavorite,
+    }
+  },
   computed: {
+    cardStyle() {
+      return this.viewTransitionName
+        ? { viewTransitionName: this.viewTransitionName }
+        : {}
+    },
     isDraft() {
       return this.agreement.status === 'draft' || !this.agreement.createdAt
     },
@@ -189,7 +314,7 @@ export default {
       return `Согласовано мной: ${this.agreement.mySectionApprovedAt || this.agreement.deadline}`
     },
     participantsCount() {
-      return this.agreement.total || this.agreement.participants?.length || 0
+      return getAgreementMetrics(this.agreement, this.groups, this.contacts).total
     },
     participantsLabel() {
       return pluralizeParticipants(this.participantsCount)
@@ -241,18 +366,6 @@ export default {
         `concord-card--role-${this.agreement.isOwner ? 'owner' : 'participant'}`,
         `concord-card--progress-${this.progressTone}`,
       ]
-    },
-    ruleTone() {
-      if (this.isDraft) {
-        return 'draft'
-      }
-      if (this.isApprovedHeader) {
-        return 'approved'
-      }
-      if (this.isDeadlineOverdue) {
-        return 'overdue'
-      }
-      return this.agreement.isOwner ? 'owner' : 'participant'
     },
     authorInitials() {
       return getPersonInitials(this.agreement.author?.name)

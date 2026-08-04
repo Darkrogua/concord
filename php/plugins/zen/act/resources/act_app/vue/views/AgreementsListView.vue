@@ -1,12 +1,26 @@
 <template>
-  <div class="concord-page">
-    <header class="concord-header">
+  <div class="concord-page" :style="listPageStyle">
+    <header
+      ref="listHeaderRef"
+      class="concord-header concord-header--scroll-reveal"
+      :class="{ 'concord-header--scroll-reveal-hidden': !headerVisible }"
+    >
       <h1 class="concord-header__title">Все согласования</h1>
       <div class="concord-header__actions">
         <button type="button" class="concord-icon-btn" aria-label="Поиск" @click="searchOpen = true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/>
             <path d="M16 16l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="concord-icon-btn"
+          aria-label="Сортировка"
+          @click="sortOpen = true"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
           </svg>
         </button>
         <button type="button" class="concord-icon-btn" aria-label="Настройки фильтров" @click="$emit('open-filter-settings')">
@@ -19,6 +33,16 @@
       </div>
     </header>
 
+    <div
+      class="concord-list-header-spacer"
+      aria-hidden="true"
+      :style="{ height: `${listHeaderHeight}px` }"
+    />
+
+    <div
+      class="concord-list-tabs-sticky"
+      :class="{ 'concord-list-tabs-sticky--header-visible': headerVisible }"
+    >
     <div class="concord-tabs-wrap" :class="{ 'concord-tabs-wrap--scrollable': showTabsOverflow }">
       <div
         ref="tabsRef"
@@ -55,33 +79,39 @@
         </span>
       </button>
     </div>
-
-    <div class="concord-sort">
-      <span class="concord-sort__group">{{ groupLabel }}</span>
-      <select v-model="sortId" class="concord-sort__select" aria-label="Сортировка">
-        <option v-for="opt in sortOptions" :key="opt.id" :value="opt.id">
-          {{ opt.label }}
-        </option>
-      </select>
     </div>
 
-    <main class="concord-list">
+    <div v-if="loading" class="concord-list concord-card-skeleton" aria-label="Загрузка согласований">
+      <div v-for="n in 3" :key="n" class="concord-card-skeleton__item" />
+    </div>
+
+    <TransitionGroup v-else name="concord-card-list" tag="main" class="concord-list">
       <template v-for="group in groupedAgreements" :key="group.label">
-        <h2 v-if="group.label === 'Вчера' || group.label === 'Позавчера'" class="concord-list__date-group">{{ group.label }}</h2>
+        <div
+          v-if="group.label !== 'Черновики'"
+          :key="`date-${group.label}`"
+          class="concord-list__date-separator"
+        >
+          <span class="concord-list__date-pill">{{ group.label }}</span>
+        </div>
         <AgreementCard
           v-for="item in group.items"
           :key="item.id"
           :agreement="item"
+          :groups="groups"
+          :contacts="contacts"
+          :view-transition-name="item.id === openingAgreementId ? 'concord-agreement-card' : ''"
+          :is-new="item.id === newAgreementId"
           @open="onOpenAgreement"
           @toggle-favorite="toggleFavorite"
           @duplicate="onDuplicate"
           @edit="onEdit"
         />
       </template>
-      <p v-if="displayedAgreements.length === 0" class="concord-empty">
+      <p v-if="displayedAgreements.length === 0" key="empty" class="concord-empty">
         Нет согласований в этом разделе.
       </p>
-    </main>
+    </TransitionGroup>
 
     <ConcordSearchOverlay
       :open="searchOpen"
@@ -95,6 +125,8 @@
         v-for="item in searchResults"
         :key="`search-${item.id}`"
         :agreement="item"
+        :groups="groups"
+        :contacts="contacts"
         @open="onOpenAgreement"
         @toggle-favorite="toggleFavorite"
         @duplicate="onDuplicate"
@@ -104,11 +136,31 @@
         Ничего не найдено.
       </p>
     </ConcordSearchOverlay>
+
+    <template v-if="sortOpen">
+      <div class="concord-sheet-backdrop" @click="sortOpen = false" />
+      <div class="concord-sheet" role="dialog" aria-label="Сортировка">
+        <h2 class="concord-sheet__title">Сортировка</h2>
+        <div class="concord-sheet__group">
+          <div class="concord-sheet__options">
+            <button
+              v-for="opt in sortOptions"
+              :key="opt.id"
+              type="button"
+              :class="['concord-sheet__chip', { 'concord-sheet__chip--active': sortId === opt.id }]"
+              @click="selectSort(opt.id)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script>
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AgreementCard from '../concord/AgreementCard.vue'
 import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
 import { useTabsScrollHint } from '../composables/useTabsScrollHint.js'
@@ -132,15 +184,41 @@ export default {
       type: Array,
       required: true,
     },
+    groups: {
+      type: Array,
+      default: () => [],
+    },
+    contacts: {
+      type: Array,
+      default: () => [],
+    },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    openingAgreementId: {
+      type: [String, Number],
+      default: null,
+    },
+    newAgreementId: {
+      type: [String, Number],
+      default: null,
+    },
   },
   emits: ['open-agreement', 'edit-agreement', 'duplicate-agreement', 'toggle-favorite', 'open-filter-settings'],
   setup(props, { emit }) {
     const activeTab = ref('agreements')
-    const groupLabel = ref('Последние')
     const sortId = ref('favorites')
+    const sortOpen = ref(false)
     const searchOpen = ref(false)
     const searchQuery = ref('')
     const searchScope = ref('content')
+    const listHeaderRef = ref(null)
+    const listHeaderHeight = ref(65)
+    const headerVisible = ref(true)
+    let lastScrollY = 0
+    let scrollFrame = null
+    let chromeResizeObserver = null
     const {
       tabsRef,
       showTabsOverflow,
@@ -151,6 +229,45 @@ export default {
     const allTabs = computed(() => buildTopTabsFromSections(props.filterSections, props.agreements))
     const sortOptions = SORT_OPTIONS
     const visibleTabs = computed(() => allTabs.value)
+
+    const listPageStyle = computed(() => ({
+      '--concord-list-header-height': `${listHeaderHeight.value}px`,
+    }))
+
+    function updateListHeaderHeight() {
+      const measured = listHeaderRef.value?.offsetHeight || 0
+      listHeaderHeight.value = measured || 65
+    }
+
+    function setupHeaderResizeObserver() {
+      chromeResizeObserver?.disconnect()
+      updateListHeaderHeight()
+      if (!listHeaderRef.value || typeof ResizeObserver === 'undefined') {
+        return
+      }
+      chromeResizeObserver = new ResizeObserver(() => {
+        updateListHeaderHeight()
+      })
+      chromeResizeObserver.observe(listHeaderRef.value)
+    }
+
+    function onScroll() {
+      if (scrollFrame) {
+        return
+      }
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = null
+        const currentY = window.scrollY || document.documentElement.scrollTop || 0
+        if (currentY <= 4) {
+          headerVisible.value = true
+        } else if (currentY > lastScrollY + 6) {
+          headerVisible.value = false
+        } else if (currentY < lastScrollY - 6) {
+          headerVisible.value = true
+        }
+        lastScrollY = currentY
+      })
+    }
 
     watch(visibleTabs, () => {
       nextTick(updateTabsOverflow)
@@ -200,11 +317,35 @@ export default {
       emit('duplicate-agreement', id)
     }
 
+    function selectSort(id) {
+      sortId.value = id
+      sortOpen.value = false
+    }
+
+    onMounted(() => {
+      nextTick(() => {
+        setupHeaderResizeObserver()
+      })
+      window.addEventListener('scroll', onScroll, { passive: true })
+    })
+
+    onBeforeUnmount(() => {
+      chromeResizeObserver?.disconnect()
+      window.removeEventListener('scroll', onScroll)
+      if (scrollFrame) {
+        cancelAnimationFrame(scrollFrame)
+      }
+    })
+
     return {
       activeTab,
-      groupLabel,
       sortId,
+      sortOpen,
       sortOptions,
+      listHeaderRef,
+      listHeaderHeight,
+      headerVisible,
+      listPageStyle,
       visibleTabs,
       searchOpen,
       searchQuery,
@@ -221,6 +362,7 @@ export default {
       onOpenAgreement,
       onEdit,
       onDuplicate,
+      selectSort,
     }
   },
 }
