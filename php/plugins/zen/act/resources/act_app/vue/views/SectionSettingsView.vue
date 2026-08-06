@@ -227,7 +227,6 @@
               :checked="form.settings.participantsSeeEachOther"
               type="checkbox"
               class="concord-toggle"
-              :disabled="!form.settings.visibilityEnabled"
               @change="form.settings.participantsSeeEachOther = true"
             >
           </label>
@@ -237,7 +236,6 @@
               :checked="!form.settings.participantsSeeEachOther"
               type="checkbox"
               class="concord-toggle"
-              :disabled="!form.settings.visibilityEnabled"
               @change="form.settings.participantsSeeEachOther = false"
             >
           </label>
@@ -294,14 +292,6 @@
         </label>
       </section>
 
-      <section class="concord-section-settings__row">
-        <span class="concord-section-settings__row-label">Видимость</span>
-        <label class="concord-section-settings__row-toggle">
-          <span>{{ form.settings.visibilityEnabled ? 'Да' : 'Нет' }}</span>
-          <input v-model="form.settings.visibilityEnabled" type="checkbox" class="concord-toggle">
-        </label>
-      </section>
-
       <section class="concord-section-settings__results">
         <span class="concord-section-settings__results-label">Показывать результаты:</span>
         <div class="concord-section-settings__results-toggles">
@@ -320,6 +310,14 @@
           </span>
         </div>
       </section>
+
+      <button
+        type="button"
+        class="concord-section-settings__delete"
+        @click="deleteConfirmOpen = true"
+      >
+        Удалить раздел
+      </button>
     </main>
 
     <footer class="concord-section-settings__footer">
@@ -327,6 +325,16 @@
         Готово
       </button>
     </footer>
+
+    <ConcordConfirmSheet
+      :open="deleteConfirmOpen"
+      title="Удалить раздел?"
+      message="Все блоки и настройки этого раздела будут удалены без возможности восстановления."
+      confirm-label="Удалить"
+      cancel-label="Отмена"
+      @confirm="confirmDelete"
+      @cancel="deleteConfirmOpen = false"
+    />
 
     <template v-if="contactPickerOpen">
       <div class="concord-sheet-backdrop" @click="closeContactPicker" />
@@ -364,11 +372,18 @@
 </template>
 
 <script>
-import { computed, defineExpose, reactive, ref, watch } from 'vue'
+import { computed, defineExpose, onMounted, reactive, ref, watch } from 'vue'
 import ContactCheckboxList from '../concord/ContactCheckboxList.vue'
+import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
 import { DEFAULT_SECTION_SETTINGS, ensureSectionSettings } from '../concord/mock-agreements.js'
-import { filterContacts } from '../concord/mock-groups.js'
+import {
+  collectSelectedGroupMemberIds,
+  filterContacts,
+  getGroupMembersCount,
+  resolveSectionVotersCount,
+} from '../concord/mock-groups.js'
+import { resetConcordScrollPosition } from '../concord/scroll-top.js'
 
 function cloneSettings(settings = DEFAULT_SECTION_SETTINGS) {
   return {
@@ -383,7 +398,7 @@ function cloneSettings(settings = DEFAULT_SECTION_SETTINGS) {
 
 export default {
   name: 'SectionSettingsView',
-  components: { ContactCheckboxList, ConcordGroupHeaderActions },
+  components: { ContactCheckboxList, ConcordConfirmSheet, ConcordGroupHeaderActions },
   props: {
     section: {
       type: Object,
@@ -398,7 +413,7 @@ export default {
       default: () => [],
     },
   },
-  emits: ['back', 'save', 'pick-groups'],
+  emits: ['back', 'delete', 'save', 'pick-groups'],
   setup(props, { emit }) {
     const expanded = reactive({
       name: false,
@@ -413,6 +428,12 @@ export default {
     const contactPickerOpen = ref(false)
     const contactSearchQuery = ref('')
     const pickerParticipantIds = ref([])
+    const deleteConfirmOpen = ref(false)
+
+    onMounted(() => {
+      resetConcordScrollPosition()
+      requestAnimationFrame(resetConcordScrollPosition)
+    })
 
     watch(
       () => props.section,
@@ -425,15 +446,34 @@ export default {
       props.groups.filter((group) => form.value.groupIds.includes(group.id))
     )
 
+    const coveredByGroupsIds = computed(() =>
+      collectSelectedGroupMemberIds(form.value.groupIds, props.groups)
+    )
+
+    /** People added individually and not already covered by a selected group. */
     const selectedContacts = computed(() =>
-      props.contacts.filter((contact) => form.value.participantIds.includes(contact.id))
+      props.contacts.filter(
+        (contact) =>
+          form.value.participantIds.includes(contact.id)
+          && !coveredByGroupsIds.value.has(contact.id)
+      )
     )
 
     const participantsBadgeCount = computed(() =>
-      form.value.groupIds.length + form.value.participantIds.length
+      resolveSectionVotersCount(
+        {
+          participantIds: form.value.participantIds,
+          groupIds: form.value.groupIds,
+        },
+        props.groups,
+        props.contacts
+      )
     )
 
-    const filteredContacts = computed(() => filterContacts(props.contacts, contactSearchQuery.value))
+    const filteredContacts = computed(() => {
+      const available = props.contacts.filter((contact) => !coveredByGroupsIds.value.has(contact.id))
+      return filterContacts(available, contactSearchQuery.value)
+    })
 
     const allFilteredContactsSelected = computed(() => {
       if (!filteredContacts.value.length) {
@@ -454,10 +494,12 @@ export default {
 
     function createFormFromSection(section) {
       ensureSectionSettings(section)
+      const groupIds = [...(section.groupIds || [])]
+      const covered = collectSelectedGroupMemberIds(groupIds, props.groups)
       return {
         title: section.title || '',
-        participantIds: [...(section.participantIds || [])],
-        groupIds: [...(section.groupIds || [])],
+        participantIds: [...(section.participantIds || [])].filter((id) => !covered.has(id)),
+        groupIds,
         leaderId: section.leaderId || null,
         settings: cloneSettings(section.settings),
       }
@@ -483,7 +525,7 @@ export default {
     }
 
     function groupMemberCount(group) {
-      return group.memberCount || group.memberIds?.length || 0
+      return getGroupMembersCount(group)
     }
 
     function openContactPicker() {
@@ -497,8 +539,20 @@ export default {
       contactPickerOpen.value = false
     }
 
+    function pruneParticipantsCoveredByGroups(participantIds, groupIds = form.value.groupIds) {
+      const covered = collectSelectedGroupMemberIds(groupIds, props.groups)
+      return participantIds.filter((id) => !covered.has(id))
+    }
+
     function applyContactPicker() {
-      form.value.participantIds = [...pickerParticipantIds.value]
+      form.value.participantIds = pruneParticipantsCoveredByGroups(pickerParticipantIds.value)
+      if (
+        form.value.leaderId
+        && !form.value.participantIds.includes(form.value.leaderId)
+        && !collectSelectedGroupMemberIds(form.value.groupIds, props.groups).has(form.value.leaderId)
+      ) {
+        form.value.leaderId = null
+      }
       closeContactPicker()
     }
 
@@ -516,6 +570,10 @@ export default {
 
     function applyGroupSelection(groupIds) {
       form.value.groupIds = [...groupIds]
+      form.value.participantIds = pruneParticipantsCoveredByGroups(
+        form.value.participantIds,
+        form.value.groupIds
+      )
       participantMenuOpen.value = false
     }
 
@@ -526,13 +584,21 @@ export default {
 
     function save() {
       const title = form.value.title.trim() || props.section?.title?.trim() || 'Раздел'
+      const participantIds = pruneParticipantsCoveredByGroups(form.value.participantIds)
+      form.value.participantIds = participantIds
       emit('save', {
         title,
-        participantIds: [...form.value.participantIds],
+        participantIds,
         groupIds: [...form.value.groupIds],
         leaderId: form.value.leaderId,
         settings: cloneSettings(form.value.settings),
       })
+      emit('back')
+    }
+
+    function confirmDelete() {
+      deleteConfirmOpen.value = false
+      emit('delete', props.section.id)
       emit('back')
     }
 
@@ -545,6 +611,7 @@ export default {
       contactPickerOpen,
       contactSearchQuery,
       pickerParticipantIds,
+      deleteConfirmOpen,
       selectedGroups,
       selectedContacts,
       participantsBadgeCount,
@@ -562,6 +629,7 @@ export default {
       toggleSelectAllContacts,
       openGroupPicker,
       applyGroupSelection,
+      confirmDelete,
       save,
     }
   },

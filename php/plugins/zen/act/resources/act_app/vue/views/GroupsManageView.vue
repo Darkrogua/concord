@@ -142,6 +142,7 @@ import { computed, ref, toRef, watch } from 'vue'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
+import { getGroupMembersCount } from '../concord/mock-groups.js'
 import { useConcordProfile } from '../composables/useConcordProfile.js'
 
 export default {
@@ -197,7 +198,7 @@ export default {
     })
 
     function groupMemberCount(group) {
-      return group.memberCount || group.memberIds?.length || 0
+      return getGroupMembersCount(group)
     }
 
     function isSelected(groupId) {

@@ -40,6 +40,21 @@ function concordPagesIndexPlugin() {
   }
 }
 
+function concordDevIndexPlugin() {
+  return {
+    name: 'concord-dev-index',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const reqPath = req.url?.split('?')[0] || ''
+        if (reqPath === '/' || reqPath === '/index.html') {
+          req.url = '/concord-preview.html'
+        }
+        next()
+      })
+    },
+  }
+}
+
 function concordBuildIdPlugin(buildId, outDir) {
   return {
     name: 'concord-build-id',
@@ -65,6 +80,7 @@ export default defineConfig(({ command, mode }) => {
       __CONCORD_BUILD_ID__: JSON.stringify(buildId),
     },
     plugins: [
+      concordDevIndexPlugin(),
       concordPagesIndexPlugin(),
       vue(),
       VitePWA({
@@ -138,15 +154,6 @@ export default defineConfig(({ command, mode }) => {
       port: 5173,
       strictPort: true,
       open: '/concord-preview.html',
-    },
-    configureServer(server) {
-      server.middlewares.use((req, _res, next) => {
-        const path = req.url?.split('?')[0] || ''
-        if (path === '/' || path === '/index.html') {
-          req.url = '/concord-preview.html'
-        }
-        next()
-      })
     },
     build: {
       outDir,

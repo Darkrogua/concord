@@ -2,14 +2,52 @@
   <div class="concord-vote-section">
     <div v-if="showProgress" class="concord-vote-section__stats">
       <div class="concord-vote-section__stat">
-        <span>Согласовано</span>
+        <span class="concord-vote-section__stat-label">
+          <span>Согласовано</span>
+          <svg
+            v-if="userVoteMark === 'approved'"
+            class="concord-vote-section__vote-mark concord-vote-section__vote-mark--approved"
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M20 6 9 17l-5-5"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
         <span class="concord-vote-section__stat-value">{{ stats.approved }}%</span>
       </div>
       <div class="concord-vote-section__stat-bar" aria-hidden="true">
         <div class="concord-vote-section__stat-fill" :style="{ width: `${stats.approved}%` }" />
       </div>
       <div class="concord-vote-section__stat">
-        <span>Не согласовано</span>
+        <span class="concord-vote-section__stat-label">
+          <span>Не согласовано</span>
+          <svg
+            v-if="userVoteMark === 'rejected'"
+            class="concord-vote-section__vote-mark concord-vote-section__vote-mark--rejected"
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M20 6 9 17l-5-5"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
         <span class="concord-vote-section__stat-value">{{ stats.rejected }}%</span>
       </div>
       <div class="concord-vote-section__stat-bar" aria-hidden="true">
@@ -92,7 +130,14 @@ export default {
       return 'Ждет согласования'
     })
 
-    return { hasVoted, showProgress, stats, statusLabel }
+    const userVoteMark = computed(() => {
+      if (!hasVoted.value) {
+        return null
+      }
+      return props.userVote?.decision === 'rejected' ? 'rejected' : 'approved'
+    })
+
+    return { hasVoted, showProgress, stats, statusLabel, userVoteMark }
   },
 }
 </script>

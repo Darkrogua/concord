@@ -95,10 +95,12 @@
       @add-block="onAddAgreementBlock"
       @delete-block="onDeleteAgreementBlock"
       @add-section="onAddAgreementSection"
+      @delete-section="onDeleteAgreementSection"
       @update-section="onUpdateAgreementSection"
       @launch="onLaunchAgreement"
       @create-group="onCreateGroup"
       @update-group="onUpdateGroup"
+      @update-agreement="persist"
     />
 
     <AgreementApproverView
@@ -124,6 +126,7 @@
       :avatar-initial="activeAccountInitial"
       :profile-label="activeAccountLabel"
       :notifications-badge="unreadNotificationsCount"
+      :profile-badge="otherAccountsNotificationsBadge"
       @navigate="onNavigate"
       @create="startCreateAgreement"
       @notifications="onNotifications"
@@ -133,6 +136,7 @@
     <AccountSwitcherSheet
       v-model="activeAccountId"
       :open="accountOpen"
+      :notification-badges="accountNotificationBadges"
       @close="accountOpen = false"
       @create-account="onCreateAccount"
     />
@@ -158,11 +162,12 @@ import ConcordBottomNav from './concord/ConcordBottomNav.vue'
 import { formatAccountNavLabel, getAccountById } from './concord/mock-accounts.js'
 import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, formatDateRu, getNextAgreementNumber } from './concord/mock-agreements.js'
 import { useConcordAgreements } from './composables/useConcordAgreements.js'
+import { useConcordGroups } from './composables/useConcordGroups.js'
 import { useConcordProfile } from './composables/useConcordProfile.js'
-import { MOCK_NOTIFICATION_SECTIONS } from './concord/mock-notifications.js'
+import { MOCK_NOTIFICATION_SECTIONS_BY_ACCOUNT, cloneNotificationSectionsByAccount, countUnreadNotifications } from './concord/mock-notifications.js'
 import {
   MOCK_CONTACTS,
-  cloneProfileGroups,
+  collectSectionVoterIds,
   createProfileGroup,
   syncGroupMemberCount,
 } from './concord/mock-groups.js'
@@ -188,6 +193,7 @@ export default {
   },
   setup() {
     const { agreements, loading: agreementsLoading, persist } = useConcordAgreements()
+    const { profileGroups } = useConcordGroups()
     const filterSections = ref(
       DEFAULT_FILTER_SECTIONS.map((section) => ({
         ...section,
@@ -195,13 +201,7 @@ export default {
       }))
     )
 
-    const notificationSections = ref(
-      MOCK_NOTIFICATION_SECTIONS.map((section) => ({
-        ...section,
-        items: section.items.map((item) => ({ ...item })),
-      }))
-    )
-    const profileGroups = ref(cloneProfileGroups())
+    const notificationSectionsByAccount = ref(cloneNotificationSectionsByAccount(MOCK_NOTIFICATION_SECTIONS_BY_ACCOUNT))
     const groupContacts = ref(MOCK_CONTACTS.map((contact) => ({ ...contact })))
     const activeGroupId = ref(null)
     const groupMembersReturnView = ref('groups-manage')
@@ -271,16 +271,35 @@ export default {
       agreements.value.find((item) => item.id === editingAgreementId.value) || null
     )
 
+    const notificationSections = computed(() =>
+      notificationSectionsByAccount.value[activeAccountId.value] || []
+    )
+
     const unreadNotificationsCount = computed(() => {
-      let count = 0
-      for (const section of notificationSections.value) {
-        for (const item of section.items) {
-          if (!item.empty && !item.isRead) {
-            count += 1
-          }
+      const count = countUnreadNotifications(notificationSections.value)
+      return count || undefined
+    })
+
+    const otherAccountsNotificationsBadge = computed(() => {
+      let total = 0
+      for (const [accountId, sections] of Object.entries(notificationSectionsByAccount.value)) {
+        if (accountId === activeAccountId.value) {
+          continue
+        }
+        total += countUnreadNotifications(sections)
+      }
+      return total || undefined
+    })
+
+    const accountNotificationBadges = computed(() => {
+      const badges = {}
+      for (const [accountId, sections] of Object.entries(notificationSectionsByAccount.value)) {
+        const count = countUnreadNotifications(sections)
+        if (count) {
+          badges[accountId] = count
         }
       }
-      return count || undefined
+      return badges
     })
 
     function goToFilterSettings() {
@@ -569,6 +588,15 @@ export default {
       persist()
     }
 
+    function onDeleteAgreementSection(sectionId) {
+      const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
+      if (!agreement?.sections?.length) {
+        return
+      }
+      agreement.sections = agreement.sections.filter((section) => section.id !== sectionId)
+      persist()
+    }
+
     function onVote({ agreementId, sectionId, decision, reason, participantId }) {
       const agreement = agreements.value.find((item) => item.id === agreementId)
       if (!agreement) {
@@ -635,6 +663,18 @@ export default {
       section.title = title
       section.participantIds = [...participantIds]
       section.groupIds = [...groupIds]
+      const voterIds = collectSectionVoterIds(section, profileGroups.value)
+      section.voterIds = voterIds
+      section.total = voterIds.length
+      // Keep voting pending row in sync with new headcount while draft/zero votes.
+      if (!section.votes?.length) {
+        section.votingStats = {
+          approved: 0,
+          rejected: 0,
+          pending: voterIds.length ? 100 : 0,
+        }
+        section.voted = 0
+      }
       if (leaderId !== undefined) {
         section.leaderId = leaderId
       }
@@ -726,6 +766,7 @@ export default {
       onAddAgreementBlock,
       onDeleteAgreementBlock,
       onAddAgreementSection,
+      onDeleteAgreementSection,
       onLaunchAgreement,
       onUpdateAgreementSection,
       onVote,
@@ -735,6 +776,8 @@ export default {
       onNotifications,
       notificationSections,
       unreadNotificationsCount,
+      otherAccountsNotificationsBadge,
+      accountNotificationBadges,
       markNotificationRead,
       onOpenAgreementFromNotification,
       profileGroups,

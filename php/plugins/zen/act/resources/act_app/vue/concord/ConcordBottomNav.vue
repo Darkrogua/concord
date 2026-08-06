@@ -77,6 +77,7 @@
         <svg class="concord-nav__caret" viewBox="0 0 12 8" fill="none" aria-hidden="true">
           <path d="M1 1.5 6 6.5 11 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
+        <span v-if="profileBadge" class="concord-nav__badge">{{ profileBadge }}</span>
       </span>
       <span class="concord-nav__label concord-nav__label--profile">{{ profileLabel }}</span>
     </button>
@@ -101,6 +102,10 @@ export default {
     notificationsBadge: {
       type: [Number, String],
       default: 2,
+    },
+    profileBadge: {
+      type: [Number, String],
+      default: undefined,
     },
     avatarUrl: {
       type: String,

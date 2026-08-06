@@ -40,7 +40,7 @@ export { DEFAULT_PROFILE_GROUPS } from './mock-groups.js'
  */
 
 /** @type {NotificationSection[]} */
-export const MOCK_NOTIFICATION_SECTIONS = [
+const ALEXANDER_NOTIFICATION_SECTIONS = [
   {
     dateLabel: 'Сегодня',
     items: [
@@ -85,3 +85,81 @@ export const MOCK_NOTIFICATION_SECTIONS = [
     ],
   },
 ]
+
+/** @type {NotificationSection[]} */
+const MCMRAAK_NOTIFICATION_SECTIONS = [
+  {
+    dateLabel: 'Сегодня',
+    items: [
+      {
+        id: 'n-m-1',
+        isRead: false,
+        avatarInitial: 'А',
+        title: 'Система',
+        body: 'Новый комментарий в',
+        linkText: 'Согласовании #307',
+        agreementNumber: 307,
+        agreementId: '307',
+        time: '09:15',
+      },
+    ],
+  },
+]
+
+/** @type {NotificationSection[]} */
+const ALEX_ACCOUNT_NOTIFICATION_SECTIONS = [
+  {
+    dateLabel: 'Сегодня',
+    items: [
+      {
+        id: 'n-a-1',
+        isRead: false,
+        avatarInitial: 'И',
+        title: 'Иван Петров',
+        body: 'Проголосовал в',
+        linkText: 'Согласовании #306',
+        agreementNumber: 306,
+        agreementId: '306',
+        time: '11:40',
+      },
+    ],
+  },
+]
+
+/** @type {Record<string, NotificationSection[]>} */
+export const MOCK_NOTIFICATION_SECTIONS_BY_ACCOUNT = {
+  1: ALEXANDER_NOTIFICATION_SECTIONS,
+  2: MCMRAAK_NOTIFICATION_SECTIONS,
+  3: ALEX_ACCOUNT_NOTIFICATION_SECTIONS,
+}
+
+/** @type {NotificationSection[]} */
+export const MOCK_NOTIFICATION_SECTIONS = ALEXANDER_NOTIFICATION_SECTIONS
+
+export function cloneNotificationSections(sections = []) {
+  return sections.map((section) => ({
+    ...section,
+    items: section.items.map((item) => ({ ...item })),
+  }))
+}
+
+export function cloneNotificationSectionsByAccount(source = MOCK_NOTIFICATION_SECTIONS_BY_ACCOUNT) {
+  return Object.fromEntries(
+    Object.entries(source).map(([accountId, sections]) => [
+      accountId,
+      cloneNotificationSections(sections),
+    ])
+  )
+}
+
+export function countUnreadNotifications(sections = []) {
+  let count = 0
+  for (const section of sections) {
+    for (const item of section.items) {
+      if (!item.empty && !item.isRead) {
+        count += 1
+      }
+    }
+  }
+  return count
+}

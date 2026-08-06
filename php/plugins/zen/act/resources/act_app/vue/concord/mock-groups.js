@@ -40,22 +40,27 @@ const DEV_MEMBER_IDS = [
 
 /** @type {ProfileGroup[]} */
 export const DEFAULT_PROFILE_GROUPS = [
-  { id: 'dev', title: 'Программисты', memberIds: [...DEV_MEMBER_IDS], memberCount: 12 },
-  { id: 'design', title: 'Дизайнеры', memberIds: ['elena-vasilyeva', 'maria-gorbunova'], memberCount: 12 },
-  { id: 'admin', title: 'Администрация', memberIds: ['alex-ablizin', 'roman-gorbachev'], memberCount: 12 },
+  { id: 'dev', title: 'Программисты', memberIds: [...DEV_MEMBER_IDS], memberCount: DEV_MEMBER_IDS.length },
+  { id: 'design', title: 'Дизайнеры', memberIds: ['elena-vasilyeva', 'maria-gorbunova'], memberCount: 2 },
+  { id: 'admin', title: 'Администрация', memberIds: ['alex-ablizin', 'roman-gorbachev'], memberCount: 2 },
 ]
 
 export function cloneProfileGroups(groups = DEFAULT_PROFILE_GROUPS) {
   return groups.map((group) => ({
     ...group,
-    memberIds: [...group.memberIds],
+    memberIds: Array.isArray(group?.memberIds) ? [...group.memberIds] : [],
+    memberCount: Array.isArray(group?.memberIds)
+      ? group.memberIds.length
+      : Number(group?.memberCount) || 0,
   }))
 }
 
 export function syncGroupMemberCount(group) {
+  const memberIds = Array.isArray(group?.memberIds) ? group.memberIds : []
   return {
     ...group,
-    memberCount: group.memberIds.length,
+    memberIds: [...memberIds],
+    memberCount: memberIds.length,
   }
 }
 
@@ -82,6 +87,40 @@ export function getContactsForGroup(group, contacts = MOCK_CONTACTS) {
 }
 
 /**
+ * Unique voter IDs for a section: direct participants + members of selected groups.
+ * @param {object} section
+ * @param {ProfileGroup[]} groups
+ * @returns {string[]}
+ */
+export function collectSectionVoterIds(section, groups = []) {
+  if (!section) {
+    return []
+  }
+
+  const seen = new Set()
+
+  for (const contactId of section.participantIds || []) {
+    if (contactId) {
+      seen.add(contactId)
+    }
+  }
+
+  for (const groupId of section.groupIds || []) {
+    const group = groups.find((item) => item.id === groupId)
+    if (!group) {
+      continue
+    }
+    for (const memberId of group.memberIds || []) {
+      if (memberId) {
+        seen.add(memberId)
+      }
+    }
+  }
+
+  return [...seen]
+}
+
+/**
  * @param {object} section
  * @param {ProfileGroup[]} groups
  * @param {GroupContact[]} contacts
@@ -91,35 +130,18 @@ export function resolveSectionParticipants(section, groups = [], contacts = MOCK
     return []
   }
 
-  const people = []
-  const seen = new Set()
+  const contactsById = new Map(contacts.map((contact) => [contact.id, contact]))
 
-  const addContact = (contact) => {
-    if (!contact || seen.has(contact.id)) {
-      return
+  return collectSectionVoterIds(section, groups).map((participantId) => {
+    const contact = contactsById.get(participantId)
+    return {
+      id: participantId,
+      label: contact?.initial || contact?.shortName?.charAt(0) || String(participantId).charAt(0).toUpperCase() || '?',
+      shortName: contact?.shortName || '',
+      name: contact?.name || contact?.shortName || participantId,
+      initial: contact?.initial || String(participantId).charAt(0).toUpperCase() || '?',
     }
-    seen.add(contact.id)
-    people.push({
-      id: contact.id,
-      label: contact.initial || contact.shortName?.charAt(0) || '?',
-    })
-  }
-
-  for (const contactId of section.participantIds || []) {
-    addContact(contacts.find((contact) => contact.id === contactId))
-  }
-
-  for (const groupId of section.groupIds || []) {
-    const group = groups.find((item) => item.id === groupId)
-    if (!group) {
-      continue
-    }
-    for (const contact of getContactsForGroup(group, contacts)) {
-      addContact(contact)
-    }
-  }
-
-  return people
+  })
 }
 
 export function sectionHasConfiguredParticipants(section) {
@@ -129,10 +151,43 @@ export function sectionHasConfiguredParticipants(section) {
 /**
  * @param {object} section
  * @param {ProfileGroup[]} groups
- * @param {GroupContact[]} contacts
+ * @param {GroupContact[]} [contacts]
  */
 export function resolveSectionVotersCount(section, groups = [], contacts = MOCK_CONTACTS) {
-  return resolveSectionParticipants(section, groups, contacts).length
+  void contacts
+  return collectSectionVoterIds(section, groups).length
+}
+
+/**
+ * Member IDs that belong to any of the selected section groups.
+ * @param {string[]} groupIds
+ * @param {ProfileGroup[]} groups
+ */
+export function collectSelectedGroupMemberIds(groupIds = [], groups = []) {
+  const seen = new Set()
+  for (const groupId of groupIds || []) {
+    const group = groups.find((item) => item.id === groupId)
+    for (const memberId of group?.memberIds || []) {
+      if (memberId) {
+        seen.add(memberId)
+      }
+    }
+  }
+  return seen
+}
+
+/**
+ * Actual members in a group (unique IDs), not a stale cached memberCount.
+ * @param {ProfileGroup | null | undefined} group
+ */
+export function getGroupMembersCount(group) {
+  if (!group) {
+    return 0
+  }
+  if (Array.isArray(group.memberIds)) {
+    return new Set(group.memberIds.filter(Boolean)).size
+  }
+  return Number(group.memberCount) || 0
 }
 
 /**

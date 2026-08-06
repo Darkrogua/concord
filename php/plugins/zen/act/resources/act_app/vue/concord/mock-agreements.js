@@ -102,6 +102,18 @@ export function formatIsoDateToRu(value = '') {
   return `${day}.${month}.${year}`
 }
 
+export function formatRuDateToIso(value = '') {
+  const parts = String(value || '').trim().split('.')
+  if (parts.length !== 3) {
+    return ''
+  }
+  const [day, month, year] = parts
+  if (!day || !month || !year) {
+    return ''
+  }
+  return `${String(year).padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+}
+
 function parseRuDateToDate(value = '') {
   const [day, month, year] = String(value || '').trim().split('.')
   if (!day || !month || !year) {
@@ -141,7 +153,7 @@ export function formatAgreementDateGroup(dateValue) {
   return `${day} ${month}`
 }
 
-export function groupAgreementsByDate(agreements) {
+export function groupAgreementsByDate(agreements, sortOrder = 'desc') {
   const drafts = []
   const groups = new Map()
   for (const agreement of agreements) {
@@ -162,7 +174,8 @@ export function groupAgreementsByDate(agreements) {
     if (!dateA || !dateB) {
       return 0
     }
-    return dateB - dateA
+    const diff = dateB - dateA
+    return sortOrder === 'asc' ? -diff : diff
   })
   const result = order.map((label) => ({ label, items: groups.get(label) }))
   if (drafts.length) {
@@ -211,16 +224,21 @@ export function parseRuDate(value = '') {
 }
 
 export function pluralizeDays(count) {
-  const value = Math.abs(Number(count) || 0)
+  const numeric = Number(count)
+  if (Number.isNaN(numeric)) {
+    return '0 дней'
+  }
+  const sign = numeric < 0 ? '-' : ''
+  const value = Math.abs(numeric)
   const mod10 = value % 10
   const mod100 = value % 100
   if (mod10 === 1 && mod100 !== 11) {
-    return `${value} день`
+    return `${sign}${value} день`
   }
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
-    return `${value} дня`
+    return `${sign}${value} дня`
   }
-  return `${value} дней`
+  return `${sign}${value} дней`
 }
 
 export function pluralizeParticipants(count) {
@@ -275,7 +293,7 @@ export function formatAgreementRemainingLabel(deadlineValue) {
     return ''
   }
   if (remaining < 0) {
-    return 'просрочено'
+    return pluralizeDays(remaining)
   }
   if (remaining === 0) {
     return 'сегодня последний день'
@@ -707,16 +725,10 @@ export function createDraftAgreement(form, nextNumber) {
     ),
     isUrgent: Boolean(form.isImportant),
     author: { name: 'Александр Аблизин' },
-    participants: [
-      { label: 'И' },
-      { label: 'Е' },
-      { label: 'И' },
-      { label: 'Н' },
-      { label: 'М' },
-    ],
+    participants: [],
     status: 'draft',
-    voted: 12,
-    total: 15,
+    voted: 0,
+    total: 0,
     isFavorite: false,
     isOwner: true,
     sections: [section],
@@ -1406,19 +1418,50 @@ export function filterAgreements(agreements, tabId, query, searchScope = 'conten
   return list
 }
 
-export function sortAgreements(list, sortId) {
+function compareAgreementDates(a, b, sortOrder = 'desc') {
+  const dateA = parseRuDateToDate(a.createdAt)
+  const dateB = parseRuDateToDate(b.createdAt)
+  const direction = sortOrder === 'asc' ? 1 : -1
+
+  if (!dateA && !dateB) {
+    return (b.number - a.number) * direction
+  }
+  if (!dateA) {
+    return 1
+  }
+  if (!dateB) {
+    return -1
+  }
+
+  const diff = dateB - dateA
+  if (diff !== 0) {
+    return diff * direction
+  }
+
+  return (b.number - a.number) * direction
+}
+
+export function sortAgreements(list, sortOrder = 'desc') {
   const sorted = [...list]
 
-  if (sortId === 'favorites') {
+  if (sortOrder === 'favorites') {
     return sorted.sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite))
   }
 
-  if (sortId === 'newest') {
+  if (sortOrder === 'newest') {
     return sorted.sort((a, b) => b.number - a.number)
   }
 
-  if (sortId === 'activity') {
+  if (sortOrder === 'activity') {
     return sorted.sort((a, b) => b.voted / b.total - a.voted / a.total)
+  }
+
+  if (sortOrder === 'oldest') {
+    return sorted.sort((a, b) => compareAgreementDates(a, b, 'asc'))
+  }
+
+  if (sortOrder === 'desc' || sortOrder === 'asc') {
+    return sorted.sort((a, b) => compareAgreementDates(a, b, sortOrder))
   }
 
   return sorted.sort((a, b) => a.number - b.number)

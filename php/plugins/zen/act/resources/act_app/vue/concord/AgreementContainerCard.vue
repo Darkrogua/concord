@@ -1,9 +1,24 @@
 <template>
-  <article class="concord-container" :class="{ 'concord-container--collapsed': !expanded }">
+  <article class="concord-container concord-container--editor">
     <header class="concord-container__header">
-      <h2 class="concord-container__title">{{ section.title }}</h2>
+      <div class="concord-container__header-main">
+        <h2 class="concord-container__title">{{ sectionTitle }}</h2>
+        <p class="concord-container__meta">{{ sectionMeta }}</p>
+      </div>
 
       <div class="concord-container__header-actions">
+        <button
+          type="button"
+          class="concord-icon-btn concord-container__preview"
+          aria-label="Предпросмотр согласования как согласователь"
+          @click.stop="$emit('preview')"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+            <path d="M2.8 12s3.3-5.5 9.2-5.5 9.2 5.5 9.2 5.5-3.3 5.5-9.2 5.5S2.8 12 2.8 12Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="2.7" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+        </button>
+
         <button
           type="button"
           class="concord-icon-btn concord-container__settings"
@@ -15,21 +30,15 @@
 
         <button
           type="button"
-          class="concord-container__toggle"
+          class="concord-icon-btn concord-container__confirm"
+          :class="{ 'concord-container__confirm--expanded': expanded }"
           :aria-expanded="expanded"
           :aria-label="expanded ? 'Свернуть раздел' : 'Развернуть раздел'"
           @click="toggleExpanded"
         >
-          <svg
-            class="concord-container__toggle-icon"
-            viewBox="0 0 24 24"
-            width="22"
-            height="22"
-            fill="none"
-            aria-hidden="true"
-          >
+          <svg viewBox="0 0 16 16" width="18" height="18" fill="none" aria-hidden="true">
             <path
-              d="M6 9l6 6 6-6"
+              d="m3.5 5.5 4.5 4.5 4.5-4.5"
               stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
@@ -41,12 +50,15 @@
     </header>
 
     <div v-show="expanded" class="concord-container__body">
-      <slot />
+      <slot :expanded="expanded" />
     </div>
 
     <footer class="concord-container__footer">
-      <div v-show="expanded" class="concord-container__footer-title-row">
-        <h3 class="concord-container__footer-title">{{ section.title }}</h3>
+      <div v-if="expanded" class="concord-container__footer-section-head">
+        <div class="concord-container__footer-section-main">
+          <h2 class="concord-container__title">{{ sectionTitle }}</h2>
+          <p class="concord-container__meta">{{ sectionMeta }}</p>
+        </div>
         <button
           type="button"
           class="concord-icon-btn concord-container__settings"
@@ -57,41 +69,27 @@
         </button>
       </div>
 
-      <div class="concord-container__footer-info">
-        <div class="concord-container__footer-details">
-          <span
-            class="concord-container__flame"
-            :class="{
-              'concord-container__flame--urgent': showUrgency && !isDeadlineSoon,
-              'concord-container__flame--soon': isDeadlineSoon && !isDeadlineOverdue,
-              'concord-container__flame--overdue': isDeadlineOverdue,
-            }"
-            aria-hidden="true"
-          >
-            <ConcordUrgencyFlame :urgent="showUrgency" tall />
-          </span>
-          <p
-            class="concord-container__deadline"
-            :class="{
-              'concord-container__deadline--soon': isDeadlineSoon && !isDeadlineOverdue,
-              'concord-container__deadline--overdue': isDeadlineOverdue,
-            }"
-          >
-            <span>{{ agreement.deadline }}</span>
-            <span
-              v-if="deadlineHint && deadlineHint !== '—'"
-              class="concord-container__days"
-              :class="{
-                'concord-container__days--soon': isDeadlineSoon && !isDeadlineOverdue,
-                'concord-container__days--overdue': isDeadlineOverdue,
-              }"
-            >
-              ({{ deadlineHint }})
-            </span>
-          </p>
-          <p class="concord-container__voters">Согласующих: {{ votersLabel }}</p>
+      <div class="concord-container__footer-facts">
+        <div class="concord-container__footer-fact">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+            <rect x="4.5" y="5.5" width="15" height="14" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M8 3.8v3.6M16 3.8v3.6M4.5 10h15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <span>Срок согласования</span>
+            <strong>{{ agreement.deadline || 'Не указан' }}</strong>
+          </div>
         </div>
-        <ParticipantAvatars :people="participants" :total="votersCount" compact />
+        <div class="concord-container__footer-fact">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M5.5 20c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <span>Согласующих</span>
+            <strong>{{ votersLabel }}</strong>
+          </div>
+        </div>
       </div>
 
       <div class="concord-container__voting">
@@ -100,13 +98,14 @@
           :key="row.key"
           class="concord-container__vote-row"
         >
-          <div class="concord-container__vote-head">
-            <span>{{ row.label }}</span>
-            <span>{{ row.percent }}%</span>
-          </div>
+          <span class="concord-container__vote-label">
+            {{ row.label }}
+            <span class="concord-container__vote-count">({{ row.count }})</span>
+          </span>
           <div class="concord-container__vote-track" aria-hidden="true">
             <div class="concord-container__vote-fill" :style="{ width: `${row.percent}%` }" />
           </div>
+          <span class="concord-container__vote-percent">{{ row.percent }}%</span>
         </div>
       </div>
 
@@ -144,26 +143,51 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { computed, provide, ref } from 'vue'
 import ConcordGearIcon from './ConcordGearIcon.vue'
-import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
-import ParticipantAvatars from './ParticipantAvatars.vue'
 import ConcordReasonViewModal from './ConcordReasonViewModal.vue'
 import {
   resolveSectionParticipants,
   resolveSectionVotersCount,
-  sectionHasConfiguredParticipants,
 } from './mock-groups.js'
-import {
-  formatAgreementDaysLabel,
-  getAgreementDaysRemaining,
-  getAgreementDeadlineHint,
-  isAgreementDeadlineSoon,
-} from './mock-agreements.js'
+
+function pluralizeRu(value, forms) {
+  const mod10 = value % 10
+  const mod100 = value % 100
+  if (mod10 === 1 && mod100 !== 11) {
+    return forms[0]
+  }
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+    return forms[1]
+  }
+  return forms[2]
+}
+
+function buildSectionMeta(section) {
+  const blocks = section?.blocks || []
+  let fileCount = 0
+  let photoCount = 0
+
+  for (const block of blocks) {
+    if (block.type === 'files') {
+      fileCount += (block.files || []).length
+    }
+    if (block.type === 'gallery') {
+      photoCount += (block.photos || []).length
+    }
+  }
+
+  const blockCount = blocks.length
+  return [
+    `${blockCount} ${pluralizeRu(blockCount, ['блок', 'блока', 'блоков'])}`,
+    `${fileCount} ${pluralizeRu(fileCount, ['файл', 'файла', 'файлов'])}`,
+    `${photoCount} ${pluralizeRu(photoCount, ['фото', 'фото', 'фото'])}`,
+  ].join(' • ')
+}
 
 export default {
   name: 'AgreementContainerCard',
-  components: { ConcordGearIcon, ConcordUrgencyFlame, ParticipantAvatars, ConcordReasonViewModal },
+  components: { ConcordGearIcon, ConcordReasonViewModal },
   props: {
     agreement: {
       type: Object,
@@ -172,6 +196,10 @@ export default {
     section: {
       type: Object,
       required: true,
+    },
+    sectionNumber: {
+      type: Number,
+      default: null,
     },
     groups: {
       type: Array,
@@ -182,11 +210,13 @@ export default {
       default: () => [],
     },
   },
-  emits: ['section-settings'],
+  emits: ['preview', 'section-settings'],
   setup() {
     const expanded = ref(true)
     const reasonModalOpen = ref(false)
     const reasonModalText = ref('')
+
+    provide('sectionBlocksLocked', computed(() => !expanded.value))
 
     function toggleExpanded() {
       expanded.value = !expanded.value
@@ -205,55 +235,65 @@ export default {
     return { expanded, toggleExpanded, reasonModalOpen, reasonModalText, openReasonModal, closeReasonModal }
   },
   computed: {
+    sectionTitle() {
+      const title = this.section.title || 'Раздел'
+      if (this.sectionNumber) {
+        return `${this.sectionNumber}. ${title}`
+      }
+      return title
+    },
+    sectionMeta() {
+      return buildSectionMeta(this.section)
+    },
     sectionParticipants() {
       return resolveSectionParticipants(this.section, this.groups, this.contacts)
     },
     votersCount() {
-      if (sectionHasConfiguredParticipants(this.section)) {
-        return resolveSectionVotersCount(this.section, this.groups, this.contacts)
+      const live = resolveSectionVotersCount(this.section, this.groups, this.contacts)
+      const snapshot = Array.isArray(this.section?.voterIds) ? this.section.voterIds.length : 0
+      const stored = Number(this.section?.total) || 0
+      const groupIds = this.section?.groupIds || []
+      const hasMissingGroups = groupIds.some(
+        (groupId) => !this.groups.some((group) => group.id === groupId)
+      )
+      // Custom group disappeared from profile (reload / stale storage) — don't undercount.
+      if (hasMissingGroups) {
+        return Math.max(live, snapshot, stored)
       }
-      return this.agreement.total || this.agreement.participants?.length || 0
+      return live || snapshot || stored
     },
     votersLabel() {
       const count = this.votersCount
-      return count ? `${count} чел.` : 'не назначены'
+      return count ? `${count} ${pluralizeRu(count, ['человек', 'человека', 'человек'])}` : 'не назначены'
     },
     participants() {
-      if (sectionHasConfiguredParticipants(this.section)) {
-        return this.sectionParticipants
-      }
-      return this.agreement.participants || []
-    },
-    daysLabel() {
-      return formatAgreementDaysLabel(
-        this.agreement.startDate || this.agreement.createdAt,
-        this.agreement.deadline
-      )
-    },
-    daysRemaining() {
-      return getAgreementDaysRemaining(this.agreement.deadline)
-    },
-    isDeadlineSoon() {
-      return isAgreementDeadlineSoon(this.agreement.deadline)
-    },
-    isDeadlineOverdue() {
-      return this.daysRemaining !== null && this.daysRemaining < 0
-    },
-    showUrgency() {
-      return Boolean(this.agreement.isUrgent || this.isDeadlineSoon)
-    },
-    deadlineHint() {
-      return getAgreementDeadlineHint(this.agreement.deadline, this.daysLabel)
+      return this.sectionParticipants
     },
     votingStats() {
       return this.section.votingStats || { approved: 0, rejected: 0, pending: 100 }
     },
     votingRows() {
       const stats = this.votingStats
+      const total = this.votersCount
       return [
-        { key: 'approved', label: 'Согласовано', percent: stats.approved || 0 },
-        { key: 'rejected', label: 'Не согласовано', percent: stats.rejected || 0 },
-        { key: 'pending', label: 'Не голосовали', percent: stats.pending || 0 },
+        {
+          key: 'approved',
+          label: 'Согласовано',
+          percent: stats.approved || 0,
+          count: Math.round((stats.approved || 0) * total / 100),
+        },
+        {
+          key: 'rejected',
+          label: 'Не согласовано',
+          percent: stats.rejected || 0,
+          count: Math.round((stats.rejected || 0) * total / 100),
+        },
+        {
+          key: 'pending',
+          label: 'Не голосовали',
+          percent: stats.pending || 0,
+          count: Math.round((stats.pending || 0) * total / 100),
+        },
       ]
     },
     rejectedVotes() {

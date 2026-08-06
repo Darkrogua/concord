@@ -15,12 +15,39 @@
         </button>
         <button
           type="button"
-          class="concord-icon-btn"
-          aria-label="Сортировка"
-          @click="sortOpen = true"
+          class="concord-icon-btn concord-sort-toggle"
+          :class="{
+            'concord-sort-toggle--active': sortActive,
+            'concord-sort-toggle--asc': sortActive && sortOrder === 'asc',
+          }"
+          :aria-label="sortAriaLabel"
+          @click="toggleSortOrder"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <svg class="concord-sort-toggle__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <svg
+            v-if="sortActive"
+            class="concord-sort-toggle__arrow"
+            width="10"
+            height="10"
+            viewBox="0 0 12 12"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M6 2.5v7"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+            <path
+              :d="sortOrder === 'asc' ? 'M3.5 7.5 6 10 8.5 7.5' : 'M3.5 4.5 6 2 8.5 4.5'"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </button>
         <button type="button" class="concord-icon-btn" aria-label="Настройки фильтров" @click="$emit('open-filter-settings')">
@@ -86,9 +113,9 @@
     </div>
 
     <TransitionGroup v-else name="concord-card-list" tag="main" class="concord-list">
-      <template v-for="group in groupedAgreements" :key="group.label">
+      <template v-for="(group, groupIndex) in groupedAgreements" :key="group.label">
         <div
-          v-if="group.label !== 'Черновики'"
+          v-if="shouldShowDateSeparator(group, groupIndex)"
           :key="`date-${group.label}`"
           class="concord-list__date-separator"
         >
@@ -136,26 +163,6 @@
         Ничего не найдено.
       </p>
     </ConcordSearchOverlay>
-
-    <template v-if="sortOpen">
-      <div class="concord-sheet-backdrop" @click="sortOpen = false" />
-      <div class="concord-sheet" role="dialog" aria-label="Сортировка">
-        <h2 class="concord-sheet__title">Сортировка</h2>
-        <div class="concord-sheet__group">
-          <div class="concord-sheet__options">
-            <button
-              v-for="opt in sortOptions"
-              :key="opt.id"
-              type="button"
-              :class="['concord-sheet__chip', { 'concord-sheet__chip--active': sortId === opt.id }]"
-              @click="selectSort(opt.id)"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </template>
   </div>
 </template>
 
@@ -165,7 +172,6 @@ import AgreementCard from '../concord/AgreementCard.vue'
 import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
 import { useTabsScrollHint } from '../composables/useTabsScrollHint.js'
 import {
-  SORT_OPTIONS,
   buildTopTabsFromSections,
   filterAgreements,
   groupAgreementsByDate,
@@ -208,8 +214,8 @@ export default {
   emits: ['open-agreement', 'edit-agreement', 'duplicate-agreement', 'toggle-favorite', 'open-filter-settings'],
   setup(props, { emit }) {
     const activeTab = ref('agreements')
-    const sortId = ref('favorites')
-    const sortOpen = ref(false)
+    const sortActive = ref(false)
+    const sortOrder = ref('desc')
     const searchOpen = ref(false)
     const searchQuery = ref('')
     const searchScope = ref('content')
@@ -227,8 +233,14 @@ export default {
     } = useTabsScrollHint()
 
     const allTabs = computed(() => buildTopTabsFromSections(props.filterSections, props.agreements))
-    const sortOptions = SORT_OPTIONS
     const visibleTabs = computed(() => allTabs.value)
+
+    const sortAriaLabel = computed(() => {
+      if (!sortActive.value) {
+        return 'Сортировка'
+      }
+      return sortOrder.value === 'asc' ? 'Сортировка: сначала старые' : 'Сортировка: сначала новые'
+    })
 
     const listPageStyle = computed(() => ({
       '--concord-list-header-height': `${listHeaderHeight.value}px`,
@@ -286,14 +298,17 @@ export default {
 
     const displayedAgreements = computed(() => {
       const list = filterAgreements(props.agreements, activeTab.value, '')
-      return sortAgreements(list, sortId.value)
+      return sortActive.value ? sortAgreements(list, sortOrder.value) : list
     })
 
-    const groupedAgreements = computed(() => groupAgreementsByDate(displayedAgreements.value))
+    const groupedAgreements = computed(() => {
+      const order = sortActive.value ? sortOrder.value : 'desc'
+      return groupAgreementsByDate(displayedAgreements.value, order)
+    })
 
     const searchResults = computed(() => {
       const list = filterAgreements(props.agreements, activeTab.value, searchQuery.value, searchScope.value)
-      return sortAgreements(list, sortId.value)
+      return sortActive.value ? sortAgreements(list, sortOrder.value) : list
     })
 
     function toggleFavorite(id) {
@@ -317,9 +332,24 @@ export default {
       emit('duplicate-agreement', id)
     }
 
-    function selectSort(id) {
-      sortId.value = id
-      sortOpen.value = false
+    function toggleSortOrder() {
+      if (!sortActive.value) {
+        sortActive.value = true
+        sortOrder.value = 'desc'
+        return
+      }
+      sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc'
+    }
+
+    function shouldShowDateSeparator(group, groupIndex) {
+      if (group.label === 'Черновики') {
+        return false
+      }
+      if (sortActive.value && sortOrder.value === 'asc') {
+        return true
+      }
+      const firstDatedIndex = groupedAgreements.value.findIndex((item) => item.label !== 'Черновики')
+      return groupIndex !== firstDatedIndex
     }
 
     onMounted(() => {
@@ -339,9 +369,9 @@ export default {
 
     return {
       activeTab,
-      sortId,
-      sortOpen,
-      sortOptions,
+      sortActive,
+      sortOrder,
+      sortAriaLabel,
       listHeaderRef,
       listHeaderHeight,
       headerVisible,
@@ -362,7 +392,8 @@ export default {
       onOpenAgreement,
       onEdit,
       onDuplicate,
-      selectSort,
+      toggleSortOrder,
+      shouldShowDateSeparator,
     }
   },
 }

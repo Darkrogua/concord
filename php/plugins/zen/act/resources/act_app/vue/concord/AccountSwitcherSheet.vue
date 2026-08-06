@@ -22,6 +22,12 @@
             <span class="concord-account-sheet__avatar" aria-hidden="true">
               <img v-if="account.avatarUrl" :src="account.avatarUrl" alt="">
               <span v-else>{{ account.initial }}</span>
+              <span
+                v-if="notificationBadges[account.id] && account.id !== activeId"
+                class="concord-account-sheet__badge"
+              >
+                {{ notificationBadges[account.id] }}
+              </span>
             </span>
             <span class="concord-account-sheet__name">{{ account.name }}</span>
             <span
@@ -69,6 +75,10 @@ export default {
     modelValue: {
       type: String,
       default: '1',
+    },
+    notificationBadges: {
+      type: Object,
+      default: () => ({}),
     },
   },
   emits: ['close', 'update:modelValue', 'create-account'],

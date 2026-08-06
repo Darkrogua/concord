@@ -124,6 +124,11 @@
   --concord-deadline-overdue-bg: #fee2e2;
 
   /* === Cards (shell) === */
+  --concord-card-padding-x: 14px;
+  --concord-card-padding-y: 7px;
+  --concord-card-padding-bottom: 10px;
+  --concord-card-header-padding-y: 2px;
+  --concord-card-title-gap: 6px;
   --concord-card-bg: #ffffff;
   --concord-card-border: var(--concord-border);
   --concord-card-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);

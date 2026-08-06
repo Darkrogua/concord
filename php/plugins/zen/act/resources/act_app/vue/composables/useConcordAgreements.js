@@ -18,6 +18,7 @@ function cloneAgreement(item) {
       })),
       participantIds: section.participantIds ? [...section.participantIds] : undefined,
       groupIds: section.groupIds ? [...section.groupIds] : undefined,
+      voterIds: section.voterIds ? [...section.voterIds] : undefined,
       settings: section.settings ? { ...section.settings } : undefined,
       votingStats: section.votingStats ? { ...section.votingStats } : undefined,
       votes: (section.votes || []).map((vote) => ({ ...vote })),

@@ -16,15 +16,17 @@
       ]"
     >
       <div class="concord-card__id">
-        <span
-          v-if="showFlame"
-          class="concord-card__flame"
-          :title="urgencyTitle"
-          aria-label="Срочное согласование"
-        >
-          <ConcordUrgencyFlame urgent />
-        </span>
         <span class="concord-card__number">#{{ agreement.number }}</span>
+        <span class="concord-card__flame-slot" aria-hidden="true">
+          <span
+            v-if="showFlame"
+            class="concord-card__flame"
+            :title="urgencyTitle"
+            aria-label="Срочное согласование"
+          >
+            <ConcordUrgencyFlame urgent />
+          </span>
+        </span>
       </div>
 
       <div class="concord-card__status-area">
@@ -42,28 +44,15 @@
           {{ approvedHeaderText }}
         </span>
 
-        <span
-          v-else-if="isDeadlineOverdue"
-          class="concord-card__status-plate concord-card__status-plate--overdue"
-        >
-          <template v-if="agreement.isOwner">
-            <span class="concord-card__badge concord-card__badge--overdue">Создано мной</span>
-            <span v-if="agreement.deadline">до {{ agreement.deadline }}</span>
-          </template>
-          <template v-else>
-            <span class="concord-card__status-label">Ждёт решения до:</span>
+        <span v-else-if="agreement.isOwner" class="concord-card__status-pill concord-card__status-pill--owner">
+          <span class="concord-card__status-label">Создано мной</span>
+          <template v-if="agreement.deadline">
+            <span class="concord-card__status-label">до</span>
             <span class="concord-card__status-date">{{ agreement.deadline }}</span>
           </template>
         </span>
 
-        <template v-else-if="agreement.isOwner">
-          <span class="concord-card__badge concord-card__badge--owner">Создано мной</span>
-          <span v-if="agreement.deadline" class="concord-card__deadline-prefix">
-            до <span class="concord-card__status-date">{{ agreement.deadline }}</span>
-          </span>
-        </template>
-
-        <span v-else class="concord-card__status-text">
+        <span v-else class="concord-card__status-pill concord-card__status-pill--waiting">
           <span class="concord-card__status-label">Ждёт решения до:</span>
           <span class="concord-card__status-date">{{ agreement.deadline }}</span>
         </span>
@@ -133,7 +122,10 @@
 <script>
 import { onBeforeUnmount, ref, watch } from 'vue'
 import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
-import { resolveSectionParticipants } from './mock-groups.js'
+import {
+  resolveSectionVotersCount,
+  sectionHasConfiguredParticipants,
+} from './mock-groups.js'
 import {
   getAgreementDaysRemaining,
   pluralizeDays,
@@ -151,32 +143,48 @@ function getPersonInitials(name = '') {
   return `${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase()
 }
 
-function getSectionParticipantIds(agreement, groups, contacts) {
-  const participantIds = new Set()
-  for (const section of agreement?.sections || []) {
-    for (const participant of resolveSectionParticipants(section, groups, contacts)) {
-      participantIds.add(participant.id)
-    }
+/**
+ * Voting seats across sections (not unique people).
+ * Same person in two sections counts twice — each section needs its own vote.
+ */
+function getSectionVotersTotal(section, groups, contacts) {
+  const live = resolveSectionVotersCount(section, groups, contacts)
+  const snapshot = Array.isArray(section?.voterIds) ? section.voterIds.length : 0
+  const stored = Number(section?.total) || 0
+  const groupIds = section?.groupIds || []
+  const hasMissingGroups = groupIds.some(
+    (groupId) => !groups.some((group) => group.id === groupId)
+  )
+
+  if (hasMissingGroups) {
+    return Math.max(live, snapshot, stored)
   }
-  return participantIds
+  if (sectionHasConfiguredParticipants(section) || live || snapshot || stored) {
+    return live || snapshot || stored
+  }
+  return 0
 }
 
 function getAgreementMetrics(agreement, groups, contacts) {
-  const participantIds = getSectionParticipantIds(agreement, groups, contacts)
-  const total = participantIds.size || agreement?.total || agreement?.participants?.length || 0
-  const voterIds = new Set()
+  let total = 0
+  let voted = 0
 
   for (const section of agreement?.sections || []) {
-    for (const vote of section.votes || []) {
-      if (vote?.participantId) {
-        voterIds.add(vote.participantId)
-      }
-    }
+    const sectionTotal = getSectionVotersTotal(section, groups, contacts)
+    total += sectionTotal
+
+    const sectionVoted = (section.votes || []).filter((vote) => vote?.participantId).length
+    voted += sectionVoted || Number(section.voted) || 0
+  }
+
+  if (!total) {
+    total = agreement?.total || agreement?.participants?.length || 0
+    voted = agreement?.voted || 0
   }
 
   return {
     total,
-    voted: Math.min(total, voterIds.size || agreement?.voted || 0),
+    voted: Math.min(total, voted),
   }
 }
 
@@ -323,9 +331,6 @@ export default {
       return !this.isDraft && !this.isApprovedHeader && Boolean(this.agreement.deadline)
     },
     daysLabelText() {
-      if (this.isDeadlineOverdue) {
-        return 'просрочено'
-      }
       if (this.daysRemaining !== null) {
         return pluralizeDays(this.daysRemaining)
       }

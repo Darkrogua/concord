@@ -1,16 +1,15 @@
 <template>
   <section class="concord-agreement-editor__add-zone concord-agreement-editor__add-zone--block">
-    <div class="concord-agreement-editor__add-divider">
-      <button
-        type="button"
-        class="concord-agreement-editor__add-btn concord-agreement-editor__add-btn--block"
-        :aria-expanded="showBlockTypes"
-        aria-label="Добавить блок"
-        @click="$emit('toggle')"
-      >
-        <span aria-hidden="true">+</span>
-      </button>
-    </div>
+    <button
+      type="button"
+      class="concord-agreement-editor__add-btn concord-agreement-editor__add-btn--block"
+      :aria-expanded="showBlockTypes"
+      aria-label="Добавить блок"
+      @click="$emit('toggle')"
+    >
+      <span class="concord-agreement-editor__add-btn-icon" aria-hidden="true">+</span>
+      <span class="concord-agreement-editor__add-btn-label">Добавить блок</span>
+    </button>
 
     <div v-if="showBlockTypes" class="concord-agreement-editor__block-types">
       <button

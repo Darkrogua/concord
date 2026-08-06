@@ -41,8 +41,18 @@
     :contacts="contacts"
     :groups="groups"
     @back="closeSectionSettings"
+    @delete="onSectionDelete"
     @save="onSectionSettingsSave"
     @pick-groups="openSectionGroupPicker"
+  />
+
+  <AgreementApproverView
+    v-if="sectionPreviewOpen && previewAgreement"
+    :agreement="previewAgreement"
+    :initial-section-id="previewSectionId"
+    preview
+    @back="closeSectionPreview"
+    @section-settings="openPreviewSectionSettings"
   />
 
   <Teleport to="body">
@@ -51,13 +61,20 @@
       ref="editorChromeRef"
       class="concord-agreement-editor__chrome"
     >
-      <header class="concord-header concord-header--editor">
+      <header
+        class="concord-header concord-header--editor concord-agreement-editor__chrome-header"
+        :class="{ 'concord-agreement-editor__chrome-header--hidden': !editorHeaderVisible }"
+      >
         <button type="button" class="concord-icon-btn" aria-label="Назад" @click="goBack">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <h1 class="concord-header__title concord-header__title--truncate">
+        <h1
+          ref="editorTitleRef"
+          class="concord-header__title concord-header__title--editor-clamp"
+          :class="{ 'concord-header__title--editor-two-lines': editorTitleTwoLines }"
+        >
           {{ agreement?.title || 'Без названия' }}
         </h1>
         <button
@@ -104,7 +121,11 @@
           <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-      <h1 class="concord-header__title concord-header__title--truncate">
+      <h1
+        ref="editorTitleRef"
+        class="concord-header__title concord-header__title--editor-clamp"
+        :class="{ 'concord-header__title--editor-two-lines': editorTitleTwoLines }"
+      >
         {{ agreement?.title || 'Без названия' }}
       </h1>
       <button
@@ -130,9 +151,31 @@
 
     <main ref="editorMainRef" class="concord-agreement-editor">
       <section v-if="showDraftIntro" class="concord-agreement-editor__panel">
-        <p v-if="agreement.description" class="concord-agreement-editor__description">
-          {{ agreement.description }}
-        </p>
+        <div v-if="agreement.description" class="concord-agreement-editor__description-wrap">
+          <p
+            ref="descriptionRef"
+            class="concord-agreement-editor__description"
+            :class="{ 'concord-agreement-editor__description--clamped': !descriptionExpanded }"
+          >
+            {{ agreement.description }}
+          </p>
+          <button
+            v-if="descriptionOverflows"
+            type="button"
+            class="concord-agreement-editor__description-toggle"
+            @click="expandDescription"
+          >
+            Смотреть
+          </button>
+          <button
+            v-else-if="descriptionExpanded && descriptionCollapsible"
+            type="button"
+            class="concord-agreement-editor__description-toggle"
+            @click="collapseDescription"
+          >
+            Скрыть
+          </button>
+        </div>
         <p v-else class="concord-agreement-editor__description concord-agreement-editor__description--muted">
           {{ editorIntro }}
         </p>
@@ -146,7 +189,7 @@
       </section>
 
       <div
-        v-for="section in agreement.sections"
+        v-for="(section, sectionIndex) in agreement.sections"
         :key="section.id"
         :id="sectionAnchorId(section.id)"
         :ref="(el) => setSectionRef(section.id, el)"
@@ -154,35 +197,106 @@
       >
         <AgreementContainerCard
           v-if="shouldShowSectionContainer(section)"
+          :section-number="sectionIndex + 1"
           :agreement="agreement"
           :section="section"
           :groups="groups"
           :contacts="contacts"
+          @preview="openSectionPreview(section.id)"
           @section-settings="openSectionSettings(section.id)"
         >
-          <div v-if="section.blocks?.length" class="concord-container__blocks">
-            <template v-for="block in section.blocks" :key="block.id">
-              <ConcordFilesBlockCard v-if="block.type === 'files'" :block="block" />
-              <ConcordGalleryBlockCard v-else-if="block.type === 'gallery'" :block="block" />
-              <ConcordTextBlockPreview
-                v-else-if="block.type === 'text'"
-                :block="block"
-                @edit="openTextEditor(block)"
-              />
-              <ConcordLinksBlockCard v-else-if="block.type === 'link'" :block="block" />
-              <article v-else class="concord-agreement-editor__block-card">
-                <h3 class="concord-agreement-editor__block-title">{{ block.label }}</h3>
-                <p class="concord-agreement-editor__block-placeholder">Блок добавлен. Контент появится на следующем этапе.</p>
-              </article>
-            </template>
-          </div>
+          <template #default="{ expanded: sectionExpanded }">
+            <ConcordEditorBlocksList
+              v-if="section.blocks?.length"
+              :section="section"
+              :default-expand-first="sectionExpanded"
+            >
+              <template #preview="{ block }">
+                <template v-if="block.type === 'text'">
+                  <p class="concord-editor-block__text-title">{{ getTextBlockPreviewTitle(block) }}</p>
+                  <p v-if="getTextBlockPreviewExcerpt(block)" class="concord-editor-block__text-excerpt">
+                    {{ getTextBlockPreviewExcerpt(block) }}
+                  </p>
+                </template>
 
-          <BlockAddZone
-            :show-block-types="openBlockTypesSectionId === section.id"
-            :block-types="editorBlockTypes"
-            @toggle="toggleBlockTypes(section.id)"
-            @add="(blockType) => addBlock(section.id, blockType)"
-          />
+                <template v-else-if="block.type === 'gallery'">
+                  <p class="concord-editor-block__preview-meta">{{ getEditorBlockSummary(block) }}</p>
+                  <div v-if="(block.photos || []).length" class="concord-editor-block__gallery-preview">
+                    <div class="concord-editor-block__gallery-thumbs">
+                      <img
+                        v-for="photo in galleryPreviewPhotos(block)"
+                        :key="photo.id"
+                        :src="photo.previewUrl"
+                        :alt="photo.name"
+                      >
+                    </div>
+                    <span v-if="galleryMoreCount(block)" class="concord-editor-block__more-badge">
+                      +{{ galleryMoreCount(block) }}
+                    </span>
+                  </div>
+                </template>
+
+                <template v-else-if="block.type === 'files'">
+                  <p class="concord-editor-block__preview-meta">{{ getEditorBlockSummary(block) }}</p>
+                  <div v-if="(block.files || []).length" class="concord-editor-block__chips">
+                    <span
+                      v-for="file in filesPreviewItems(block)"
+                      :key="file.id"
+                      class="concord-editor-block__chip"
+                    >
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true">
+                        <path d="M8 3h6l5 5v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/>
+                        <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.4"/>
+                      </svg>
+                      <span class="concord-editor-block__chip-text">{{ file.name }}</span>
+                    </span>
+                    <span v-if="filesMoreCount(block)" class="concord-editor-block__more-badge">
+                      +{{ filesMoreCount(block) }}
+                    </span>
+                  </div>
+                </template>
+
+                <template v-else-if="block.type === 'link'">
+                  <p class="concord-editor-block__preview-meta">{{ getEditorBlockSummary(block) }}</p>
+                  <div v-if="(block.links || []).length" class="concord-editor-block__chips">
+                    <span
+                      v-for="link in linksPreviewItems(block)"
+                      :key="link.id"
+                      class="concord-editor-block__chip concord-editor-block__chip--url"
+                    >
+                      {{ link.url }}
+                    </span>
+                    <span v-if="linksMoreCount(block)" class="concord-editor-block__more-badge">
+                      +{{ linksMoreCount(block) }}
+                    </span>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <p class="concord-editor-block__preview-meta">{{ getEditorBlockSummary(block) || 'Блок добавлен' }}</p>
+                </template>
+              </template>
+
+              <template #default="{ block }">
+                <TextBlockInlineEditor v-if="block.type === 'text'" :block="block" />
+                <ConcordGalleryBlockCard v-else-if="block.type === 'gallery'" :block="block" />
+                <ConcordFilesBlockCard v-else-if="block.type === 'files'" :block="block" />
+                <ConcordLinksBlockCard v-else-if="block.type === 'link'" :block="block" />
+                <article v-else class="concord-agreement-editor__block-card">
+                  <p class="concord-agreement-editor__block-placeholder">
+                    Блок добавлен. Контент появится на следующем этапе.
+                  </p>
+                </article>
+              </template>
+            </ConcordEditorBlocksList>
+
+            <BlockAddZone
+              :show-block-types="openBlockTypesSectionId === section.id"
+              :block-types="editorBlockTypes"
+              @toggle="toggleBlockTypes(section.id)"
+              @add="(blockType) => addBlock(section.id, blockType)"
+            />
+          </template>
         </AgreementContainerCard>
       </div>
 
@@ -231,24 +345,34 @@ import BlockAddZone from '../concord/BlockAddZone.vue'
 import ConcordGalleryBlockCard from '../concord/ConcordGalleryBlockCard.vue'
 import ConcordLinksBlockCard from '../concord/ConcordLinksBlockCard.vue'
 import ConcordFilesBlockCard from '../concord/ConcordFilesBlockCard.vue'
-import ConcordTextBlockPreview from '../concord/ConcordTextBlockPreview.vue'
+import ConcordEditorBlocksList from '../concord/ConcordEditorBlocksList.vue'
+import {
+  getEditorBlockSummary,
+  getTextBlockPreviewExcerpt,
+  getTextBlockPreviewTitle,
+} from '../concord/editor-block-utils.js'
+import TextBlockInlineEditor from '../concord/TextBlockInlineEditor.vue'
+import AgreementApproverView from './AgreementApproverView.vue'
 import AgreementSettingsView from './AgreementSettingsView.vue'
 import SectionSettingsView from './SectionSettingsView.vue'
 import GroupsManageView from './GroupsManageView.vue'
 import GroupMembersView from './GroupMembersView.vue'
 import CreateGroupView from './CreateGroupView.vue'
 import TextBlockEditorSheet from '../concord/TextBlockEditorSheet.vue'
+import { resetConcordScrollPosition } from '../concord/scroll-top.js'
 
 export default {
   name: 'AgreementEditorView',
   components: {
     AgreementContainerCard,
+    AgreementApproverView,
     AgreementSettingsView,
     BlockAddZone,
     ConcordLinksBlockCard,
     ConcordFilesBlockCard,
+    ConcordEditorBlocksList,
     ConcordGalleryBlockCard,
-    ConcordTextBlockPreview,
+    TextBlockInlineEditor,
     CreateGroupView,
     GroupMembersView,
     GroupsManageView,
@@ -273,18 +397,22 @@ export default {
       default: '',
     },
   },
-  emits: ['back', 'add-block', 'add-section', 'update-section', 'create-group', 'update-group', 'launch'],
+  emits: ['back', 'add-block', 'add-section', 'delete-section', 'update-section', 'create-group', 'update-group', 'launch', 'update-agreement'],
   setup(props, { emit }) {
     const activeSectionId = ref(null)
     const openBlockTypesSectionId = ref(null)
     const editorMainRef = ref(null)
     const editorChromeRef = ref(null)
     const editorChromeHeight = ref(118)
+    const editorHeaderVisible = ref(true)
+    const editorTitleRef = ref(null)
+    const editorTitleTwoLines = ref(false)
     const sectionRefs = new Map()
     const isProgrammaticScroll = ref(false)
     let sectionObserver = null
     let chromeResizeObserver = null
     let scrollFrame = null
+    let lastScrollY = 0
     const editorBlockTypes = AGREEMENT_EDITOR_BLOCK_TYPES
     const editorIntro = AGREEMENT_EDITOR_INTRO
 
@@ -300,6 +428,13 @@ export default {
 
     const textEditorOpen = ref(false)
     const editingTextBlock = ref(null)
+    const sectionPreviewOpen = ref(false)
+    const previewSectionId = ref(null)
+
+    const descriptionRef = ref(null)
+    const descriptionExpanded = ref(false)
+    const descriptionOverflows = ref(false)
+    const descriptionCollapsible = ref(false)
 
     const showEditorSurface = computed(() =>
       Boolean(
@@ -309,6 +444,7 @@ export default {
         && !sectionGroupPickerOpen.value
         && !sectionGroupCreateOpen.value
         && !sectionGroupMembersOpen.value
+        && !sectionPreviewOpen.value
       )
     )
 
@@ -319,6 +455,8 @@ export default {
     const activeSection = computed(() =>
       props.agreement?.sections?.find((item) => item.id === activeSectionId.value) || null
     )
+
+    const previewAgreement = computed(() => props.agreement || null)
 
     const firstSectionHasBlocks = computed(() => (props.agreement?.sections?.[0]?.blocks?.length || 0) > 0)
 
@@ -332,9 +470,15 @@ export default {
 
     const showSectionTabs = computed(() => sectionCount.value > 1)
 
-    const showNewContainer = computed(() => hasAnySectionWithBlocks.value || sectionCount.value > 1)
+    const showNewContainer = computed(() => hasAnySectionWithBlocks.value || sectionCount.value !== 1)
 
-    const canLaunch = computed(() => props.agreement?.status === 'draft')
+    const canLaunch = computed(() => {
+      const status = props.agreement?.status
+      return Boolean(
+        props.agreement?.isOwner
+        && !['awaiting', 'approved', 'completed', 'expired', 'archived'].includes(status)
+      )
+    })
 
     const editorPageStyle = computed(() => ({
       '--concord-editor-scroll-anchor-offset': `${editorChromeHeight.value + 8}px`,
@@ -343,6 +487,36 @@ export default {
     const editingGroup = computed(() =>
       props.groups.find((item) => item.id === editingGroupId.value) || null
     )
+
+    function updateDescriptionOverflow() {
+      nextTick(() => {
+        const el = descriptionRef.value
+        if (!el) {
+          descriptionOverflows.value = false
+          descriptionCollapsible.value = false
+          return
+        }
+        if (descriptionExpanded.value) {
+          descriptionOverflows.value = false
+          return
+        }
+        const overflows = el.scrollHeight > el.clientHeight + 1
+        descriptionOverflows.value = overflows
+        if (overflows) {
+          descriptionCollapsible.value = true
+        }
+      })
+    }
+
+    function expandDescription() {
+      descriptionExpanded.value = true
+      descriptionOverflows.value = false
+    }
+
+    function collapseDescription() {
+      descriptionExpanded.value = false
+      updateDescriptionOverflow()
+    }
 
     watch(
       () => props.agreement,
@@ -358,12 +532,34 @@ export default {
           openBlockTypesSectionId.value = firstSectionId.value
         }
         nextTick(() => {
-          setupChromeResizeObserver()
+          setupEditorChromeResizeObserver()
           setupSectionObserver()
+          updateDescriptionOverflow()
+          updateEditorTitleLines()
         })
       },
       { immediate: true }
     )
+
+    watch(
+      () => props.agreement?.description,
+      () => {
+        descriptionExpanded.value = false
+        descriptionCollapsible.value = false
+        updateDescriptionOverflow()
+      }
+    )
+
+    watch(
+      () => props.agreement?.title,
+      () => updateEditorTitleLines()
+    )
+
+    watch(showDraftIntro, (visible) => {
+      if (visible) {
+        updateDescriptionOverflow()
+      }
+    })
 
     watch(firstSectionHasBlocks, (value, prev) => {
       if (!isDraft.value || sectionCount.value !== 1) {
@@ -383,7 +579,7 @@ export default {
       editorChromeHeight.value = measured || 118
     }
 
-    function setupChromeResizeObserver() {
+    function setupEditorChromeResizeObserver() {
       chromeResizeObserver?.disconnect()
       updateEditorChromeHeight()
       if (!editorChromeRef.value || typeof ResizeObserver === 'undefined') {
@@ -395,9 +591,39 @@ export default {
       chromeResizeObserver.observe(editorChromeRef.value)
     }
 
+    function resetEditorHeaderVisibility() {
+      lastScrollY = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
+      editorHeaderVisible.value = true
+    }
+
     function getSectionObserverMargin() {
       const offset = Math.max(editorChromeHeight.value + 8, 72)
       return `-${offset}px 0px -55% 0px`
+    }
+
+    function updateEditorTitleLines() {
+      nextTick(() => {
+        const title = editorTitleRef.value
+        if (!title || typeof document === 'undefined') {
+          return
+        }
+
+        const probe = title.cloneNode(true)
+        Object.assign(probe.style, {
+          position: 'fixed',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+          display: 'block',
+          width: `${title.clientWidth}px`,
+          overflow: 'visible',
+          whiteSpace: 'nowrap',
+          WebkitLineClamp: 'unset',
+          lineClamp: 'unset',
+        })
+        document.body.appendChild(probe)
+        editorTitleTwoLines.value = probe.scrollWidth > probe.clientWidth + 1
+        probe.remove()
+      })
     }
 
     function sectionAnchorId(sectionId) {
@@ -474,6 +700,15 @@ export default {
       }
       scrollFrame = requestAnimationFrame(() => {
         scrollFrame = null
+        const currentY = window.scrollY || document.documentElement.scrollTop || 0
+        if (currentY <= 4) {
+          editorHeaderVisible.value = true
+        } else if (currentY > lastScrollY + 6) {
+          editorHeaderVisible.value = false
+        } else if (currentY < lastScrollY - 6) {
+          editorHeaderVisible.value = true
+        }
+        lastScrollY = currentY
         updateActiveSectionFromScroll()
       })
     }
@@ -515,13 +750,20 @@ export default {
     }
 
     onMounted(() => {
-      nextTick(() => {
-        setupChromeResizeObserver()
-        setupSectionObserver()
-        updateActiveSectionFromScroll()
+      resetConcordScrollPosition()
+      requestAnimationFrame(() => {
+        resetEditorHeaderVisibility()
+        nextTick(() => {
+          setupEditorChromeResizeObserver()
+          setupSectionObserver()
+          updateActiveSectionFromScroll()
+          updateDescriptionOverflow()
+          updateEditorTitleLines()
+        })
       })
       window.addEventListener('scroll', onScroll, { passive: true })
       document.addEventListener('scroll', onScroll, { passive: true, capture: true })
+      window.addEventListener('resize', updateEditorTitleLines, { passive: true })
     })
 
     onBeforeUnmount(() => {
@@ -529,6 +771,7 @@ export default {
       chromeResizeObserver?.disconnect()
       window.removeEventListener('scroll', onScroll)
       document.removeEventListener('scroll', onScroll, true)
+      window.removeEventListener('resize', updateEditorTitleLines)
       if (scrollFrame) {
         cancelAnimationFrame(scrollFrame)
       }
@@ -538,17 +781,26 @@ export default {
       if (!visible) {
         return
       }
-      nextTick(() => {
-        setupChromeResizeObserver()
-        setupSectionObserver()
+      resetConcordScrollPosition()
+      requestAnimationFrame(() => {
+        resetEditorHeaderVisibility()
+        nextTick(() => {
+          setupEditorChromeResizeObserver()
+          setupSectionObserver()
+        })
       })
     })
 
     watch(showSectionTabs, () => {
+      resetEditorHeaderVisibility()
       nextTick(() => {
-        setupChromeResizeObserver()
+        setupEditorChromeResizeObserver()
         setupSectionObserver()
       })
+    })
+
+    watch(editorHeaderVisible, () => {
+      nextTick(updateEditorChromeHeight)
     })
 
     watch(editorChromeHeight, () => {
@@ -557,6 +809,10 @@ export default {
 
     function openAgreementSettings() {
       agreementSettingsOpen.value = true
+      nextTick(() => {
+        resetConcordScrollPosition()
+        requestAnimationFrame(resetConcordScrollPosition)
+      })
     }
 
     function closeAgreementSettings() {
@@ -569,6 +825,13 @@ export default {
       }
       props.agreement.title = payload.title
       props.agreement.description = payload.description
+      props.agreement.startDate = payload.startDate || ''
+      props.agreement.deadline = payload.deadline || ''
+      props.agreement.isUrgent = Boolean(payload.isImportant)
+      if (payload.daysLabel) {
+        props.agreement.daysLabel = payload.daysLabel
+      }
+      emit('update-agreement')
     }
 
     function goBack() {
@@ -594,6 +857,33 @@ export default {
       openBlockTypesSectionId.value = null
     }
 
+    function galleryPreviewPhotos(block) {
+      return (block.photos || []).slice(0, 4)
+    }
+
+    function galleryMoreCount(block) {
+      const total = block.photos?.length || 0
+      return total > 4 ? total - 4 : 0
+    }
+
+    function filesPreviewItems(block) {
+      return (block.files || []).slice(0, 2)
+    }
+
+    function filesMoreCount(block) {
+      const total = block.files?.length || 0
+      return total > 2 ? total - 2 : 0
+    }
+
+    function linksPreviewItems(block) {
+      return (block.links || []).slice(0, 2)
+    }
+
+    function linksMoreCount(block) {
+      const total = block.links?.length || 0
+      return total > 2 ? total - 2 : 0
+    }
+
     function openTextEditor(block) {
       editingTextBlock.value = block
       textEditorOpen.value = true
@@ -616,6 +906,25 @@ export default {
     function openSectionSettings(sectionId) {
       activeSectionId.value = sectionId
       sectionSettingsOpen.value = true
+      nextTick(() => {
+        resetConcordScrollPosition()
+        requestAnimationFrame(resetConcordScrollPosition)
+      })
+    }
+
+    function openSectionPreview(sectionId) {
+      previewSectionId.value = sectionId
+      sectionPreviewOpen.value = true
+    }
+
+    function closeSectionPreview() {
+      sectionPreviewOpen.value = false
+      previewSectionId.value = null
+    }
+
+    function openPreviewSectionSettings(sectionId) {
+      closeSectionPreview()
+      nextTick(() => openSectionSettings(sectionId))
     }
 
     function closeSectionSettings() {
@@ -633,6 +942,17 @@ export default {
       if (payload.settings?.isImportant !== undefined) {
         props.agreement.isUrgent = payload.settings.isImportant
       }
+    }
+
+    function onSectionDelete(sectionId) {
+      if (!sectionId) {
+        return
+      }
+      emit('delete-section', sectionId)
+      if (activeSectionId.value === sectionId) {
+        activeSectionId.value = props.agreement?.sections?.[0]?.id || null
+      }
+      closeSectionSettings()
     }
 
     function openSectionGroupPicker(groupIds = []) {
@@ -703,7 +1023,7 @@ export default {
         if (length > prev && props.agreement?.sections?.length) {
           const newSection = props.agreement.sections[props.agreement.sections.length - 1]
           nextTick(() => {
-            setupChromeResizeObserver()
+            setupEditorChromeResizeObserver()
             setupSectionObserver()
             scrollToSection(newSection.id)
             if (isDraft.value) {
@@ -716,7 +1036,7 @@ export default {
 
     watch(sectionCount, () => {
       nextTick(() => {
-        setupChromeResizeObserver()
+        setupEditorChromeResizeObserver()
         setupSectionObserver()
       })
     })
@@ -724,10 +1044,16 @@ export default {
     return {
       activeSectionId,
       activeSection,
+      sectionPreviewOpen,
+      previewAgreement,
       showEditorSurface,
       firstSectionId,
       editorMainRef,
+      editorChromeRef,
+      editorTitleRef,
+      editorTitleTwoLines,
       editorChromeHeight,
+      editorHeaderVisible,
       editorPageStyle,
       isDraft,
       showDraftIntro,
@@ -744,6 +1070,12 @@ export default {
       toggleBlockTypes,
       editorBlockTypes,
       editorIntro,
+      descriptionRef,
+      descriptionExpanded,
+      descriptionOverflows,
+      descriptionCollapsible,
+      expandDescription,
+      collapseDescription,
       agreementSettingsOpen,
       sectionSettingsOpen,
       sectionSettingsRef,
@@ -759,12 +1091,25 @@ export default {
       closeAgreementSettings,
       onAgreementSettingsSave,
       addBlock,
+      getEditorBlockSummary,
+      getTextBlockPreviewTitle,
+      getTextBlockPreviewExcerpt,
+      galleryPreviewPhotos,
+      galleryMoreCount,
+      filesPreviewItems,
+      filesMoreCount,
+      linksPreviewItems,
+      linksMoreCount,
       openTextEditor,
       closeTextEditor,
       openNewSection,
+      openSectionPreview,
+      closeSectionPreview,
+      openPreviewSectionSettings,
       openSectionSettings,
       closeSectionSettings,
       onSectionSettingsSave,
+      onSectionDelete,
       openSectionGroupPicker,
       closeSectionGroupPicker,
       onSectionGroupsConfirm,
