@@ -452,7 +452,10 @@ export default {
       const remaining = daysRemaining.value
       return remaining !== null && remaining < 0
     })
-    const isUrgent = computed(() => Boolean(props.agreement?.isUrgent || isDeadlineSoon.value))
+    const isUrgent = computed(() => Boolean(
+      (props.agreement?.isUrgent && !props.agreement?.urgentAcknowledged)
+      || isDeadlineSoon.value
+    ))
 
     function isActiveSection(section) {
       const participants = resolveSectionParticipants(section, [], MOCK_CONTACTS)

@@ -390,6 +390,7 @@ export function formatStatusFilterLabel(status, match = 'is') {
  * @property {string} deadline
  * @property {string} daysLabel
  * @property {boolean} isUrgent
+ * @property {boolean} [urgentAcknowledged] True after the user opens an urgent agreement; hides the red urgency mark until urgency is set again.
  * @property {PersonRef} author
  * @property {PersonRef[]} participants
  * @property {AgreementStatus} status

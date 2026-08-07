@@ -203,11 +203,30 @@ export default {
   },
   setup() {
     const { agreements, loading: agreementsLoading, persist } = useConcordAgreements()
-    const splashVisible = ref(true)
+    const SPLASH_STORAGE_KEY = 'concord_splash_seen_v1'
+
+    function hasSeenSplash() {
+      try {
+        return window.localStorage.getItem(SPLASH_STORAGE_KEY) === '1'
+      } catch {
+        return false
+      }
+    }
+
+    function markSplashSeen() {
+      try {
+        window.localStorage.setItem(SPLASH_STORAGE_KEY, '1')
+      } catch {
+        // ignore private mode / quota errors in preview
+      }
+    }
+
+    const splashVisible = ref(typeof window !== 'undefined' ? !hasSeenSplash() : false)
     const splashReady = computed(() => !agreementsLoading.value)
 
     function onSplashDone() {
       splashVisible.value = false
+      markSplashSeen()
     }
     const { profileGroups } = useConcordGroups()
     const filterSections = ref(
@@ -505,12 +524,21 @@ export default {
       }
     }
 
+    function acknowledgeAgreementUrgent(agreement) {
+      if (!agreement?.isUrgent || agreement.urgentAcknowledged) {
+        return
+      }
+      agreement.urgentAcknowledged = true
+      persist()
+    }
+
     function onOpenAgreement(target) {
       const id = typeof target === 'object' ? target.id : target
       const item = agreements.value.find((agreement) => agreement.id === id)
       if (!item) {
         return
       }
+      acknowledgeAgreementUrgent(item)
       searchTargetSectionId.value = typeof target === 'object' ? target.sectionId || null : null
       viewTransitionAgreementId.value = id
       const open = () => {
@@ -708,6 +736,8 @@ export default {
         }
         if (settings.isImportant !== undefined) {
           agreement.isUrgent = settings.isImportant
+          // Re-show the urgency mark until the agreement is opened again.
+          agreement.urgentAcknowledged = !settings.isImportant
         }
       }
       persist()

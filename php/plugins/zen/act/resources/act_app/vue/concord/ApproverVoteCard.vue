@@ -107,7 +107,10 @@ export default {
     const daysRemaining = computed(() => getAgreementDaysRemaining(props.agreement.deadline))
     const isDeadlineSoon = computed(() => isAgreementDeadlineSoon(props.agreement.deadline))
     const isDeadlineOverdue = computed(() => daysRemaining.value !== null && daysRemaining.value < 0)
-    const showUrgency = computed(() => Boolean(props.agreement.isUrgent || isDeadlineSoon.value))
+    const showUrgency = computed(() => Boolean(
+      (props.agreement.isUrgent && !props.agreement.urgentAcknowledged)
+      || isDeadlineSoon.value
+    ))
 
     const statusLabel = computed(() => {
       if (props.userVote?.decision === 'approved') {

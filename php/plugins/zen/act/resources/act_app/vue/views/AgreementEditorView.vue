@@ -839,6 +839,7 @@ export default {
       props.agreement.startDate = payload.startDate || ''
       props.agreement.deadline = payload.deadline || ''
       props.agreement.isUrgent = Boolean(payload.isImportant)
+      props.agreement.urgentAcknowledged = !payload.isImportant
       if (payload.daysLabel) {
         props.agreement.daysLabel = payload.daysLabel
       }
@@ -952,6 +953,7 @@ export default {
       })
       if (payload.settings?.isImportant !== undefined) {
         props.agreement.isUrgent = payload.settings.isImportant
+        props.agreement.urgentAcknowledged = !payload.settings.isImportant
       }
     }
 

@@ -304,7 +304,7 @@ export default {
       return this.daysRemaining !== null && this.daysRemaining < 0
     },
     showFlame() {
-      return Boolean(this.agreement.isUrgent)
+      return Boolean(this.agreement.isUrgent && !this.agreement.urgentAcknowledged)
     },
     isOwnerApproved() {
       return this.agreement.isOwner && this.agreement.status === 'approved'
