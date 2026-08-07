@@ -148,19 +148,18 @@
       @update:query="searchQuery = $event"
       @update:scope="searchScope = $event"
     >
-      <AgreementCard
-        v-for="item in searchResults"
-        :key="`search-${item.id}`"
-        :agreement="item"
-        :groups="groups"
-        :contacts="contacts"
+      <ConcordSearchResultCard
+        v-for="result in searchQuery.trim() ? searchResults : []"
+        :key="`search-${result.agreement.id}`"
+        :result="result"
+        :query="searchQuery"
         @open="onOpenAgreement"
-        @toggle-favorite="toggleFavorite"
-        @duplicate="onDuplicate"
-        @edit="onEdit"
       />
       <p v-if="searchQuery.trim() && searchResults.length === 0" class="concord-empty">
         Ничего не найдено.
+      </p>
+      <p v-else-if="!searchQuery.trim()" class="concord-search-empty">
+        Ищите по номеру, названию, автору или содержимому разделов.
       </p>
     </ConcordSearchOverlay>
   </div>
@@ -170,17 +169,19 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AgreementCard from '../concord/AgreementCard.vue'
 import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
+import ConcordSearchResultCard from '../concord/ConcordSearchResultCard.vue'
 import { useTabsScrollHint } from '../composables/useTabsScrollHint.js'
 import {
   buildTopTabsFromSections,
   filterAgreements,
+  getAgreementSearchMatch,
   groupAgreementsByDate,
   sortAgreements,
 } from '../concord/mock-agreements.js'
 
 export default {
   name: 'AgreementsListView',
-  components: { AgreementCard, ConcordSearchOverlay },
+  components: { AgreementCard, ConcordSearchOverlay, ConcordSearchResultCard },
   props: {
     agreements: {
       type: Array,
@@ -308,7 +309,11 @@ export default {
 
     const searchResults = computed(() => {
       const list = filterAgreements(props.agreements, activeTab.value, searchQuery.value, searchScope.value)
-      return sortActive.value ? sortAgreements(list, sortOrder.value) : list
+      const sorted = sortActive.value ? sortAgreements(list, sortOrder.value) : list
+      return sorted.map((agreement) => ({
+        agreement,
+        match: getAgreementSearchMatch(agreement, searchQuery.value, searchScope.value),
+      }))
     })
 
     function toggleFavorite(id) {
@@ -320,8 +325,15 @@ export default {
       searchQuery.value = ''
     }
 
-    function onOpenAgreement(id) {
-      emit('open-agreement', id)
+    function onOpenAgreement(target) {
+      const id = typeof target === 'object' ? target.agreement?.id : target
+      if (!id) {
+        return
+      }
+      emit('open-agreement', {
+        id,
+        sectionId: typeof target === 'object' ? target.match?.sectionId || null : null,
+      })
     }
 
     function onEdit(id) {

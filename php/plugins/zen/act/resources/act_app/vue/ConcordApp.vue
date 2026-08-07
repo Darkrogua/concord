@@ -90,6 +90,7 @@
       :agreement="editingAgreement"
       :contacts="groupContacts"
       :groups="profileGroups"
+      :initial-section-id="searchTargetSectionId"
       :view-transition-name="viewTransitionAgreementId ? 'concord-agreement-card' : ''"
       @back="onAgreementEditorBack"
       @add-block="onAddAgreementBlock"
@@ -106,6 +107,7 @@
     <AgreementApproverView
       v-else-if="currentView === 'agreement-editor' && editingAgreement && !editingAgreement.isOwner"
       :agreement="editingAgreement"
+      :initial-section-id="searchTargetSectionId"
       :view-transition-name="viewTransitionAgreementId ? 'concord-agreement-card' : ''"
       @back="onAgreementEditorBack"
       @vote="onVote"
@@ -209,6 +211,7 @@ export default {
 
     const currentView = ref('list')
     const editingAgreementId = ref(null)
+    const searchTargetSectionId = ref(null)
     const viewTransitionAgreementId = ref(null)
     const newlyCreatedAgreementId = ref(null)
     const editingSectionId = ref(null)
@@ -488,11 +491,13 @@ export default {
       }
     }
 
-    function onOpenAgreement(id) {
+    function onOpenAgreement(target) {
+      const id = typeof target === 'object' ? target.id : target
       const item = agreements.value.find((agreement) => agreement.id === id)
       if (!item) {
         return
       }
+      searchTargetSectionId.value = typeof target === 'object' ? target.sectionId || null : null
       viewTransitionAgreementId.value = id
       const open = () => {
         ensureAgreementSections(item)
@@ -772,6 +777,7 @@ export default {
       onVote,
       editingAgreement,
       editingAgreementId,
+      searchTargetSectionId,
       onCreateAccount,
       onNotifications,
       notificationSections,

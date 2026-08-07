@@ -392,6 +392,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    initialSectionId: {
+      type: String,
+      default: null,
+    },
     viewTransitionName: {
       type: String,
       default: '',
@@ -525,7 +529,11 @@ export default {
           return
         }
         ensureAgreementSections(agreement)
-        if (!activeSectionId.value || !agreement.sections.some((item) => item.id === activeSectionId.value)) {
+        const hasInitialSection = props.initialSectionId
+          && agreement.sections.some((item) => item.id === props.initialSectionId)
+        if (hasInitialSection) {
+          activeSectionId.value = props.initialSectionId
+        } else if (!activeSectionId.value || !agreement.sections.some((item) => item.id === activeSectionId.value)) {
           activeSectionId.value = agreement.sections[0]?.id || null
         }
         if (showDraftIntro.value && firstSectionId.value) {
@@ -534,6 +542,9 @@ export default {
         nextTick(() => {
           setupEditorChromeResizeObserver()
           setupSectionObserver()
+          if (hasInitialSection) {
+            scrollToSection(props.initialSectionId)
+          }
           updateDescriptionOverflow()
           updateEditorTitleLines()
         })

@@ -1535,6 +1535,112 @@
   padding-bottom: 16px;
 }
 
+.concord-search-result {
+  width: 100%;
+  border: 1px solid var(--concord-card-border);
+  border-radius: 14px;
+  background: var(--concord-card-bg);
+  box-shadow: var(--concord-card-shadow);
+  overflow: hidden;
+}
+
+.concord-search-result__button {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 38px 12px 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.concord-search-result__button:active {
+  background: color-mix(in srgb, var(--concord-primary) 8%, transparent);
+}
+
+.concord-search-result__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--concord-text-secondary);
+  font-size: 12px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 16px;
+}
+
+.concord-search-result__number {
+  color: var(--concord-card-number);
+  flex-shrink: 0;
+}
+
+.concord-search-result__status,
+.concord-search-result__deadline {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.concord-search-result__deadline {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.concord-search-result__title {
+  margin: 5px 0 4px;
+  color: var(--concord-text);
+  font-size: 15px;
+  font-weight: var(--concord-weight-bold);
+  line-height: 20px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.concord-search-result__context {
+  display: flex;
+  gap: 5px;
+  margin: 0;
+  color: var(--concord-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.concord-search-result__context-label {
+  color: var(--concord-primary);
+  font-weight: var(--concord-weight-semibold);
+  flex-shrink: 0;
+}
+
+.concord-search-result__context-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.concord-search-result__highlight {
+  padding: 0;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--concord-primary) 20%, transparent);
+  color: inherit;
+  font: inherit;
+}
+
+.concord-search-result__arrow {
+  position: absolute;
+  top: 50%;
+  right: 11px;
+  transform: translateY(-50%);
+  color: var(--concord-text-secondary);
+}
+
 .concord-sheet-backdrop {
   position: fixed;
   inset: 0;
@@ -1633,6 +1739,15 @@
   font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-regular);
   line-height: var(--concord-leading-body);
+}
+
+.concord-search-empty {
+  max-width: 260px;
+  margin: 36px auto;
+  color: var(--concord-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: center;
 }
 
 .concord-header--editor {
@@ -7800,6 +7915,75 @@
   border-radius: 16px 16px 0 0;
   background: var(--concord-surface);
   pointer-events: auto;
+}
+
+.concord-agreement-info-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: min(72dvh, 560px);
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.concord-agreement-info-sheet__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--concord-text-secondary);
+  font-size: 13px;
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-agreement-info-sheet__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px -4px -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--concord-text-secondary);
+  cursor: pointer;
+}
+
+.concord-agreement-info-sheet__close:active {
+  background: var(--concord-surface-muted);
+}
+
+.concord-agreement-info-sheet__title {
+  margin: 0;
+  color: var(--concord-text);
+  font-size: 20px;
+  font-weight: var(--concord-weight-bold);
+  line-height: 26px;
+  overflow-wrap: anywhere;
+}
+
+.concord-agreement-info-sheet__description {
+  margin: 0;
+  overflow-y: auto;
+  color: var(--concord-text-secondary);
+  font-size: 15px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.concord-agreement-info-sheet__done {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--concord-primary);
+  color: #fff;
+  font: inherit;
+  font-weight: var(--concord-weight-semibold);
+  cursor: pointer;
 }
 
 .concord-sheet-backdrop--blur {

@@ -335,10 +335,22 @@
     />
 
     <div v-if="menuOpen" class="concord-sheet-backdrop" @click="menuOpen = false" />
-    <div v-if="menuOpen" class="concord-menu-sheet" role="dialog" aria-label="Меню согласования">
+    <div v-if="menuOpen" class="concord-menu-sheet concord-agreement-info-sheet" role="dialog" aria-modal="true" aria-label="О согласовании">
       <div class="concord-sheet__handle" aria-hidden="true" />
-      <button type="button" class="concord-menu-sheet__item" @click="menuOpen = false">
-        Закрыть
+      <div class="concord-agreement-info-sheet__heading">
+        <span>О согласовании</span>
+        <button type="button" class="concord-agreement-info-sheet__close" aria-label="Закрыть" @click="menuOpen = false">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+            <path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <h2 class="concord-agreement-info-sheet__title">{{ agreement?.title || 'Без названия' }}</h2>
+      <p class="concord-agreement-info-sheet__description">
+        {{ agreement?.description || 'Описание не добавлено.' }}
+      </p>
+      <button type="button" class="concord-agreement-info-sheet__done" @click="menuOpen = false">
+        Готово
       </button>
     </div>
   </div>
@@ -641,9 +653,7 @@ export default {
             expandedSections[section.id] = true
           }
         }
-        const initialSectionId = props.preview && props.initialSectionId
-          ? props.initialSectionId
-          : null
+        const initialSectionId = props.initialSectionId
         const hasInitialSection = initialSectionId
           && agreement.sections.some((item) => item.id === initialSectionId)
         if (hasInitialSection) {

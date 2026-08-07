@@ -1356,6 +1356,94 @@ function collectAgreementContentParts(agreement) {
   return parts.filter(Boolean)
 }
 
+function makeSearchPreview(value, query) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim()
+  const normalized = text.toLowerCase()
+  const index = normalized.indexOf(query)
+  if (index === -1) {
+    return text.slice(0, 120)
+  }
+
+  const start = Math.max(0, index - 42)
+  const end = Math.min(text.length, index + query.length + 62)
+  return `${start > 0 ? '…' : ''}${text.slice(start, end)}${end < text.length ? '…' : ''}`
+}
+
+/**
+ * Describes the first place an agreement matches a query for search results.
+ * @param {object} agreement
+ * @param {string} query
+ * @param {SearchScopeId} [searchScope]
+ */
+export function getAgreementSearchMatch(agreement, query, searchScope = 'content') {
+  const q = String(query || '').trim().toLowerCase()
+  if (!q) {
+    return null
+  }
+
+  const title = String(agreement.title || '')
+  if (title.toLowerCase().includes(q)) {
+    return { kind: 'title', label: 'В названии', preview: title, sectionId: null }
+  }
+
+  const author = String(agreement.author?.name || '')
+  if (author.toLowerCase().includes(q)) {
+    return { kind: 'author', label: 'Автор', preview: author, sectionId: null }
+  }
+
+  if (String(agreement.number || '').includes(q)) {
+    return { kind: 'number', label: 'Номер согласования', preview: `#${agreement.number}`, sectionId: null }
+  }
+
+  if (searchScope === 'title') {
+    return null
+  }
+
+  if (String(agreement.description || '').toLowerCase().includes(q)) {
+    return {
+      kind: 'description',
+      label: 'В описании',
+      preview: makeSearchPreview(agreement.description, q),
+      sectionId: null,
+    }
+  }
+
+  for (const section of agreement.sections || []) {
+    if (String(section.title || '').toLowerCase().includes(q)) {
+      return {
+        kind: 'section',
+        label: `Раздел «${section.title}»`,
+        preview: section.title,
+        sectionId: section.id,
+      }
+    }
+
+    for (const block of section.blocks || []) {
+      const fields = [
+        ['Блок', block.label],
+        ['Блок', block.title],
+        ['Текст раздела', block.description],
+        ['Текст раздела', block.content],
+        ['Файл', ...(block.files || []).map((file) => file.name)],
+        ['Ссылка', ...(block.items || []).map((item) => item.label)],
+      ]
+
+      for (const [kind, value] of fields) {
+        if (String(value || '').toLowerCase().includes(q)) {
+          return {
+            kind: 'content',
+            label: `${kind} · ${section.title || 'Раздел'}`,
+            preview: makeSearchPreview(value, q),
+            sectionId: section.id,
+          }
+        }
+      }
+    }
+  }
+
+  return null
+}
+
 /**
  * @param {object} agreement
  */
