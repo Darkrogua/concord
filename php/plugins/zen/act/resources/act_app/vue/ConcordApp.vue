@@ -1,5 +1,11 @@
 <template>
   <div class="concord-app">
+    <ConcordSplashScreen
+      v-if="splashVisible"
+      :ready="splashReady"
+      @done="onSplashDone"
+    />
+
     <AgreementsListView
       v-if="currentView === 'list'"
       :agreements="agreements"
@@ -161,6 +167,7 @@ import GroupMembersView from './views/GroupMembersView.vue'
 import CreateGroupView from './views/CreateGroupView.vue'
 import AccountSwitcherSheet from './concord/AccountSwitcherSheet.vue'
 import ConcordBottomNav from './concord/ConcordBottomNav.vue'
+import ConcordSplashScreen from './concord/ConcordSplashScreen.vue'
 import { formatAccountNavLabel, getAccountById } from './concord/mock-accounts.js'
 import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, formatDateRu, getNextAgreementNumber } from './concord/mock-agreements.js'
 import { useConcordAgreements } from './composables/useConcordAgreements.js'
@@ -192,9 +199,16 @@ export default {
     CreateGroupView,
     AccountSwitcherSheet,
     ConcordBottomNav,
+    ConcordSplashScreen,
   },
   setup() {
     const { agreements, loading: agreementsLoading, persist } = useConcordAgreements()
+    const splashVisible = ref(true)
+    const splashReady = computed(() => !agreementsLoading.value)
+
+    function onSplashDone() {
+      splashVisible.value = false
+    }
     const { profileGroups } = useConcordGroups()
     const filterSections = ref(
       DEFAULT_FILTER_SECTIONS.map((section) => ({
@@ -723,6 +737,9 @@ export default {
     }
 
     return {
+      splashVisible,
+      splashReady,
+      onSplashDone,
       agreements,
       agreementsLoading,
       filterSections,
