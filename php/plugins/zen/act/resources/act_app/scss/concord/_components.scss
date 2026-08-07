@@ -37,6 +37,80 @@
   color: var(--concord-text);
 }
 
+.concord-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.concord-header__brand-name {
+  font-size: var(--concord-text-title);
+  font-weight: var(--concord-weight-bold);
+  line-height: var(--concord-leading-tight);
+  letter-spacing: var(--concord-tracking-title);
+  color: var(--concord-text);
+}
+
+/* Static Concord mark (header / brand lockups) */
+.concord-logo-mark {
+  --logo-tick-w: 2.5px;
+  --logo-tick-h: 7px;
+  --logo-tick-radius: 9.5px;
+  --logo-check-inset: 6px;
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+}
+
+.concord-logo-mark--sm {
+  width: 28px;
+  height: 28px;
+  --logo-tick-w: 2.5px;
+  --logo-tick-h: 7px;
+  --logo-tick-radius: 9.5px;
+  --logo-check-inset: 6px;
+}
+
+.concord-logo-mark--md {
+  width: 36px;
+  height: 36px;
+  --logo-tick-w: 3px;
+  --logo-tick-h: 9px;
+  --logo-tick-radius: 12px;
+  --logo-check-inset: 8px;
+}
+
+.concord-logo-mark--lg {
+  width: 56px;
+  height: 56px;
+  --logo-tick-w: 4px;
+  --logo-tick-h: 14px;
+  --logo-tick-radius: 19px;
+  --logo-check-inset: 12px;
+}
+
+.concord-logo-mark__tick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--logo-tick-w);
+  height: var(--logo-tick-h);
+  margin: calc(var(--logo-tick-h) / -2) 0 0 calc(var(--logo-tick-w) / -2);
+  border-radius: 999px;
+  background: var(--tick-color, #2563eb);
+  transform: rotate(var(--tick-angle)) translateY(calc(var(--logo-tick-radius) * -1));
+}
+
+.concord-logo-mark__check {
+  position: absolute;
+  inset: var(--logo-check-inset);
+  width: calc(100% - var(--logo-check-inset) * 2);
+  height: calc(100% - var(--logo-check-inset) * 2);
+}
+
 .concord-header__actions {
   display: flex;
   align-items: center;
@@ -8068,8 +8142,11 @@
 }
 
 /* ── Splash / logo intro ─────────────────────────────────────────── */
+/* One shared 3.4s timeline — no staggered delays between parts. */
 
 .concord-splash {
+  --splash-duration: 3400ms;
+  --splash-ease: cubic-bezier(0.4, 0, 0.2, 1);
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -8079,7 +8156,7 @@
   background:
     radial-gradient(120% 80% at 50% 35%, #ffffff 0%, #f3f6fb 55%, #e8eef8 100%);
   opacity: 1;
-  transition: opacity 420ms var(--concord-motion-ease);
+  transition: opacity 380ms var(--concord-motion-ease);
 }
 
 .concord-splash--leaving {
@@ -8089,7 +8166,7 @@
 
 .concord-splash-enter-active,
 .concord-splash-leave-active {
-  transition: opacity 420ms var(--concord-motion-ease);
+  transition: opacity 380ms var(--concord-motion-ease);
 }
 
 .concord-splash-enter-from,
@@ -8111,6 +8188,12 @@
   height: 120px;
 }
 
+.concord-splash__rings,
+.concord-splash__ticks {
+  position: absolute;
+  inset: 0;
+}
+
 .concord-splash__dot {
   position: absolute;
   left: 50%;
@@ -8120,10 +8203,9 @@
   margin: calc(var(--dot-size, 6px) / -2) 0 0 calc(var(--dot-size, 6px) / -2);
   border-radius: 999px;
   background: var(--dot-color, #2563eb);
-  transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(0.85);
   opacity: 0;
-  animation: concord-splash-dot 1600ms cubic-bezier(0.22, 0.9, 0.28, 1) var(--dot-delay, 0ms) forwards;
-  will-change: transform, opacity, filter, width, height;
+  transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(0.7);
+  animation: concord-splash-dot var(--splash-duration) var(--splash-ease) forwards;
 }
 
 .concord-splash__tick {
@@ -8131,20 +8213,17 @@
   left: 50%;
   top: 50%;
   width: 5px;
-  height: 16px;
-  margin: -8px 0 0 -2.5px;
+  height: 17px;
+  margin: -8.5px 0 0 -2.5px;
   border-radius: 999px;
   background: var(--tick-color, #2563eb);
-  transform-origin: 50% 50%;
-  transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.4);
   opacity: 0;
-  animation: concord-splash-tick 2200ms cubic-bezier(0.22, 0.9, 0.28, 1) 700ms forwards;
-  will-change: transform, opacity;
+  transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.55);
+  animation: concord-splash-tick var(--splash-duration) var(--splash-ease) forwards;
 }
 
 .concord-splash__tick--gap {
   animation-name: concord-splash-tick-gap;
-  animation-delay: 700ms;
 }
 
 .concord-splash__check {
@@ -8153,14 +8232,14 @@
   width: calc(100% - 52px);
   height: calc(100% - 52px);
   opacity: 0;
-  transform: scale(0.72);
-  animation: concord-splash-check 700ms cubic-bezier(0.22, 1.2, 0.36, 1) 2450ms forwards;
+  transform: scale(0.82);
+  animation: concord-splash-check var(--splash-duration) var(--splash-ease) forwards;
 }
 
 .concord-splash__check-path {
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
-  animation: concord-splash-check-draw 560ms cubic-bezier(0.2, 0, 0, 1) 2520ms forwards;
+  animation: concord-splash-check-draw var(--splash-duration) var(--splash-ease) forwards;
 }
 
 .concord-splash__brand {
@@ -8169,8 +8248,8 @@
   align-items: center;
   gap: 6px;
   opacity: 0;
-  transform: translateY(10px);
-  animation: concord-splash-brand 620ms var(--concord-motion-ease) 900ms forwards;
+  transform: translateY(8px);
+  animation: concord-splash-brand var(--splash-duration) var(--splash-ease) forwards;
 }
 
 .concord-splash__name {
@@ -8190,15 +8269,30 @@
   color: #7b8798;
 }
 
+/*
+  Timeline (% of 3400ms):
+  0–8%   fade in dotted C
+  8–28%  hold dots
+  28–42% stretch / blur dots
+  40–48% dots fade, dashes rise (crossfade)
+  48–62% dashes hold as C
+  62–74% gap closes into full ring
+  74–88% check + brand settle
+  88–100% hold finished mark
+*/
+
 @keyframes concord-splash-dot {
   0% {
     opacity: 0;
-    transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(0.5);
+    width: var(--dot-size, 6px);
+    height: var(--dot-size, 6px);
+    margin: calc(var(--dot-size, 6px) / -2) 0 0 calc(var(--dot-size, 6px) / -2);
+    transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(0.65);
     filter: blur(0);
   }
 
-  18%,
-  42% {
+  8%,
+  28% {
     opacity: 1;
     width: var(--dot-size, 6px);
     height: var(--dot-size, 6px);
@@ -8207,43 +8301,45 @@
     filter: blur(0);
   }
 
-  /* Stretch / streak along the arc */
-  62% {
-    opacity: 0.85;
-    width: calc(var(--dot-size, 6px) * 1.9);
-    height: calc(var(--dot-size, 6px) * 0.72);
-    margin: calc(var(--dot-size, 6px) * -0.36) 0 0 calc(var(--dot-size, 6px) * -0.95);
+  40% {
+    opacity: 0.9;
+    width: calc(var(--dot-size, 6px) * 1.85);
+    height: calc(var(--dot-size, 6px) * 0.7);
+    margin: calc(var(--dot-size, 6px) * -0.35) 0 0 calc(var(--dot-size, 6px) * -0.925);
     transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(1);
-    filter: blur(0.45px);
+    filter: blur(0.4px);
   }
 
+  48%,
   100% {
     opacity: 0;
-    width: calc(var(--dot-size, 6px) * 0.7);
-    height: calc(var(--dot-size, 6px) * 1.4);
-    margin: calc(var(--dot-size, 6px) * -0.7) 0 0 calc(var(--dot-size, 6px) * -0.35);
-    transform: rotate(var(--dot-angle)) translateY(-42px) scale(0.6);
-    filter: blur(0.2px);
+    width: 5px;
+    height: 14px;
+    margin: -7px 0 0 -2.5px;
+    transform: rotate(var(--dot-angle)) translateY(-42px) scale(0.9);
+    filter: blur(0);
   }
 }
 
 @keyframes concord-splash-tick {
   0%,
-  8% {
+  40% {
     opacity: 0;
-    transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.35);
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.55);
   }
 
-  /* Appear as radial dashes forming a C */
-  28%,
-  58% {
+  48% {
     opacity: 1;
     width: 5px;
-    height: 16px;
-    margin: -8px 0 0 -2.5px;
+    height: 15px;
+    margin: -7.5px 0 0 -2.5px;
     transform: rotate(var(--tick-angle)) translateY(-42px) scale(1);
   }
 
+  62%,
   100% {
     opacity: 1;
     width: 5px;
@@ -8255,19 +8351,15 @@
 
 @keyframes concord-splash-tick-gap {
   0%,
-  55% {
+  62% {
     opacity: 0;
     width: 5px;
-    height: 16px;
-    margin: -8px 0 0 -2.5px;
-    transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.35);
+    height: 17px;
+    margin: -8.5px 0 0 -2.5px;
+    transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.45);
   }
 
-  72% {
-    opacity: 1;
-    transform: rotate(var(--tick-angle)) translateY(-42px) scale(1);
-  }
-
+  74%,
   100% {
     opacity: 1;
     width: 5px;
@@ -8278,20 +8370,40 @@
 }
 
 @keyframes concord-splash-check {
-  to {
+  0%,
+  74% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  88%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
 }
 
 @keyframes concord-splash-check-draw {
-  to {
+  0%,
+  76% {
+    stroke-dashoffset: 48;
+  }
+
+  90%,
+  100% {
     stroke-dashoffset: 0;
   }
 }
 
 @keyframes concord-splash-brand {
-  to {
+  0%,
+  12% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  28%,
+  100% {
     opacity: 1;
     transform: translateY(0);
   }

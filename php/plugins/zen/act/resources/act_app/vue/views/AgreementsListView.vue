@@ -5,7 +5,10 @@
       class="concord-header concord-header--scroll-reveal"
       :class="{ 'concord-header--scroll-reveal-hidden': !headerVisible }"
     >
-      <h1 class="concord-header__title">Все согласования</h1>
+      <h1 class="concord-header__title concord-header__brand">
+        <ConcordLogoMark size="sm" />
+        <span class="concord-header__brand-name">Concord</span>
+      </h1>
       <div class="concord-header__actions">
         <button type="button" class="concord-icon-btn" aria-label="Поиск" @click="searchOpen = true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -168,6 +171,7 @@
 <script>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AgreementCard from '../concord/AgreementCard.vue'
+import ConcordLogoMark from '../concord/ConcordLogoMark.vue'
 import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
 import ConcordSearchResultCard from '../concord/ConcordSearchResultCard.vue'
 import { useTabsScrollHint } from '../composables/useTabsScrollHint.js'
@@ -181,7 +185,7 @@ import {
 
 export default {
   name: 'AgreementsListView',
-  components: { AgreementCard, ConcordSearchOverlay, ConcordSearchResultCard },
+  components: { AgreementCard, ConcordLogoMark, ConcordSearchOverlay, ConcordSearchResultCard },
   props: {
     agreements: {
       type: Array,

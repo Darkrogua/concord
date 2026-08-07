@@ -10,21 +10,26 @@
     >
       <div class="concord-splash__stage">
         <div class="concord-splash__mark" aria-hidden="true">
-          <!-- Early “C” of concentric dots (rings fade as dashes take over) -->
-          <span
-            v-for="dot in earlyDots"
-            :key="`dot-${dot.key}`"
-            class="concord-splash__dot"
-            :style="dot.style"
-          />
+          <!-- Phase 1–2: concentric dotted C (fades out before dashes settle) -->
+          <span class="concord-splash__rings">
+            <span
+              v-for="dot in earlyDots"
+              :key="`dot-${dot.key}`"
+              class="concord-splash__dot"
+              :style="dot.style"
+            />
+          </span>
 
-          <span
-            v-for="index in tickCount"
-            :key="`tick-${index}`"
-            class="concord-splash__tick"
-            :class="{ 'concord-splash__tick--gap': isGapTick(index - 1) }"
-            :style="tickStyle(index - 1)"
-          />
+          <!-- Phase 3–5: radial dashes C → closed ring -->
+          <span class="concord-splash__ticks">
+            <span
+              v-for="index in tickCount"
+              :key="`tick-${index}`"
+              class="concord-splash__tick"
+              :class="{ 'concord-splash__tick--gap': isGapTick(index - 1) }"
+              :style="tickStyle(index - 1)"
+            />
+          </span>
 
           <svg class="concord-splash__check" viewBox="0 0 64 64" fill="none">
             <defs>
@@ -56,14 +61,12 @@
 <script>
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-/** Radial ticks in the finished mark. */
 const TICK_COUNT = 32
-/** Gap that forms the early “C” (filled later to close the ring). */
 const GAP_START = 28
 const GAP_END = 31
-/** Hold splash so the full morph can play. */
-const MIN_VISIBLE_MS = 3600
-const EXIT_MS = 420
+/** Full sequence + brief hold on the finished mark. */
+const MIN_VISIBLE_MS = 4000
+const EXIT_MS = 380
 
 const RING_RADII = [28, 38, 48]
 const RING_COUNTS = [10, 14, 18]
@@ -81,18 +84,16 @@ function buildEarlyDots() {
   RING_RADII.forEach((radius, ringIndex) => {
     const count = RING_COUNTS[ringIndex]
     for (let i = 0; i < count; i += 1) {
-      // Span a C: skip the right-side gap (~70° open).
       const span = 290
       const start = 125
-      const angle = start + (span / (count - 1)) * i
+      const angle = start + (span / Math.max(count - 1, 1)) * i
       dots.push({
         key: `${ringIndex}-${i}`,
         style: {
           '--dot-angle': `${angle}deg`,
           '--dot-radius': `${radius}px`,
           '--dot-color': gradientColor(angle),
-          '--dot-delay': `${ringIndex * 40 + i * 12}ms`,
-          '--dot-size': `${ringIndex === 0 ? 5 : ringIndex === 1 ? 6 : 7}px`,
+          '--dot-size': `${5 + ringIndex}px`,
         },
       })
     }
