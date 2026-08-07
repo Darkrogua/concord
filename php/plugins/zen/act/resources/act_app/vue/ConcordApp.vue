@@ -203,30 +203,36 @@ export default {
   },
   setup() {
     const { agreements, loading: agreementsLoading, persist } = useConcordAgreements()
+    // sessionStorage survives refresh in the same tab, but clears when the app/tab is reopened.
     const SPLASH_STORAGE_KEY = 'concord_splash_seen_v1'
 
-    function hasSeenSplash() {
+    function hasSeenSplashInSession() {
       try {
-        return window.localStorage.getItem(SPLASH_STORAGE_KEY) === '1'
+        return window.sessionStorage.getItem(SPLASH_STORAGE_KEY) === '1'
       } catch {
         return false
       }
     }
 
-    function markSplashSeen() {
+    function markSplashSeenInSession() {
       try {
-        window.localStorage.setItem(SPLASH_STORAGE_KEY, '1')
+        window.sessionStorage.setItem(SPLASH_STORAGE_KEY, '1')
+        // Drop the old forever-flag so new sessions can show the intro again.
+        window.localStorage.removeItem(SPLASH_STORAGE_KEY)
       } catch {
         // ignore private mode / quota errors in preview
       }
     }
 
-    const splashVisible = ref(typeof window !== 'undefined' ? !hasSeenSplash() : false)
+    const splashVisible = ref(typeof window !== 'undefined' ? !hasSeenSplashInSession() : false)
+    if (splashVisible.value) {
+      // Mark immediately so a mid-animation refresh does not replay the splash.
+      markSplashSeenInSession()
+    }
     const splashReady = computed(() => !agreementsLoading.value)
 
     function onSplashDone() {
       splashVisible.value = false
-      markSplashSeen()
     }
     const { profileGroups } = useConcordGroups()
     const filterSections = ref(
