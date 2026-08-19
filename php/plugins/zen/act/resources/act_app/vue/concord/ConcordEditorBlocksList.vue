@@ -12,6 +12,7 @@
       :placeholder="getEditorBlockTypeLabel(block)"
       :summary="block.type === 'text' ? '' : getEditorBlockSummary(block)"
       :default-expanded="defaultExpandFirst && blockIndex === 0"
+      :expand-on-add="block.id === newlyAddedBlockId"
       :force-collapsed="isDragging"
       @update:label="(value) => renameEditorBlock(block, value)"
       @delete="$emit('delete-block', block)"
@@ -51,8 +52,11 @@ export default {
   setup(props, { emit }) {
     const listRef = ref(null)
     const isDragging = ref(false)
+    const newlyAddedBlockId = ref('')
     const blocks = computed(() => props.section.blocks || [])
     const canReorder = computed(() => blocks.value.length > 1)
+    let knownBlockIds = new Set()
+    let hasInitializedBlocks = false
 
     function reorderBlocks(blockIds) {
       const current = props.section.blocks || []
@@ -78,17 +82,28 @@ export default {
     })
 
     watch(
-      () => blocks.value.map((block) => block.id).join('|'),
-      () => {
+      () => blocks.value.map((block) => block.id),
+      (blockIds) => {
         initSortable()
+
+        if (hasInitializedBlocks) {
+          const addedIds = blockIds.filter((id) => !knownBlockIds.has(id))
+          if (addedIds.length) {
+            newlyAddedBlockId.value = addedIds[addedIds.length - 1]
+          }
+        }
+
+        knownBlockIds = new Set(blockIds)
+        hasInitializedBlocks = true
       },
-      { flush: 'post' }
+      { flush: 'post', immediate: true }
     )
 
     return {
       listRef,
       blocks,
       isDragging,
+      newlyAddedBlockId,
       getEditorBlockSummary,
       getEditorBlockTypeLabel,
       renameEditorBlock,

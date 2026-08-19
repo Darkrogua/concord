@@ -155,6 +155,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    expandOnAdd: {
+      type: Boolean,
+      default: false,
+    },
     forceCollapsed: {
       type: Boolean,
       default: false,
@@ -177,6 +181,16 @@ export default {
         }
         expanded.value = value
       }
+    )
+
+    watch(
+      () => props.expandOnAdd,
+      (shouldExpand) => {
+        if (shouldExpand && !props.forceCollapsed && !isLocked()) {
+          expanded.value = true
+        }
+      },
+      { immediate: true }
     )
 
     watch(
