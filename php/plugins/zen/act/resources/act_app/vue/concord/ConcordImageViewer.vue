@@ -46,7 +46,7 @@
       <p v-if="hasMultiple" class="concord-image-viewer__counter">
         {{ currentIndex + 1 }} / {{ galleryPhotos.length }}
       </p>
-      <p v-if="currentAlt" class="concord-image-viewer__caption">{{ currentAlt }}</p>
+      <p v-if="currentCaption" class="concord-image-viewer__caption">{{ currentCaption }}</p>
     </div>
   </template>
 </template>
@@ -98,6 +98,10 @@ export default {
 
     const currentSrc = computed(() => currentPhoto.value?.previewUrl || props.src)
     const currentAlt = computed(() => currentPhoto.value?.name || props.alt)
+    const currentCaption = computed(() => {
+      const comment = String(currentPhoto.value?.comment || '').trim()
+      return comment || currentAlt.value
+    })
 
     watch(
       () => [props.open, props.index],
@@ -151,6 +155,7 @@ export default {
       currentIndex,
       currentSrc,
       currentAlt,
+      currentCaption,
       showPrev,
       showNext,
       onTouchStart,

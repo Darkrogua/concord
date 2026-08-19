@@ -1,3 +1,6 @@
+import { cacheAgreementFileContent } from './agreement-file-content.js'
+import { hydrateAgreementFileTextContent } from './file-download-utils.js'
+
 export const DEFAULT_TOP_TABS = [
   { id: 'agreements', label: 'Согласования', badge: 5 },
   { id: 'drafts', label: 'Черновики' },
@@ -102,8 +105,50 @@ export function formatIsoDateToRu(value = '') {
   return `${day}.${month}.${year}`
 }
 
+export function splitRuDateTime(value = '') {
+  const trimmed = String(value || '').trim()
+  if (!trimmed) {
+    return { date: '', time: '' }
+  }
+  const [datePart, timePart = ''] = trimmed.split(/\s+/)
+  return {
+    date: datePart || '',
+    time: timePart ? timePart.slice(0, 5) : '',
+  }
+}
+
+export function combineRuDateTime(date = '', time = '') {
+  const datePart = String(date || '').trim()
+  const timePart = String(time || '').trim()
+  if (!datePart) {
+    return ''
+  }
+  if (!timePart) {
+    return datePart
+  }
+  return `${datePart} ${timePart}`
+}
+
+export function formatRuDateTimePartsToIso(date = '', time = '') {
+  const isoDate = formatRuDateToIso(date)
+  if (!isoDate) {
+    return ''
+  }
+  const timePart = time || '00:00'
+  return `${isoDate}T${timePart}`
+}
+
+export function formatRuDateTimeToFormParts(value = '') {
+  const { date, time } = splitRuDateTime(value)
+  return {
+    date: formatRuDateToIso(date),
+    time,
+  }
+}
+
 export function formatRuDateToIso(value = '') {
-  const parts = String(value || '').trim().split('.')
+  const datePart = splitRuDateTime(value).date
+  const parts = datePart.split('.')
   if (parts.length !== 3) {
     return ''
   }
@@ -115,7 +160,8 @@ export function formatRuDateToIso(value = '') {
 }
 
 function parseRuDateToDate(value = '') {
-  const [day, month, year] = String(value || '').trim().split('.')
+  const datePart = splitRuDateTime(value).date
+  const [day, month, year] = datePart.split('.')
   if (!day || !month || !year) {
     return null
   }
@@ -215,11 +261,29 @@ export function formatSectionTabTitle(title, maxWords = 2) {
 }
 
 export function parseRuDate(value = '') {
-  const [day, month, year] = String(value || '').trim().split('.')
+  const datePart = splitRuDateTime(value).date
+  const [day, month, year] = datePart.split('.')
   if (!day || !month || !year) {
     return null
   }
   const date = new Date(Number(year), Number(month) - 1, Number(day))
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+export function parseRuDateTime(value = '') {
+  const { date: datePart, time } = splitRuDateTime(value)
+  const [day, month, year] = datePart.split('.')
+  if (!day || !month || !year) {
+    return null
+  }
+  const [hours = '0', minutes = '0'] = time.split(':')
+  const date = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hours),
+    Number(minutes)
+  )
   return Number.isNaN(date.getTime()) ? null : date
 }
 
@@ -428,8 +492,8 @@ export const AGREEMENT_EDITOR_INTRO =
  * @property {string} [title]
  * @property {string} [description]
  * @property {string} [content]
- * @property {Array<{ id: string, name: string, mime?: string, previewUrl?: string | null }>} [files]
- * @property {Array<{ id: string, name: string, mime?: string, previewUrl?: string }>} [photos]
+ * @property {Array<{ id: string, name: string, mime?: string, previewUrl?: string | null, downloadUrl?: string, textContent?: string, comment?: string }>} [files]
+ * @property {Array<{ id: string, name: string, mime?: string, previewUrl?: string, comment?: string }>} [photos]
  * @property {string} [prompt]
  * @property {Array<{ id: string, label: string, checked?: boolean }>} [items]
  */
@@ -473,6 +537,27 @@ export function normalizeFilesBlock(block) {
   if (!Array.isArray(block.files)) {
     block.files = []
   }
+  for (const file of block.files) {
+    if (file.comment === undefined || file.comment === null) {
+      file.comment = ''
+    }
+    if (file.textContent === undefined || file.textContent === null) {
+      file.textContent = ''
+    }
+    if (file.downloadUrl === undefined && file.previewUrl) {
+      file.downloadUrl = file.previewUrl
+    }
+    hydrateAgreementFileTextContent(file)
+    if (file.downloadUrl || file.textContent || file.previewUrl) {
+      cacheAgreementFileContent(file.id, {
+        downloadUrl: file.downloadUrl,
+        previewUrl: file.previewUrl,
+        textContent: file.textContent,
+        mime: file.mime,
+        name: file.name,
+      })
+    }
+  }
   return block
 }
 
@@ -488,6 +573,11 @@ export function normalizeGalleryBlock(block) {
   }
   if (!Array.isArray(block.photos)) {
     block.photos = []
+  }
+  for (const photo of block.photos) {
+    if (photo.comment === undefined || photo.comment === null) {
+      photo.comment = ''
+    }
   }
   return block
 }
@@ -677,7 +767,9 @@ export function ensureAgreementSections(agreement) {
  * @property {string} title
  * @property {string} description
  * @property {string} startDate
+ * @property {string} [startTime]
  * @property {string} endDate
+ * @property {string} [endTime]
  * @property {boolean} [isImportant]
  */
 
@@ -716,13 +808,13 @@ export function createDraftAgreement(form, nextNumber) {
     title: form.title.trim(),
     description: form.description.trim(),
     createdAt: '',
-    startDate: formatIsoDateToRu(form.startDate),
-    deadline: formatIsoDateToRu(form.endDate),
+    startDate: combineRuDateTime(formatIsoDateToRu(form.startDate), form.startTime),
+    deadline: combineRuDateTime(formatIsoDateToRu(form.endDate), form.endTime),
     publishDate: null,
     categoryId: null,
     daysLabel: formatAgreementDaysLabel(
-      formatIsoDateToRu(form.startDate) || formatDateRu(),
-      formatIsoDateToRu(form.endDate)
+      combineRuDateTime(formatIsoDateToRu(form.startDate), form.startTime) || formatDateRu(),
+      combineRuDateTime(formatIsoDateToRu(form.endDate), form.endTime)
     ),
     isUrgent: Boolean(form.isImportant),
     author: { name: 'Александр Аблизин' },
@@ -1341,11 +1433,11 @@ function collectAgreementContentParts(agreement) {
       parts.push(block.label, block.title, block.description, block.content, block.prompt)
 
       for (const file of block.files || []) {
-        parts.push(file.name)
+        parts.push(file.name, file.comment)
       }
 
       for (const photo of block.photos || []) {
-        parts.push(photo.name)
+        parts.push(photo.name, photo.comment)
       }
 
       for (const item of block.items || []) {

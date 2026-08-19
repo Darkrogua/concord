@@ -85,41 +85,25 @@
 
     <main ref="approverMainRef" class="concord-approver">
       <div
-        v-for="(section, sectionIndex) in agreement.sections"
+        v-for="section in agreement.sections"
         :key="section.id"
         :id="sectionAnchorId(section.id)"
         :ref="(el) => setSectionRef(section.id, el)"
         class="concord-approver__section"
         :class="{
-          'concord-approver__section--active': preview || isActiveSection(section),
-          'concord-approver__section--inactive': !preview && !isActiveSection(section),
+          'concord-approver__section--active': isActiveSection(section),
+          'concord-approver__section--inactive': !isActiveSection(section),
           'concord-approver__section--expanded': expandedSections[section.id] !== false,
         }"
       >
-        <div
-          class="concord-approver__section-card"
-          :class="{ 'concord-approver__section-card--preview': preview }"
-        >
+        <div class="concord-approver__section-card">
           <header class="concord-approver__section-header">
             <div class="concord-approver__section-header-main">
               <h2 class="concord-approver__section-title">
-                {{ preview ? `${sectionIndex + 1}. ${section.title}` : section.title }}
+                {{ section.title }}
               </h2>
-              <p v-if="preview" class="concord-approver__section-meta">{{ sectionMeta(section) }}</p>
             </div>
             <div class="concord-approver__section-header-actions">
-              <button
-                v-if="preview"
-                type="button"
-                class="concord-approver__preview-settings"
-                aria-label="Настройки раздела"
-                @click="$emit('section-settings', section.id)"
-              >
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-                  <path d="M19.2 14.8a1.5 1.5 0 0 0 .3 1.7l.05.05a1.8 1.8 0 1 1-2.55 2.55l-.05-.05a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.37V21a1.8 1.8 0 1 1-3.6 0v-.08a1.5 1.5 0 0 0-.9-1.38 1.5 1.5 0 0 0-1.7.3l-.05.05a1.8 1.8 0 1 1-2.55-2.55l.05-.05a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.38-.9H3a1.8 1.8 0 1 1 0-3.6h.08a1.5 1.5 0 0 0 1.38-.9 1.5 1.5 0 0 0-.3-1.7l-.05-.05A1.8 1.8 0 1 1 6.66 5.1l.05.05a1.5 1.5 0 0 0 1.7.3h.01a1.5 1.5 0 0 0 .9-1.38V4a1.8 1.8 0 1 1 3.6 0v.08a1.5 1.5 0 0 0 .9 1.38 1.5 1.5 0 0 0 1.7-.3l.05-.05a1.8 1.8 0 1 1 2.55 2.55l-.05.05a1.5 1.5 0 0 0-.3 1.7v.01a1.5 1.5 0 0 0 1.38.9H21a1.8 1.8 0 1 1 0 3.6h-.08a1.5 1.5 0 0 0-1.38.9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-              </button>
               <button
                 type="button"
                 class="concord-approver__toggle"
@@ -149,27 +133,49 @@
                 class="concord-approver__block"
                 :class="`concord-approver__block--${block.type || 'text'}`"
               >
-                <h3 v-if="block.title || block.label" class="concord-approver__block-title">
-                  {{ block.title || block.label }}
-                </h3>
-                <p v-if="block.description" class="concord-approver__block-lead">{{ block.description }}</p>
-                <p v-if="block.content" class="concord-approver__block-content">{{ stripContent(block.content) }}</p>
+                <template v-if="block.type === 'text'">
+                  <h3 v-if="getEditorBlockLabel(block)" class="concord-approver__block-title">
+                    {{ getEditorBlockLabel(block) }}
+                  </h3>
+                  <p v-if="block.title?.trim()" class="concord-approver__block-subtitle">
+                    {{ block.title.trim() }}
+                  </p>
+                  <p v-if="block.description" class="concord-approver__block-lead">{{ block.description }}</p>
+                  <p v-if="block.content" class="concord-approver__block-content">{{ stripContent(block.content) }}</p>
+                </template>
+                <template v-else>
+                  <h3 v-if="block.title || block.label" class="concord-approver__block-title">
+                    {{ block.title || block.label }}
+                  </h3>
+                  <p v-if="block.description" class="concord-approver__block-lead">{{ block.description }}</p>
+                  <p v-if="block.content" class="concord-approver__block-content">{{ stripContent(block.content) }}</p>
+                </template>
 
                 <div v-if="(block.files || []).length" class="concord-approver__files">
-                  <div
+                  <button
                     v-for="file in block.files"
                     :key="file.id"
+                    type="button"
                     class="concord-approver__file"
+                    :aria-label="fileDownloadLabel(file)"
+                    @click="onFileDownload(file)"
                   >
-                    <div class="concord-approver__file-preview">
-                      <img v-if="file.previewUrl" :src="file.previewUrl" :alt="file.name">
-                      <svg v-else viewBox="0 0 24 24" width="28" height="28" fill="none">
+                    <span class="concord-approver__file-preview">
+                      <img v-if="file.previewUrl" :src="file.previewUrl" alt="">
+                      <svg v-else viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
                         <path d="M8 3h6l5 5v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/>
                         <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.4"/>
                       </svg>
-                    </div>
-                    <p class="concord-approver__file-name">{{ file.name }}</p>
-                  </div>
+                      <span class="concord-approver__file-download" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+                          <path d="M12 4v10M7 9l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                      </span>
+                    </span>
+                    <span class="concord-approver__file-name">{{ file.name }}</span>
+                    <span v-if="fileComment(file)" class="concord-approver__file-comment">{{ fileComment(file) }}</span>
+                  </button>
                 </div>
 
                 <ConcordGalleryCarousel
@@ -214,58 +220,7 @@
 
           </div>
 
-          <div v-if="preview" class="concord-approver__preview-footer">
-            <div
-              v-if="expandedSections[section.id] !== false"
-              class="concord-approver__preview-footer-head"
-            >
-              <div class="concord-approver__preview-footer-title-wrap">
-                <span class="concord-approver__preview-footer-title">
-                  {{ `${sectionIndex + 1}. ${section.title}` }}
-                </span>
-                <span class="concord-approver__preview-footer-meta">{{ sectionMeta(section) }}</span>
-              </div>
-              <button
-                type="button"
-                class="concord-approver__preview-settings"
-                aria-label="Настройки раздела"
-                @click="$emit('section-settings', section.id)"
-              >
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-                  <path d="M19.2 14.8a1.5 1.5 0 0 0 .3 1.7l.05.05a1.8 1.8 0 1 1-2.55 2.55l-.05-.05a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.37V21a1.8 1.8 0 1 1-3.6 0v-.08a1.5 1.5 0 0 0-.9-1.38 1.5 1.5 0 0 0-1.7.3l-.05.05a1.8 1.8 0 1 1-2.55-2.55l.05-.05a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.38-.9H3a1.8 1.8 0 1 1 0-3.6h.08a1.5 1.5 0 0 0 1.38-.9 1.5 1.5 0 0 0-.3-1.7l-.05-.05A1.8 1.8 0 1 1 6.66 5.1l.05.05a1.5 1.5 0 0 0 1.7.3h.01a1.5 1.5 0 0 0 .9-1.38V4a1.8 1.8 0 1 1 3.6 0v.08a1.5 1.5 0 0 0 .9 1.38 1.5 1.5 0 0 0 1.7-.3l.05-.05a1.8 1.8 0 1 1 2.55 2.55l-.05.05a1.5 1.5 0 0 0-.3 1.7v.01a1.5 1.5 0 0 0 1.38.9H21a1.8 1.8 0 1 1 0 3.6h-.08a1.5 1.5 0 0 0-1.38.9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-              </button>
-            </div>
-
-            <div class="concord-approver__preview-facts">
-              <div class="concord-approver__preview-fact">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-                  <rect x="4.5" y="5.5" width="15" height="14" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
-                  <path d="M8 3.8v3.6M16 3.8v3.6M4.5 10h15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
-                <div><span>Срок согласования</span><strong>{{ agreement.deadline || 'Не указан' }}</strong></div>
-              </div>
-              <div class="concord-approver__preview-fact">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-                  <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/>
-                  <path d="M5.5 20c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                </svg>
-                <div><span>Согласующих</span><strong>{{ sectionVoterCount(section) }} чел.</strong></div>
-              </div>
-            </div>
-            <div class="concord-approver__preview-voting">
-              <div v-for="row in previewVotingRows(section)" :key="row.key" class="concord-approver__preview-vote-row">
-                <span>{{ row.label }} <small>({{ row.count }})</small></span>
-                <div class="concord-approver__preview-vote-track">
-                  <div class="concord-approver__preview-vote-fill" :class="`concord-approver__preview-vote-fill--${row.key}`" :style="{ width: `${row.percent}%` }" />
-                </div>
-                <b>{{ row.percent }}%</b>
-              </div>
-            </div>
-          </div>
-
-          <div v-else class="concord-approver__section-footer">
+          <div class="concord-approver__section-footer">
             <div class="concord-approver__section-info">
               <div class="concord-approver__section-info-main">
                 <span
@@ -358,6 +313,8 @@
 
 <script>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { getEditorBlockLabel } from '../concord/editor-block-utils.js'
+import { downloadAgreementFile, openAgreementFile } from '../concord/file-download-utils.js'
 import { ensureAgreementSections, formatSectionTabTitle, getAgreementDaysRemaining, formatAgreementDaysLabel, CURRENT_APPROVER_ID } from '../concord/mock-agreements.js'
 import { resolveSectionParticipants, MOCK_CONTACTS } from '../concord/mock-groups.js'
 import ParticipantAvatars from '../concord/ParticipantAvatars.vue'
@@ -464,27 +421,6 @@ export default {
 
     function sectionParticipants(section) {
       return resolveSectionParticipants(section, [], MOCK_CONTACTS)
-    }
-
-    function sectionMeta(section) {
-      const blocks = section.blocks || []
-      const files = blocks.filter((block) => block.type === 'files').reduce((total, block) => total + (block.files?.length || 0), 0)
-      const photos = blocks.filter((block) => block.type === 'gallery').reduce((total, block) => total + (block.photos?.length || 0), 0)
-      return `${blocks.length} блоков • ${files} файлов • ${photos} фото`
-    }
-
-    function sectionVoterCount(section) {
-      return sectionParticipants(section).length
-    }
-
-    function previewVotingRows(section) {
-      const stats = section.votingStats || { approved: 0, rejected: 0, pending: 100 }
-      const total = sectionVoterCount(section)
-      return [
-        { key: 'approved', label: 'Согласовано', percent: stats.approved || 0 },
-        { key: 'rejected', label: 'Не согласовано', percent: stats.rejected || 0 },
-        { key: 'pending', label: 'Не голосовали', percent: stats.pending || 0 },
-      ].map((row) => ({ ...row, count: Math.round(row.percent * total / 100) }))
     }
 
     function userVoteForSection(section) {
@@ -737,6 +673,26 @@ export default {
       imageViewerIndex.value = 0
     }
 
+    function fileComment(file) {
+      return String(file?.comment || '').trim()
+    }
+
+    function fileDownloadLabel(file) {
+      const name = file?.name || 'файл'
+      const comment = fileComment(file)
+      return comment ? `Скачать ${name}. ${comment}` : `Скачать ${name}`
+    }
+
+    function onFileDownload(file) {
+      if (downloadAgreementFile(file)) {
+        return
+      }
+      if (openAgreementFile(file)) {
+        return
+      }
+      window.alert('Файл недоступен. Вернитесь в редактор и загрузите документ заново.')
+    }
+
     function openReasonModal(reason) {
       reasonModalText.value = reason
       reasonModalOpen.value = true
@@ -790,15 +746,13 @@ export default {
       formatSectionTabTitle,
       isActiveSection,
       sectionParticipants,
-      sectionMeta,
-      sectionVoterCount,
-      previewVotingRows,
       userVoteForSection,
       daysLabel,
       isUrgent,
       isDeadlineSoon,
       isDeadlineOverdue,
       stripContent,
+      getEditorBlockLabel,
       sectionAnchorId,
       setSectionRef,
       toggleSection,
@@ -807,6 +761,9 @@ export default {
       openMenu,
       openGalleryViewer,
       closeImageViewer,
+      fileComment,
+      fileDownloadLabel,
+      onFileDownload,
       openReasonModal,
       closeReasonModal,
       openYesConfirm,

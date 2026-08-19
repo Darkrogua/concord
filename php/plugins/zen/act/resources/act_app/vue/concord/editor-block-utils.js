@@ -77,6 +77,10 @@ export function getEditorBlockSummary(block) {
       return `${count} ${pluralizeRu(count, ['ссылка', 'ссылки', 'ссылок'])}`
     }
     case 'text': {
+      const label = getEditorBlockLabel(block)
+      if (label && label !== getEditorBlockTypeLabel(block)) {
+        return label
+      }
       const title = block.title?.trim()
       if (title) {
         return title
@@ -93,7 +97,7 @@ export function getEditorBlockSummary(block) {
 }
 
 export function getTextBlockPreviewTitle(block) {
-  return block?.title?.trim() || 'Заголовок текстового блока'
+  return getEditorBlockLabel(block)
 }
 
 export function getTextBlockPreviewExcerpt(block, limit = 120) {

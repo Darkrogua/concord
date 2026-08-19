@@ -281,7 +281,6 @@
 .concord-tabs__badge {
   @include concord-count-badge;
   @include concord-count-badge-anchor;
-  border: var(--concord-count-badge-border-width) solid var(--concord-count-badge-border-color);
 }
 
 .concord-sort {
@@ -1390,10 +1389,7 @@
 
 .concord-account-sheet__badge {
   @include concord-count-badge;
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  border: var(--concord-count-badge-border-width) solid var(--concord-surface);
+  @include concord-count-badge-anchor;
 }
 
 .concord-account-sheet__name {
@@ -1578,7 +1574,6 @@
   border: none;
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface);
-  font-size: var(--concord-text-card);
   font-weight: var(--concord-weight-regular);
   line-height: var(--concord-leading-body);
 }
@@ -1630,6 +1625,24 @@
   text-align: left;
   cursor: pointer;
   box-sizing: border-box;
+}
+
+.concord-search-result__footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-right: 4px;
+  min-width: 0;
+}
+
+.concord-search-result__footer .concord-card__progress {
+  flex: 1;
+  min-width: 0;
+}
+
+.concord-search-result__footer .concord-card__count {
+  flex-shrink: 0;
 }
 
 .concord-search-result__button:active {
@@ -1904,6 +1917,15 @@
   padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 80px);
 }
 
+.concord-page--agreement-form {
+  background: var(--concord-bg);
+  padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 88px);
+}
+
+.concord-page--agreement-form .concord-section-settings {
+  padding-top: 0;
+}
+
 .concord-page--editor {
   display: block;
   padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 32px);
@@ -1924,15 +1946,15 @@
 }
 
 .concord-page--editor .concord-container--editor {
-  border: 1px solid var(--concord-border);
+  border: 1px solid color-mix(in srgb, var(--concord-border) 70%, var(--concord-text-secondary));
   border-radius: 14px;
-  box-shadow: none;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
   background: var(--concord-surface);
   overflow: hidden;
 }
 
 .concord-page--editor .concord-container--editor + .concord-container--editor {
-  border-top: none;
+  border-top: 1px solid color-mix(in srgb, var(--concord-border) 70%, var(--concord-text-secondary));
 }
 
 .concord-page--editor .concord-container--editor .concord-container__header,
@@ -2076,22 +2098,23 @@
 
 .concord-page--editor .concord-container--editor .concord-container__body {
   padding: 0;
-  background: var(--concord-bg);
+  background: var(--concord-divider);
 }
 
 .concord-page--editor .concord-container--editor .concord-container__blocks {
-  gap: 0;
+  gap: 8px;
+  padding: 0;
 }
 
 .concord-editor-block {
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
   column-gap: 6px;
-  padding: 10px 10px 10px 6px;
+  padding: 12px 12px 12px 8px;
   border: none;
   border-radius: 0;
-  border-bottom: 1px solid var(--concord-border);
   background: var(--concord-surface);
+  box-shadow: none;
 }
 
 .concord-editor-block--collapsed {
@@ -2101,10 +2124,6 @@
 .concord-editor-block--collapsed .concord-editor-block__head-text,
 .concord-editor-block--collapsed .concord-editor-block__label-input {
   cursor: text;
-}
-
-.concord-editor-block:last-child {
-  border-bottom: none;
 }
 
 .concord-editor-block__handle {
@@ -2201,8 +2220,6 @@
   border-bottom: 1px solid var(--concord-border);
   border-radius: 0;
   background: transparent;
-  font: inherit;
-  font-size: 14px;
   font-weight: var(--concord-weight-semibold);
   line-height: 1.3;
   color: var(--concord-text);
@@ -2252,6 +2269,42 @@
   background: none;
   color: inherit;
   cursor: pointer;
+}
+
+.concord-editor-block__head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.concord-editor-block__delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--concord-text-secondary);
+  cursor: pointer;
+}
+
+.concord-editor-block__delete:hover:not(:disabled) {
+  color: var(--concord-deadline-overdue);
+  background: var(--concord-deadline-overdue-bg);
+}
+
+.concord-editor-block__delete:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.concord-editor-block__delete:active:not(:disabled) {
+  opacity: 0.85;
 }
 
 .concord-editor-block__chevron {
@@ -2832,7 +2885,6 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  color: var(--concord-text-secondary);
 }
 
 .concord-filter-chip-icon svg {
@@ -2840,11 +2892,21 @@
   height: 16px;
 }
 
-.concord-filter-chip-icon--urgency,
-.concord-filter-chip-icon--created,
-.concord-filter-chip-icon--participant,
+.concord-filter-chip-icon--urgency .concord-urgency-flame {
+  width: 16px;
+  height: 16px;
+}
+
+.concord-filter-chip-icon--created {
+  color: var(--concord-filter-icon-created);
+}
+
+.concord-filter-chip-icon--participant {
+  color: var(--concord-filter-icon-participant);
+}
+
 .concord-filter-chip-icon--status {
-  color: var(--concord-text-secondary);
+  color: var(--concord-filter-icon-status);
 }
 
 .concord-settings__chip-remove {
@@ -2961,7 +3023,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface);
-  font-size: 16px;
   line-height: 1.25;
   color: var(--concord-text);
   box-sizing: border-box;
@@ -2994,6 +3055,149 @@
   cursor: pointer;
 }
 
+.concord-agreement-form__section {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--concord-border);
+}
+
+.concord-agreement-form__section-title {
+  margin: 0 0 12px;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+}
+
+.concord-agreement-form__section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.concord-agreement-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.concord-agreement-form__label,
+.concord-agreement-form__period-label {
+  font-size: var(--concord-text-caption);
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-form__input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+  line-height: 1.25;
+  color: var(--concord-text);
+  box-sizing: border-box;
+}
+
+.concord-agreement-form__textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.concord-agreement-form__input::placeholder {
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-form__input:focus {
+  outline: none;
+  border-color: var(--concord-primary);
+  box-shadow: 0 0 0 2px var(--concord-primary-focus);
+}
+
+.concord-agreement-form__period {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.concord-agreement-form__datetime {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.concord-agreement-form__time {
+  min-width: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+  text-align: center;
+}
+
+.concord-agreement-form__hint {
+  margin: 0;
+  font-size: var(--concord-text-caption);
+  color: var(--concord-text-secondary);
+  line-height: var(--concord-leading-body);
+}
+
+.concord-agreement-form__hint--error {
+  color: var(--concord-deadline-overdue);
+}
+
+.concord-agreement-form__urgency-row {
+  margin-top: 0;
+  border-bottom: none;
+}
+
+.concord-agreement-form__footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom));
+  z-index: 20;
+  padding: 8px var(--concord-page-gutter) 12px;
+  background: linear-gradient(180deg, rgba(246, 248, 251, 0) 0%, var(--concord-bg) 36%);
+  pointer-events: none;
+}
+
+.concord-agreement-form__submit {
+  width: 100%;
+  min-height: 52px;
+  border: none;
+  border-radius: var(--concord-radius-pill);
+  background: var(--concord-primary);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+.concord-agreement-form__input[type='date'],
+.concord-agreement-form__input[type='time'] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+@media (max-width: 360px) {
+  .concord-agreement-form__datetime {
+    grid-template-columns: 1fr;
+  }
+
+  .concord-agreement-form__time {
+    text-align: left;
+  }
+}
+
 .concord-agreement-create {
   display: flex;
   flex-direction: column;
@@ -3024,7 +3228,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface-muted);
-  font-size: 16px;
   line-height: 1.25;
   color: var(--concord-text);
   box-sizing: border-box;
@@ -3068,7 +3271,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface-muted);
-  font-size: 16px;
   color: var(--concord-text);
   appearance: none;
   box-sizing: border-box;
@@ -3304,27 +3506,6 @@
 
 .concord-page--agreement-settings {
   padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 88px);
-}
-
-.concord-page--agreement-settings .concord-agreement-create {
-  padding-bottom: 8px;
-}
-
-.concord-page--agreement-settings .concord-agreement-create__input {
-  min-height: 40px;
-  padding: 10px 14px;
-  font-size: var(--concord-text-caption);
-  font-weight: var(--concord-weight-regular);
-  line-height: var(--concord-leading-relaxed);
-  color: var(--concord-text-secondary);
-}
-
-.concord-page--agreement-settings .concord-agreement-create__textarea {
-  min-height: 96px;
-}
-
-.concord-page--agreement-settings .concord-agreement-create__input:focus {
-  color: var(--concord-text-secondary);
 }
 
 .concord-page--agreement-settings .concord-section-settings__done {
@@ -3765,8 +3946,6 @@
   padding: 0;
   border: none;
   background: transparent;
-  font: inherit;
-  font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-semibold);
   color: var(--concord-text);
 }
@@ -3806,6 +3985,9 @@
 }
 
 .concord-files-block__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -3816,6 +3998,12 @@
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+.concord-files-block__preview:focus-visible {
+  box-shadow: 0 0 0 2px var(--concord-primary);
 }
 
 .concord-files-block__image {
@@ -3837,16 +4025,22 @@
 
 .concord-files-block__delete {
   position: absolute;
-  inset: 0;
+  top: 2px;
+  right: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
   border: none;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--concord-text-secondary);
+  border-radius: 50%;
+  background: rgba(24, 24, 28, 0.68);
+  color: #fff;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  z-index: 2;
 }
 
 .concord-files-block__preview:hover .concord-files-block__delete,
@@ -3854,13 +4048,47 @@
   opacity: 1;
 }
 
+.concord-files-block__delete:hover {
+  background: rgba(24, 24, 28, 0.86);
+}
+
 .concord-files-block__name {
-  margin: 6px 0 0;
+  margin: 2px 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 11px;
   color: var(--concord-text-secondary);
+}
+
+.concord-page .concord-files-block input.concord-files-block__comment {
+  width: 100%;
+  height: 24px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 6px;
+  border: 1px solid var(--concord-border);
+  border-radius: 6px;
+  background: var(--concord-surface);
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: var(--concord-weight-regular);
+  line-height: 1;
+  color: var(--concord-text);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.concord-page .concord-files-block input.concord-files-block__comment::placeholder {
+  color: var(--concord-text-secondary);
+  font-weight: var(--concord-weight-regular);
+}
+
+.concord-page .concord-files-block input.concord-files-block__comment:focus {
+  outline: none;
+  border-color: var(--concord-accent, #5e4db2);
 }
 
 .concord-files-block__input {
@@ -3956,7 +4184,40 @@
 }
 
 .concord-gallery-block__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   min-width: 0;
+}
+
+.concord-page .concord-gallery-block input.concord-gallery-block__comment {
+  width: 100%;
+  height: 24px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 6px;
+  border: 1px solid var(--concord-border);
+  border-radius: 6px;
+  background: var(--concord-surface);
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: var(--concord-weight-regular);
+  line-height: 1;
+  color: var(--concord-text);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.concord-page .concord-gallery-block input.concord-gallery-block__comment::placeholder {
+  color: var(--concord-text-secondary);
+  font-weight: var(--concord-weight-regular);
+}
+
+.concord-page .concord-gallery-block input.concord-gallery-block__comment:focus {
+  outline: none;
+  border-color: var(--concord-accent, #5e4db2);
 }
 
 .concord-gallery-block__preview {
@@ -4167,8 +4428,6 @@
   border: none;
   border-bottom: 1px solid var(--concord-border);
   background: transparent;
-  font: inherit;
-  font-size: var(--concord-text-body);
   color: var(--concord-text);
 }
 
@@ -4248,7 +4507,6 @@
 @media (hover: none) {
   .concord-files-block__delete {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.55);
   }
 }
 
@@ -4522,6 +4780,23 @@
   text-transform: lowercase;
 }
 
+.concord-text-block__field--inner-heading {
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.concord-text-block__input--inner-heading {
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+}
+
+.concord-text-block__input--inner-heading::placeholder {
+  color: var(--concord-text-disabled);
+}
+
 .concord-text-block__input {
   width: 100%;
   box-sizing: border-box;
@@ -4530,8 +4805,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface-muted);
-  font: inherit;
-  font-size: var(--concord-text-body);
   color: var(--concord-text);
 }
 
@@ -4643,7 +4916,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface-muted);
-  font-size: 16px;
   color: var(--concord-text);
 }
 
@@ -4726,7 +4998,6 @@
   flex: 1;
   border: none;
   background: transparent;
-  font-size: var(--concord-text-body);
   color: var(--concord-text);
 }
 
@@ -4793,7 +5064,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface);
-  font-size: var(--concord-text-body);
   color: var(--concord-text);
 }
 
@@ -4867,7 +5137,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface);
-  font-size: var(--concord-text-body);
   color: var(--concord-text);
 }
 
@@ -5014,7 +5283,6 @@
   border: 2px solid var(--concord-purple);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface);
-  font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-medium);
   color: var(--concord-text);
   appearance: none;
@@ -5285,7 +5553,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface-muted);
-  font-size: var(--concord-text-body);
   line-height: 1.25;
   color: var(--concord-text);
   box-sizing: border-box;
@@ -5479,7 +5746,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface-muted);
-  font-size: var(--concord-text-body);
   line-height: 1.25;
   color: var(--concord-text);
   box-sizing: border-box;
@@ -5952,14 +6218,9 @@
 }
 
 .concord-alerts__unread-dot {
-  position: absolute;
-  top: -1px;
-  right: -1px;
-  width: 10px;
-  height: 10px;
-  border: 2px solid var(--concord-bg);
-  border-radius: 50%;
-  background: var(--concord-purple);
+  @include concord-count-badge;
+  @include concord-count-badge-anchor;
+  --concord-count-badge-ring-color: var(--concord-bg);
 }
 
 .concord-alerts__bubble {
@@ -6212,7 +6473,6 @@
   border: 1px solid rgba(138, 132, 152, 0.35);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface);
-  font-size: 16px;
   line-height: var(--concord-leading-tight);
   color: var(--concord-text);
 }
@@ -6323,7 +6583,6 @@
   border: 1px solid rgba(138, 132, 152, 0.35);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface);
-  font-size: 16px;
   color: var(--concord-text);
 }
 
@@ -6476,7 +6735,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface-muted);
-  font-size: 16px;
   color: var(--concord-text);
 }
 
@@ -6884,9 +7142,9 @@
 }
 
 .concord-approver__section-card--preview .concord-approver__section-title {
-  font-size: var(--concord-text-body);
-  line-height: 1.35;
-  letter-spacing: normal;
+  font-size: 20px;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
 }
 
 .concord-approver__section-card--preview .concord-approver__toggle {
@@ -6909,8 +7167,8 @@
 
 .concord-approver__section-meta {
   margin: 2px 0 0;
-  font-size: var(--concord-text-caption);
-  line-height: 1.3;
+  font-size: var(--concord-text-body);
+  line-height: 1.4;
   color: var(--concord-text-secondary);
 }
 
@@ -6990,6 +7248,14 @@
   line-clamp: 3;
 }
 
+.concord-approver__block-subtitle {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.45;
+  color: var(--concord-text);
+}
+
 .concord-approver__block-lead {
   margin: 0 0 14px;
   font-size: 15px;
@@ -7000,9 +7266,9 @@
 
 .concord-approver__block-content {
   margin: 0;
-  font-size: var(--concord-approver-article-size);
+  font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-regular);
-  line-height: var(--concord-approver-article-leading);
+  line-height: var(--concord-leading-relaxed);
   color: var(--concord-text);
   white-space: pre-wrap;
 }
@@ -7177,18 +7443,53 @@
 .concord-approver__file {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.concord-approver__file:focus-visible {
+  outline: none;
+}
+
+.concord-approver__file:focus-visible .concord-approver__file-preview {
+  outline: 2px solid var(--concord-primary);
+  outline-offset: 2px;
 }
 
 .concord-approver__file-preview {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   aspect-ratio: 4 / 3;
   border-radius: 12px;
   background: var(--concord-surface-muted);
   color: var(--concord-purple);
   overflow: hidden;
+}
+
+.concord-approver__file-download {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--concord-purple);
+  box-shadow: 0 1px 4px rgba(16, 24, 40, 0.12);
+  pointer-events: none;
 }
 
 .concord-approver__file-preview img {
@@ -7201,10 +7502,18 @@
   margin: 0;
   font-size: 12px;
   line-height: 1.35;
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+  overflow-wrap: anywhere;
+}
+
+.concord-approver__file-comment {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
   color: var(--concord-text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
 }
 
 .concord-approver__gallery {
@@ -7311,9 +7620,9 @@
 
 .concord-approver__preview-footer-title {
   overflow: hidden;
-  font-size: var(--concord-text-body);
-  font-weight: var(--concord-weight-semibold);
-  line-height: 1.35;
+  font-size: 20px;
+  font-weight: var(--concord-weight-bold);
+  line-height: 1.28;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--concord-text);
@@ -7321,8 +7630,8 @@
 
 .concord-approver__preview-footer-meta {
   overflow: hidden;
-  font-size: var(--concord-text-caption);
-  line-height: 1.3;
+  font-size: var(--concord-text-body);
+  line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--concord-text-secondary);
@@ -7353,13 +7662,13 @@
 }
 
 .concord-approver__preview-fact span {
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: var(--concord-text-body);
+  line-height: 1.35;
 }
 
 .concord-approver__preview-fact strong {
-  font-size: 14px;
-  line-height: 1.25;
+  font-size: 16px;
+  line-height: 1.35;
   color: var(--concord-text);
 }
 
@@ -7374,8 +7683,8 @@
   grid-template-columns: 124px minmax(0, 1fr) 32px;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
-  line-height: 1.2;
+  font-size: var(--concord-text-body);
+  line-height: 1.35;
   color: var(--concord-text-secondary);
 }
 
@@ -7388,7 +7697,7 @@
 }
 
 .concord-approver__preview-vote-row b {
-  font-size: 12px;
+  font-size: var(--concord-text-body);
   font-weight: var(--concord-weight-medium);
   color: var(--concord-text);
   text-align: right;
@@ -7808,8 +8117,6 @@
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface);
-  font: inherit;
-  font-size: var(--concord-text-caption);
   color: var(--concord-text);
 }
 
@@ -7845,12 +8152,12 @@
 .concord-approver__link {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   padding: 14px 16px;
   border-left: 3px solid var(--concord-purple);
   border-radius: 0 12px 12px 0;
   background: rgba(236, 232, 244, 0.45);
-  color: var(--concord-text-secondary);
+  color: var(--concord-text);
   text-decoration: none;
   transition: background 0.15s ease;
 }
@@ -7860,18 +8167,24 @@
 }
 
 .concord-approver__link-title {
-  font-size: var(--concord-text-body);
+  font-size: 16px;
   font-weight: var(--concord-weight-semibold);
+  line-height: 1.45;
+  color: var(--concord-text);
 }
 
 .concord-approver__link-desc {
-  font-size: 12px;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-relaxed);
   color: var(--concord-text-secondary);
 }
 
 .concord-approver__link-url {
-  font-size: 12px;
-  color: var(--concord-purple);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-relaxed);
+  color: var(--concord-primary);
   word-break: break-all;
 }
 
@@ -7918,8 +8231,6 @@
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface);
   color: var(--concord-text);
-  font: inherit;
-  font-size: var(--concord-text-body);
   resize: none;
 }
 
@@ -8141,22 +8452,18 @@
   color: var(--concord-status-red-text);
 }
 
-/* ── Splash / logo intro ─────────────────────────────────────────── */
-/* One shared 3.4s timeline — no staggered delays between parts. */
+/* ── Splash / loading intro (TZ v2 — flat, ~1.8s) ───────────────── */
 
 .concord-splash {
-  --splash-duration: 3400ms;
-  --splash-ease: cubic-bezier(0.4, 0, 0.2, 1);
   position: fixed;
   inset: 0;
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(120% 80% at 50% 35%, #ffffff 0%, #f3f6fb 55%, #e8eef8 100%);
+  background: var(--splash-bg, #ffffff);
   opacity: 1;
-  transition: opacity 380ms var(--concord-motion-ease);
+  transition: opacity var(--splash-exit-ms, 220ms) var(--splash-ease-out-cubic, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 .concord-splash--leaving {
@@ -8166,7 +8473,7 @@
 
 .concord-splash-enter-active,
 .concord-splash-leave-active {
-  transition: opacity 380ms var(--concord-motion-ease);
+  transition: opacity var(--splash-exit-ms, 220ms) var(--splash-ease-out-cubic, cubic-bezier(0.33, 1, 0.68, 1));
 }
 
 .concord-splash-enter-from,
@@ -8178,245 +8485,150 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
-  transform: translateY(-4vh);
+  gap: 12px;
 }
 
 .concord-splash__mark {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 112px;
+  height: 112px;
 }
 
-.concord-splash__rings,
-.concord-splash__ticks {
-  position: absolute;
-  inset: 0;
-}
-
-.concord-splash__dot {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: var(--dot-size, 6px);
-  height: var(--dot-size, 6px);
-  margin: calc(var(--dot-size, 6px) / -2) 0 0 calc(var(--dot-size, 6px) / -2);
-  border-radius: 999px;
-  background: var(--dot-color, #2563eb);
-  opacity: 0;
-  transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(0.7);
-  animation: concord-splash-dot var(--splash-duration) var(--splash-ease) forwards;
-}
-
+/* Stage 2 — ticks appear clockwise from 12 o'clock */
 .concord-splash__tick {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 5px;
-  height: 17px;
-  margin: -8.5px 0 0 -2.5px;
+  width: 4px;
+  height: 14px;
+  margin: -7px 0 0 -2px;
   border-radius: 999px;
-  background: var(--tick-color, #2563eb);
+  background: var(--tick-color, #1f6bff);
   opacity: 0;
-  transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.55);
-  animation: concord-splash-tick var(--splash-duration) var(--splash-ease) forwards;
+  transform: rotate(var(--tick-angle)) translateY(-40px) scale(0.9);
+  animation: concord-splash-tick var(--splash-tick-appear-ms, 130ms) var(--splash-ease-out-cubic, cubic-bezier(0.33, 1, 0.68, 1))
+    var(--tick-delay, 0ms) forwards;
+  will-change: opacity, transform;
 }
 
-.concord-splash__tick--gap {
-  animation-name: concord-splash-tick-gap;
-}
-
+/* Stage 4 — brush-drawn check + spring settle */
 .concord-splash__check {
   position: absolute;
-  inset: 26px;
-  width: calc(100% - 52px);
-  height: calc(100% - 52px);
+  inset: 24px;
+  width: calc(100% - 48px);
+  height: calc(100% - 48px);
   opacity: 0;
-  transform: scale(0.82);
-  animation: concord-splash-check var(--splash-duration) var(--splash-ease) forwards;
+  transform: scale(1);
+  animation:
+    concord-splash-check-in 1ms linear var(--splash-check-delay, 1150ms) forwards,
+    concord-splash-check-spring var(--splash-check-spring-ms, 180ms) var(--splash-ease-spring, cubic-bezier(0.34, 1.22, 0.64, 1))
+      var(--splash-check-spring-delay, 1350ms) forwards;
 }
 
-.concord-splash__check-path {
-  stroke-dasharray: 48;
-  stroke-dashoffset: 48;
-  animation: concord-splash-check-draw var(--splash-duration) var(--splash-ease) forwards;
+.concord-splash__check-short,
+.concord-splash__check-long {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
 }
 
-.concord-splash__brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  opacity: 0;
-  transform: translateY(8px);
-  animation: concord-splash-brand var(--splash-duration) var(--splash-ease) forwards;
+.concord-splash__check-short {
+  animation: concord-splash-check-stroke var(--splash-check-short-ms, 84ms) var(--splash-ease-out-cubic, cubic-bezier(0.33, 1, 0.68, 1))
+    var(--splash-check-delay, 1150ms) forwards;
 }
 
+.concord-splash__check-long {
+  animation: concord-splash-check-stroke var(--splash-check-long-ms, 116ms) var(--splash-ease-out-cubic, cubic-bezier(0.33, 1, 0.68, 1))
+    calc(var(--splash-check-delay, 1150ms) + var(--splash-check-short-ms, 84ms)) forwards;
+}
+
+/* Stage 5 — brand wordmark */
 .concord-splash__name {
   margin: 0;
-  font-size: 28px;
-  font-weight: 700;
+  font-family: var(--concord-font-family);
+  font-size: 26px;
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: #152238;
-}
-
-.concord-splash__tagline {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: #7b8798;
-}
-
-/*
-  Timeline (% of 3400ms):
-  0–8%   fade in dotted C
-  8–28%  hold dots
-  28–42% stretch / blur dots
-  40–48% dots fade, dashes rise (crossfade)
-  48–62% dashes hold as C
-  62–74% gap closes into full ring
-  74–88% check + brand settle
-  88–100% hold finished mark
-*/
-
-@keyframes concord-splash-dot {
-  0% {
-    opacity: 0;
-    width: var(--dot-size, 6px);
-    height: var(--dot-size, 6px);
-    margin: calc(var(--dot-size, 6px) / -2) 0 0 calc(var(--dot-size, 6px) / -2);
-    transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(0.65);
-    filter: blur(0);
-  }
-
-  8%,
-  28% {
-    opacity: 1;
-    width: var(--dot-size, 6px);
-    height: var(--dot-size, 6px);
-    margin: calc(var(--dot-size, 6px) / -2) 0 0 calc(var(--dot-size, 6px) / -2);
-    transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(1);
-    filter: blur(0);
-  }
-
-  40% {
-    opacity: 0.9;
-    width: calc(var(--dot-size, 6px) * 1.85);
-    height: calc(var(--dot-size, 6px) * 0.7);
-    margin: calc(var(--dot-size, 6px) * -0.35) 0 0 calc(var(--dot-size, 6px) * -0.925);
-    transform: rotate(var(--dot-angle)) translateY(calc(var(--dot-radius) * -1)) scale(1);
-    filter: blur(0.4px);
-  }
-
-  48%,
-  100% {
-    opacity: 0;
-    width: 5px;
-    height: 14px;
-    margin: -7px 0 0 -2.5px;
-    transform: rotate(var(--dot-angle)) translateY(-42px) scale(0.9);
-    filter: blur(0);
-  }
+  color: var(--splash-brand, #17233d);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: concord-splash-brand var(--splash-brand-duration, 350ms) var(--splash-ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1))
+    var(--splash-brand-delay, 1450ms) forwards;
 }
 
 @keyframes concord-splash-tick {
-  0%,
-  40% {
+  from {
     opacity: 0;
-    width: 8px;
-    height: 8px;
-    margin: -4px 0 0 -4px;
-    transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.55);
+    transform: rotate(var(--tick-angle)) translateY(-40px) scale(0.9);
   }
 
-  48% {
+  to {
     opacity: 1;
-    width: 5px;
-    height: 15px;
-    margin: -7.5px 0 0 -2.5px;
-    transform: rotate(var(--tick-angle)) translateY(-42px) scale(1);
-  }
-
-  62%,
-  100% {
-    opacity: 1;
-    width: 5px;
-    height: 17px;
-    margin: -8.5px 0 0 -2.5px;
-    transform: rotate(var(--tick-angle)) translateY(-42px) scale(1);
+    transform: rotate(var(--tick-angle)) translateY(-40px) scale(1);
   }
 }
 
-@keyframes concord-splash-tick-gap {
-  0%,
-  62% {
-    opacity: 0;
-    width: 5px;
-    height: 17px;
-    margin: -8.5px 0 0 -2.5px;
-    transform: rotate(var(--tick-angle)) translateY(-42px) scale(0.45);
-  }
-
-  74%,
-  100% {
+@keyframes concord-splash-check-in {
+  to {
     opacity: 1;
-    width: 5px;
-    height: 17px;
-    margin: -8.5px 0 0 -2.5px;
-    transform: rotate(var(--tick-angle)) translateY(-42px) scale(1);
   }
 }
 
-@keyframes concord-splash-check {
-  0%,
-  74% {
-    opacity: 0;
-    transform: scale(0.82);
-  }
-
-  88%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes concord-splash-check-draw {
-  0%,
-  76% {
-    stroke-dashoffset: 48;
-  }
-
-  90%,
-  100% {
+@keyframes concord-splash-check-stroke {
+  to {
     stroke-dashoffset: 0;
   }
 }
 
-@keyframes concord-splash-brand {
-  0%,
-  12% {
-    opacity: 0;
-    transform: translateY(8px);
+@keyframes concord-splash-check-spring {
+  0% {
+    transform: scale(1);
   }
 
-  28%,
+  45% {
+    transform: scale(1.05);
+  }
+
   100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes concord-splash-brand {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .concord-splash__dot,
   .concord-splash__tick,
-  .concord-splash__tick--gap,
   .concord-splash__check,
-  .concord-splash__check-path,
-  .concord-splash__brand {
+  .concord-splash__check-short,
+  .concord-splash__check-long,
+  .concord-splash__name {
     animation-duration: 1ms !important;
     animation-delay: 0ms !important;
+  }
+
+  .concord-splash__check,
+  .concord-splash__name {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .concord-splash__tick {
+    opacity: 1 !important;
+    transform: rotate(var(--tick-angle)) translateY(-40px) scale(1) !important;
+  }
+
+  .concord-splash__check-short,
+  .concord-splash__check-long {
+    stroke-dashoffset: 0 !important;
   }
 }

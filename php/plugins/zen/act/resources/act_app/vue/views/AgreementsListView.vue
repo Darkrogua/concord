@@ -156,6 +156,8 @@
         :key="`search-${result.agreement.id}`"
         :result="result"
         :query="searchQuery"
+        :groups="groups"
+        :contacts="contacts"
         @open="onOpenAgreement"
       />
       <p v-if="searchQuery.trim() && searchResults.length === 0" class="concord-empty">

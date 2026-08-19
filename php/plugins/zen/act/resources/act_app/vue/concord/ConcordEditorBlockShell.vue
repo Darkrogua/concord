@@ -51,31 +51,43 @@
             @blur="commitLabel"
           >
         </label>
-        <button
-          type="button"
-          class="concord-editor-block__toggle"
-          :aria-expanded="expanded"
-          :aria-label="expanded ? 'Свернуть блок' : 'Развернуть блок'"
-          @click.stop="toggle"
-        >
+        <div class="concord-editor-block__head-actions">
           <span v-if="summary" class="concord-editor-block__summary">{{ summary }}</span>
-          <svg
-            class="concord-editor-block__chevron"
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            aria-hidden="true"
+          <button
+            type="button"
+            class="concord-editor-block__delete"
+            data-concord-no-toggle
+            aria-label="Удалить блок"
+            :disabled="isLocked()"
+            @click.stop="$emit('delete')"
           >
-            <path
-              d="M6 9l6 6 6-6"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
+            <ConcordGroupDeleteIcon />
+          </button>
+          <button
+            type="button"
+            class="concord-editor-block__toggle"
+            :aria-expanded="expanded"
+            :aria-label="expanded ? 'Свернуть блок' : 'Развернуть блок'"
+            @click.stop="toggle"
+          >
+            <svg
+              class="concord-editor-block__chevron"
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M6 9l6 6 6-6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div
@@ -95,11 +107,14 @@
 
 <script>
 import { inject, ref, watch } from 'vue'
+import ConcordGroupDeleteIcon from './ConcordGroupDeleteIcon.vue'
 
 const NO_TOGGLE_SELECTOR = [
   '[data-concord-no-toggle]',
   '.concord-editor-block__handle',
   '.concord-editor-block__head-text',
+  '.concord-editor-block__head-actions',
+  '.concord-editor-block__delete',
   '.concord-editor-block__label-input',
   '.concord-block__add-btn',
   '.concord-agreement-editor__add-btn',
@@ -118,6 +133,7 @@ const NO_TOGGLE_SELECTOR = [
 
 export default {
   name: 'ConcordEditorBlockShell',
+  components: { ConcordGroupDeleteIcon },
   props: {
     blockId: {
       type: String,
@@ -144,7 +160,7 @@ export default {
       default: false,
     },
   },
-  emits: ['expand', 'collapse', 'update:label'],
+  emits: ['expand', 'collapse', 'update:label', 'delete'],
   setup(props, { emit }) {
     const sectionBlocksLocked = inject('sectionBlocksLocked', false)
     const expanded = ref(props.defaultExpanded)
@@ -258,6 +274,7 @@ export default {
       expanded,
       labelInputRef,
       draftLabel,
+      isLocked,
       toggle,
       onShellClick,
       onLabelFocus,

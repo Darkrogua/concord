@@ -14,6 +14,7 @@
       :default-expanded="defaultExpandFirst && blockIndex === 0"
       :force-collapsed="isDragging"
       @update:label="(value) => renameEditorBlock(block, value)"
+      @delete="$emit('delete-block', block)"
     >
       <template #preview>
         <slot name="preview" :block="block" />
@@ -46,7 +47,8 @@ export default {
       default: false,
     },
   },
-  setup(props) {
+  emits: ['delete-block'],
+  setup(props, { emit }) {
     const listRef = ref(null)
     const isDragging = ref(false)
     const blocks = computed(() => props.section.blocks || [])

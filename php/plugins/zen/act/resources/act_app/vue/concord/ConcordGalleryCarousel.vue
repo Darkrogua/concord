@@ -19,8 +19,8 @@
             class="concord-gallery-carousel__image"
             loading="lazy"
           >
-          <figcaption v-if="photo.name" class="concord-gallery-carousel__caption">
-            {{ photo.name }}
+          <figcaption v-if="galleryPhotoCaption(photo)" class="concord-gallery-carousel__caption">
+            {{ galleryPhotoCaption(photo) }}
           </figcaption>
         </figure>
       </div>
@@ -112,6 +112,10 @@ export default {
 
     const showThumbnails = computed(() => props.photos.length > 5)
 
+    function galleryPhotoCaption(photo) {
+      return String(photo?.comment || '').trim()
+    }
+
     function scrollThumbIntoView(index) {
       const thumbs = thumbsRef.value
       if (!thumbs) {
@@ -165,6 +169,7 @@ export default {
       thumbsRef,
       activeIndex,
       showThumbnails,
+      galleryPhotoCaption,
       scrollTo,
       updateActiveIndex,
     }

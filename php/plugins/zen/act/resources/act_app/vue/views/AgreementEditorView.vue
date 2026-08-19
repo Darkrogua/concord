@@ -92,7 +92,7 @@
       </header>
 
       <div class="concord-agreement-editor__tabs-wrap">
-        <div class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Разделы согласования">
+        <div ref="sectionTabsRef" class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Разделы согласования">
           <button
             v-for="section in agreement.sections"
             :key="section.id"
@@ -210,6 +210,7 @@
               v-if="section.blocks?.length"
               :section="section"
               :default-expand-first="sectionExpanded"
+              @delete-block="requestDeleteBlock(section.id, $event)"
             >
               <template #preview="{ block }">
                 <template v-if="block.type === 'text'">
@@ -329,6 +330,27 @@
       :block="editingTextBlock"
       @close="closeTextEditor"
     />
+
+    <ConcordConfirmSheet
+      :open="blockDeleteConfirmOpen"
+      title="Удалить блок?"
+      :message="blockDeleteConfirmMessage"
+      confirm-label="Да"
+      cancel-label="Нет"
+      @confirm="confirmDeleteBlock"
+      @cancel="cancelDeleteBlock"
+    />
+
+    <ConcordConfirmSheet
+      :open="sectionSetupConfirmOpen"
+      title="Предыдущий раздел не настроен"
+      :message="sectionSetupConfirmMessage"
+      confirm-label="Всё равно добавить"
+      cancel-label="Настроить раздел"
+      confirm-tone="primary"
+      @confirm="confirmAddSection"
+      @cancel="openPreviousSectionSettings"
+    />
   </div>
 </template>
 
@@ -347,6 +369,7 @@ import ConcordLinksBlockCard from '../concord/ConcordLinksBlockCard.vue'
 import ConcordFilesBlockCard from '../concord/ConcordFilesBlockCard.vue'
 import ConcordEditorBlocksList from '../concord/ConcordEditorBlocksList.vue'
 import {
+  getEditorBlockLabel,
   getEditorBlockSummary,
   getTextBlockPreviewExcerpt,
   getTextBlockPreviewTitle,
@@ -359,6 +382,7 @@ import GroupsManageView from './GroupsManageView.vue'
 import GroupMembersView from './GroupMembersView.vue'
 import CreateGroupView from './CreateGroupView.vue'
 import TextBlockEditorSheet from '../concord/TextBlockEditorSheet.vue'
+import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import { resetConcordScrollPosition } from '../concord/scroll-top.js'
 
 export default {
@@ -378,6 +402,7 @@ export default {
     GroupsManageView,
     SectionSettingsView,
     TextBlockEditorSheet,
+    ConcordConfirmSheet,
   },
   props: {
     agreement: {
@@ -401,7 +426,7 @@ export default {
       default: '',
     },
   },
-  emits: ['back', 'add-block', 'add-section', 'delete-section', 'update-section', 'create-group', 'update-group', 'launch', 'update-agreement'],
+  emits: ['back', 'add-block', 'add-section', 'delete-section', 'delete-block', 'update-section', 'create-group', 'update-group', 'launch', 'update-agreement'],
   setup(props, { emit }) {
     const activeSectionId = ref(null)
     const openBlockTypesSectionId = ref(null)
@@ -411,6 +436,7 @@ export default {
     const editorHeaderVisible = ref(true)
     const editorTitleRef = ref(null)
     const editorTitleTwoLines = ref(false)
+    const sectionTabsRef = ref(null)
     const sectionRefs = new Map()
     const isProgrammaticScroll = ref(false)
     let sectionObserver = null
@@ -434,6 +460,25 @@ export default {
     const editingTextBlock = ref(null)
     const sectionPreviewOpen = ref(false)
     const previewSectionId = ref(null)
+
+    const blockDeleteConfirmOpen = ref(false)
+    const pendingBlockDelete = ref(null)
+    const sectionSetupConfirmOpen = ref(false)
+    const previousSectionForSetup = ref(null)
+
+    const blockDeleteConfirmMessage = computed(() => {
+      const label = pendingBlockDelete.value?.label
+      if (!label) {
+        return 'Вы уверены, что хотите удалить этот блок?'
+      }
+      return `Вы уверены, что хотите удалить блок «${label}»?`
+    })
+
+    const sectionSetupConfirmMessage = computed(() => {
+      const section = previousSectionForSetup.value
+      const title = section?.title || 'предыдущий раздел'
+      return `В разделе «${title}» нет согласующих. Проверьте участников и настройки перед созданием следующего раздела.`
+    })
 
     const descriptionRef = ref(null)
     const descriptionExpanded = ref(false)
@@ -732,21 +777,11 @@ export default {
       }
 
       sectionObserver = new IntersectionObserver(
-        (entries) => {
+        () => {
           if (isProgrammaticScroll.value) {
             return
           }
-          const visible = entries
-            .filter((entry) => entry.isIntersecting)
-            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-          const topEntry = visible[0]
-          if (!topEntry) {
-            return
-          }
-          const sectionId = topEntry.target.dataset.sectionId
-          if (sectionId) {
-            activeSectionId.value = sectionId
-          }
+          updateActiveSectionFromScroll()
         },
         {
           root: null,
@@ -816,6 +851,17 @@ export default {
 
     watch(editorChromeHeight, () => {
       setupSectionObserver()
+    })
+
+    watch(activeSectionId, (sectionId) => {
+      if (!sectionId) {
+        return
+      }
+      nextTick(() => {
+        sectionTabsRef.value
+          ?.querySelector(`[role="tab"][aria-selected="true"]`)
+          ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+      })
     })
 
     function openAgreementSettings() {
@@ -906,13 +952,45 @@ export default {
       editingTextBlock.value = null
     }
 
-    function openNewSection() {
+    function addNewSection() {
       const nextIndex = (props.agreement?.sections?.length || 0) + 1
       emit('add-section', {
         title: `Раздел ${nextIndex}`,
         participantIds: [],
         groupIds: [],
       })
+    }
+
+    function openNewSection() {
+      const sections = props.agreement?.sections || []
+      const previousSection = sections[sections.length - 1]
+      const hasParticipants = Boolean(
+        previousSection
+        && ((previousSection.participantIds?.length || 0) > 0 || (previousSection.groupIds?.length || 0) > 0)
+      )
+
+      if (!previousSection || hasParticipants) {
+        addNewSection()
+        return
+      }
+
+      previousSectionForSetup.value = previousSection
+      sectionSetupConfirmOpen.value = true
+    }
+
+    function confirmAddSection() {
+      sectionSetupConfirmOpen.value = false
+      previousSectionForSetup.value = null
+      addNewSection()
+    }
+
+    function openPreviousSectionSettings() {
+      const sectionId = previousSectionForSetup.value?.id
+      sectionSetupConfirmOpen.value = false
+      previousSectionForSetup.value = null
+      if (sectionId) {
+        openSectionSettings(sectionId)
+      }
     }
 
     function openSectionSettings(sectionId) {
@@ -966,6 +1044,34 @@ export default {
         activeSectionId.value = props.agreement?.sections?.[0]?.id || null
       }
       closeSectionSettings()
+    }
+
+    function requestDeleteBlock(sectionId, block) {
+      if (!sectionId || !block?.id) {
+        return
+      }
+      pendingBlockDelete.value = {
+        sectionId,
+        blockId: block.id,
+        label: getEditorBlockLabel(block),
+      }
+      blockDeleteConfirmOpen.value = true
+    }
+
+    function cancelDeleteBlock() {
+      blockDeleteConfirmOpen.value = false
+      pendingBlockDelete.value = null
+    }
+
+    function confirmDeleteBlock() {
+      if (!pendingBlockDelete.value) {
+        return
+      }
+      emit('delete-block', {
+        sectionId: pendingBlockDelete.value.sectionId,
+        blockId: pendingBlockDelete.value.blockId,
+      })
+      cancelDeleteBlock()
     }
 
     function openSectionGroupPicker(groupIds = []) {
@@ -1065,6 +1171,7 @@ export default {
       editorChromeRef,
       editorTitleRef,
       editorTitleTwoLines,
+      sectionTabsRef,
       editorChromeHeight,
       editorHeaderVisible,
       editorPageStyle,
@@ -1123,6 +1230,15 @@ export default {
       closeSectionSettings,
       onSectionSettingsSave,
       onSectionDelete,
+      blockDeleteConfirmOpen,
+      blockDeleteConfirmMessage,
+      sectionSetupConfirmOpen,
+      sectionSetupConfirmMessage,
+      requestDeleteBlock,
+      cancelDeleteBlock,
+      confirmDeleteBlock,
+      confirmAddSection,
+      openPreviousSectionSettings,
       openSectionGroupPicker,
       closeSectionGroupPicker,
       onSectionGroupsConfirm,

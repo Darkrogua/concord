@@ -1,12 +1,12 @@
 <template>
   <div class="concord-text-block-inline">
-    <label class="concord-text-block__field">
+    <label class="concord-text-block__field concord-text-block__field--inner-heading">
       <span class="concord-text-block__label">Заголовок</span>
       <input
         v-model="block.title"
         type="text"
-        class="concord-text-block__input"
-        placeholder="Заголовок блока"
+        class="concord-text-block__input concord-text-block__input--inner-heading"
+        placeholder="Подзаголовок внутри блока"
       >
     </label>
 

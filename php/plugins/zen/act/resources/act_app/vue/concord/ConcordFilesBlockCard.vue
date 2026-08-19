@@ -17,7 +17,15 @@
         :key="file.id"
         class="concord-files-block__item"
       >
-        <div class="concord-files-block__preview">
+        <div
+          class="concord-files-block__preview"
+          role="button"
+          tabindex="0"
+          :aria-label="`Скачать ${file.name || 'файл'}`"
+          @click="downloadFile(file)"
+          @keydown.enter.prevent="downloadFile(file)"
+          @keydown.space.prevent="downloadFile(file)"
+        >
           <img
             v-if="file.previewUrl"
             :src="file.previewUrl"
@@ -34,12 +42,19 @@
             type="button"
             class="concord-files-block__delete"
             aria-label="Удалить файл"
-            @click="removeFile(file.id)"
+            @click.stop="removeFile(file.id)"
           >
             <ConcordGroupDeleteIcon />
           </button>
         </div>
         <p class="concord-files-block__name">{{ file.name }}</p>
+        <input
+          v-model="file.comment"
+          type="text"
+          class="concord-files-block__comment"
+          placeholder="Комментарий"
+          aria-label="Комментарий к файлу"
+        >
       </div>
     </div>
 
@@ -60,6 +75,8 @@
 <script>
 import { ref } from 'vue'
 import ConcordGroupDeleteIcon from './ConcordGroupDeleteIcon.vue'
+import { cacheAgreementFileContent } from './agreement-file-content.js'
+import { downloadAgreementFile, getAgreementFileSource, isTextLikeAgreementFile } from './file-download-utils.js'
 import { normalizeFilesBlock } from './mock-agreements.js'
 
 export default {
@@ -88,13 +105,39 @@ export default {
           name: file.name,
           mime: file.type,
           previewUrl: null,
+          downloadUrl: '',
+          textContent: '',
+          comment: '',
         }
         props.block.files.push(entry)
 
-        if (file.type.startsWith('image/')) {
+        if (isTextLikeAgreementFile(file)) {
+          const textReader = new FileReader()
+          textReader.onload = () => {
+            entry.textContent = String(textReader.result || '')
+            const mime = file.type || 'text/plain;charset=utf-8'
+            entry.downloadUrl = `data:${mime},${encodeURIComponent(entry.textContent)}`
+            cacheAgreementFileContent(entry.id, {
+              downloadUrl: entry.downloadUrl,
+              textContent: entry.textContent,
+              mime: entry.mime,
+              name: entry.name,
+            })
+          }
+          textReader.readAsText(file)
+        } else {
           const reader = new FileReader()
           reader.onload = () => {
-            entry.previewUrl = reader.result
+            entry.downloadUrl = reader.result
+            if (file.type.startsWith('image/')) {
+              entry.previewUrl = reader.result
+            }
+            cacheAgreementFileContent(entry.id, {
+              downloadUrl: entry.downloadUrl,
+              previewUrl: entry.previewUrl,
+              mime: entry.mime,
+              name: entry.name,
+            })
           }
           reader.readAsDataURL(file)
         }
@@ -106,11 +149,16 @@ export default {
       props.block.files = props.block.files.filter((item) => item.id !== fileId)
     }
 
+    function downloadFile(file) {
+      downloadAgreementFile(file)
+    }
+
     return {
       fileInput,
       openFilePicker,
       onFilesSelected,
       removeFile,
+      downloadFile,
     }
   },
 }

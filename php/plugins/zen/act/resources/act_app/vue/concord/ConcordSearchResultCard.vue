@@ -1,5 +1,5 @@
 <template>
-  <article class="concord-search-result">
+  <article class="concord-search-result" :class="cardModifiers">
     <button type="button" class="concord-search-result__button" @click="$emit('open', result)">
       <div class="concord-search-result__header">
         <span class="concord-search-result__number">#{{ agreement.number }}</span>
@@ -24,6 +24,18 @@
         </span>
       </p>
 
+      <div class="concord-search-result__footer">
+        <div class="concord-card__progress" aria-hidden="true">
+          <div class="concord-card__progress-track">
+            <div class="concord-card__progress-fill" :style="{ width: `${progressPercent}%` }" />
+          </div>
+        </div>
+
+        <span class="concord-card__count" aria-label="Прогресс голосования">
+          <span class="concord-card__count-voted">{{ votedCount }}</span><span class="concord-card__count-sep"> из </span><span class="concord-card__count-total">{{ participantsCount }}</span>
+        </span>
+      </div>
+
       <svg class="concord-search-result__arrow" viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
         <path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -32,6 +44,11 @@
 </template>
 
 <script>
+import {
+  resolveSectionVotersCount,
+  sectionHasConfiguredParticipants,
+} from './mock-groups.js'
+
 function highlightParts(value, query) {
   const text = String(value || '')
   const needle = String(query || '').trim()
@@ -60,6 +77,61 @@ function highlightParts(value, query) {
   return parts.length ? parts : [{ text, match: false }]
 }
 
+function getSectionVotersTotal(section, groups, contacts) {
+  const live = resolveSectionVotersCount(section, groups, contacts)
+  const snapshot = Array.isArray(section?.voterIds) ? section.voterIds.length : 0
+  const stored = Number(section?.total) || 0
+  const groupIds = section?.groupIds || []
+  const hasMissingGroups = groupIds.some(
+    (groupId) => !groups.some((group) => group.id === groupId)
+  )
+
+  if (hasMissingGroups) {
+    return Math.max(live, snapshot, stored)
+  }
+  if (sectionHasConfiguredParticipants(section) || live || snapshot || stored) {
+    return live || snapshot || stored
+  }
+  return 0
+}
+
+function getAgreementMetrics(agreement, groups, contacts) {
+  let total = 0
+  let voted = 0
+
+  for (const section of agreement?.sections || []) {
+    const sectionTotal = getSectionVotersTotal(section, groups, contacts)
+    total += sectionTotal
+
+    const sectionVoted = (section.votes || []).filter((vote) => vote?.participantId).length
+    voted += sectionVoted || Number(section.voted) || 0
+  }
+
+  if (!total) {
+    total = agreement?.total || agreement?.participants?.length || 0
+    voted = agreement?.voted || 0
+  }
+
+  return {
+    total,
+    voted: Math.min(total, voted),
+  }
+}
+
+function progressFor(agreement, groups, contacts) {
+  const metrics = getAgreementMetrics(agreement, groups, contacts)
+  if (!metrics.total) {
+    return 0
+  }
+  if (agreement.isOwner && agreement.status === 'approved') {
+    return 100
+  }
+  if (agreement.status === 'approved' || agreement.status === 'completed') {
+    return 100
+  }
+  return Math.min(100, Math.round((metrics.voted / metrics.total) * 100))
+}
+
 export default {
   name: 'ConcordSearchResultCard',
   props: {
@@ -70,6 +142,14 @@ export default {
     query: {
       type: String,
       default: '',
+    },
+    groups: {
+      type: Array,
+      default: () => [],
+    },
+    contacts: {
+      type: Array,
+      default: () => [],
     },
   },
   emits: ['open'],
@@ -94,6 +174,34 @@ export default {
     },
     highlightedPreview() {
       return highlightParts(this.match?.preview, this.query)
+    },
+    participantsCount() {
+      return getAgreementMetrics(this.agreement, this.groups, this.contacts).total
+    },
+    votedCount() {
+      return getAgreementMetrics(this.agreement, this.groups, this.contacts).voted
+    },
+    progressPercent() {
+      return progressFor(this.agreement, this.groups, this.contacts)
+    },
+    progressTone() {
+      if (this.agreement.status === 'draft' || !this.agreement.createdAt) {
+        return 'draft'
+      }
+      if (
+        (this.agreement.isOwner && this.agreement.status === 'approved')
+        || this.agreement.status === 'approved'
+        || this.agreement.status === 'completed'
+      ) {
+        return 'done'
+      }
+      if (this.agreement.isOwner) {
+        return 'owner'
+      }
+      return 'participant'
+    },
+    cardModifiers() {
+      return [`concord-card--progress-${this.progressTone}`]
     },
   },
 }

@@ -4,35 +4,36 @@
     :class="`concord-filter-chip-icon--${category}`"
     aria-hidden="true"
   >
-    <svg v-if="category === 'urgency'" viewBox="0 0 24 24" fill="none">
+    <ConcordUrgencyFlame v-if="category === 'urgency'" urgent />
+    <svg v-else-if="category === 'created'" viewBox="0 0 24 24" fill="none">
       <path
-        d="M12 20.5C7.4 16.8 5 12.8 6.5 8.8 7.4 6.5 9 7.8 9.8 9.5 9.6 7.2 10.8 5.2 12 4 13.2 5.2 14.4 7.2 14.6 9.5 15.4 7.8 17 6.5 18.5 8.8 20 12.8 16.6 16.8 12 20.5Z"
         fill="currentColor"
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5a1 1 0 0 0-2 0v5.2a1 1 0 0 0 .45.83l3.5 2.1a1 1 0 1 0 1.02-1.72L13 11.68V7Z"
       />
     </svg>
-    <svg v-else-if="category === 'created'" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.6"/>
-      <path d="M12 7.5v5l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-    </svg>
     <svg v-else-if="category === 'participant'" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6"/>
-      <path d="M6 19.5c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <path
+        fill="currentColor"
+        d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-3.87 0-7 2.13-7 4.75V21h14v-2.25C19 16.13 15.87 14 12 14Z"
+      />
     </svg>
     <svg v-else viewBox="0 0 24 24" fill="none">
       <path
-        d="M4 5.5h16l-2.2 7.2a2 2 0 0 1-1.9 1.3H8.1a2 2 0 0 1-1.9-1.3L4 5.5Z"
-        stroke="currentColor"
-        stroke-width="1.6"
-        stroke-linejoin="round"
+        fill="currentColor"
+        d="M4 5.5h16l-2.2 7.2a2 2 0 0 1-1.9 1.3H8.1a2 2 0 0 1-1.9-1.3L4 5.5Zm4.6 9.5h6.8l1.1-3.5H7.5l1.1 3.5Z"
       />
-      <path d="M9.5 14v4M14.5 14v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
     </svg>
   </span>
 </template>
 
 <script>
+import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
+
 export default {
   name: 'FilterChipIcon',
+  components: { ConcordUrgencyFlame },
   props: {
     category: {
       type: String,

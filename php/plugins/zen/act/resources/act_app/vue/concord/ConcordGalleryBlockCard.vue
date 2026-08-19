@@ -65,6 +65,13 @@
                   </svg>
                 </button>
               </div>
+              <input
+                v-model="photo.comment"
+                type="text"
+                class="concord-gallery-block__comment"
+                placeholder="Комментарий"
+                aria-label="Комментарий к фото"
+              />
             </div>
           </div>
         </div>
@@ -192,6 +199,7 @@ export default {
           name: file.name,
           mime: file.type,
           previewUrl: '',
+          comment: '',
         }
         props.block.photos.push(entry)
 

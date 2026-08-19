@@ -42,6 +42,7 @@
   --concord-text-card: 14px;
   --concord-text-body: 14px;
   --concord-text-caption: 12px;
+  --concord-text-field: 16px;
   --concord-text-badge: 13px;
   --concord-text-nav: 11px;
   --concord-text-sheet: 18px;
@@ -94,19 +95,25 @@
   /* === Badges === */
   --concord-badge: #dc2626;
   --concord-tab-badge: #dc2626;
-  --concord-count-badge-size: 18px;
-  --concord-count-badge-padding-x: 4px;
-  --concord-count-badge-font-size: 11px;
+  --concord-count-badge-size: 10px;
+  --concord-count-badge-padding-x: 0;
+  --concord-count-badge-font-size: 0;
   --concord-count-badge-font-weight: 700;
   --concord-count-badge-bg: var(--concord-badge);
-  --concord-count-badge-border-width: 2px;
-  --concord-count-badge-border-color: var(--concord-surface);
-  --concord-count-badge-offset-x: -6px;
-  --concord-count-badge-offset-y: -6px;
+  --concord-count-badge-ring-width: 1.5px;
+  --concord-count-badge-ring-color: var(--concord-surface);
+  --concord-count-badge-border-width: var(--concord-count-badge-ring-width);
+  --concord-count-badge-border-color: var(--concord-count-badge-ring-color);
+  --concord-count-badge-offset-x: -4px;
+  --concord-count-badge-offset-y: -4px;
 
   /* === Chips / filters === */
   --concord-section-count-bg: var(--concord-surface-muted);
   --concord-filter-chip-bg: var(--concord-surface-muted);
+  --concord-filter-icon-urgency: var(--concord-deadline-overdue);
+  --concord-filter-icon-created: var(--concord-primary);
+  --concord-filter-icon-participant: #7c3aed;
+  --concord-filter-icon-status: var(--concord-status-green);
 
   /* === Card roles === */
   --concord-role-participant-accent: #2563eb;
