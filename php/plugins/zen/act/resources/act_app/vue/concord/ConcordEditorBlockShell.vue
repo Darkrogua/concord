@@ -33,42 +33,23 @@
           @click.stop
         >
           <span class="concord-editor-block__label-hint">Название</span>
-          <span class="concord-editor-block__label-row">
-            <input
-              ref="labelInputRef"
-              v-model="draftLabel"
-              class="concord-editor-block__label-input"
-              type="text"
-              :placeholder="placeholder"
-              autocomplete="off"
-              autocorrect="off"
-              spellcheck="false"
-              @click.stop
-              @mousedown.stop
-              @pointerdown.stop
-              @keydown.enter.prevent="blurLabelInput"
-              @keydown.esc.prevent="revertLabel"
-              @focus="onLabelFocus"
-              @blur="commitLabel"
-            >
-            <svg
-              class="concord-editor-block__label-pencil"
-              viewBox="0 0 16 16"
-              width="15"
-              height="15"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="m3 11.8.6-2.7 6.7-6.7a1.2 1.2 0 0 1 1.7 0l1.6 1.6a1.2 1.2 0 0 1 0 1.7L6.9 12.4l-2.7.6-1.2-1.2Z"
-                stroke="currentColor"
-                stroke-width="1.3"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path d="m9.5 3.2 3.3 3.3" stroke="currentColor" stroke-width="1.3" />
-            </svg>
-          </span>
+          <input
+            ref="labelInputRef"
+            v-model="draftLabel"
+            class="concord-editor-block__label-input"
+            type="text"
+            :placeholder="placeholder"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+            @click.stop
+            @mousedown.stop
+            @pointerdown.stop
+            @keydown.enter.prevent="blurLabelInput"
+            @keydown.esc.prevent="revertLabel"
+            @focus="onLabelFocus"
+            @blur="commitLabel"
+          >
         </label>
         <div class="concord-editor-block__head-actions">
           <span v-if="summary" class="concord-editor-block__summary">{{ summary }}</span>

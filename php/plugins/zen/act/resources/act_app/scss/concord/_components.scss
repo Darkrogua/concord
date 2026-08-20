@@ -2326,14 +2326,6 @@
   -webkit-user-select: none;
 }
 
-.concord-editor-block__label-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  max-width: 210px;
-}
-
 .concord-editor-block__label-input {
   min-width: 4ch;
   max-width: 100%;
@@ -2342,6 +2334,7 @@
   margin: 0;
   padding: 4px 0;
   border: none;
+  border-bottom: 1px solid var(--concord-border);
   border-radius: 0;
   background: transparent;
   font-weight: var(--concord-weight-semibold);
@@ -2354,24 +2347,18 @@
   pointer-events: auto;
 }
 
+.concord-editor-block__label-input:hover {
+  border-bottom-color: color-mix(in srgb, var(--concord-text-secondary) 55%, var(--concord-border));
+}
+
 .concord-editor-block__label-input:focus {
   outline: none;
+  border-bottom-color: var(--concord-accent, #5e4db2);
 }
 
 .concord-editor-block__label-input::placeholder {
   color: var(--concord-text-secondary);
   opacity: 0.8;
-}
-
-.concord-editor-block__label-pencil {
-  flex: 0 0 auto;
-  color: var(--concord-text-secondary);
-  pointer-events: none;
-  transition: color 0.16s ease;
-}
-
-.concord-editor-block__label-row:focus-within .concord-editor-block__label-pencil {
-  color: var(--concord-accent, #5e4db2);
 }
 
 .concord-editor-block__summary {
