@@ -160,10 +160,12 @@
         :message="leaveConfirmMessage"
         :confirm-label="leaveConfirmConfirmLabel"
         :cancel-label="leaveConfirmCancelLabel"
+        :extra-action-label="leaveConfirmResetLabel"
         confirm-tone="primary"
         :close-on-backdrop="true"
         @confirm="onLeaveConfirmPrimary"
-        @cancel="onLeaveConfirmSecondary"
+        @cancel="onLeaveConfirmDismiss"
+        @extra="onLeaveConfirmSecondary"
         @dismiss="onLeaveConfirmDismiss"
       />
     </Teleport>
@@ -379,17 +381,19 @@ export default {
 
     const leaveConfirmMessage = computed(() => {
       if (agreementHasVotes(editingAgreement.value)) {
-        return 'Обнулить — все уже поставленные голоса будут сняты, и согласующим нужно будет проголосовать заново. Не обнулять — сохранит изменения и выйдет из редактора.'
+        return 'Согласование уже запущено, и участники могли проголосовать. Сохранить без сброса — текущие голоса останутся в силе. Обнулить и сохранить — все поставленные голоса будут сняты, и согласующим потребуется проголосовать заново.'
       }
       return 'Сохранить изменения и выйти из редактора?'
     })
 
     const leaveConfirmConfirmLabel = computed(() => (
-      agreementHasVotes(editingAgreement.value) ? 'Не обнулять' : 'Сохранить'
+      agreementHasVotes(editingAgreement.value) ? 'Сохранить без сброса' : 'Сохранить'
     ))
 
-    const leaveConfirmCancelLabel = computed(() => (
-      agreementHasVotes(editingAgreement.value) ? 'Обнулить' : 'Отмена'
+    const leaveConfirmCancelLabel = computed(() => 'Отмена')
+
+    const leaveConfirmResetLabel = computed(() => (
+      agreementHasVotes(editingAgreement.value) ? 'Обнулить и сохранить' : ''
     ))
 
     function resetAgreementEditorSession() {
@@ -1009,6 +1013,7 @@ function onAgreementEditorUpdated() {
       leaveConfirmMessage,
       leaveConfirmConfirmLabel,
       leaveConfirmCancelLabel,
+      leaveConfirmResetLabel,
       onLeaveConfirmPrimary,
       onLeaveConfirmSecondary,
       onLeaveConfirmDismiss,

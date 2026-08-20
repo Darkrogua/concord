@@ -1469,6 +1469,22 @@
   margin-top: 20px;
 }
 
+.concord-create-sheet__actions--three {
+  flex-direction: column;
+}
+
+.concord-create-sheet__actions--three .concord-create-sheet__btn--save {
+  order: 1;
+}
+
+.concord-create-sheet__actions--three .concord-create-sheet__btn--danger {
+  order: 2;
+}
+
+.concord-create-sheet__actions--three .concord-create-sheet__btn--cancel {
+  order: 3;
+}
+
 .concord-create-sheet__btn {
   flex: 1;
   min-height: 48px;

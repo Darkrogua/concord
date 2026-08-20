@@ -6,13 +6,25 @@
       <h2 :id="titleId" class="concord-confirm-sheet__title">{{ title }}</h2>
       <p v-if="message" class="concord-confirm-sheet__message">{{ message }}</p>
 
-      <div class="concord-create-sheet__actions">
+      <div
+        class="concord-create-sheet__actions"
+        :class="{ 'concord-create-sheet__actions--three': extraActionLabel }"
+      >
         <button
           type="button"
           class="concord-create-sheet__btn concord-create-sheet__btn--cancel"
           @click="$emit('cancel')"
         >
           {{ cancelLabel }}
+        </button>
+        <button
+          v-if="extraActionLabel"
+          type="button"
+          class="concord-create-sheet__btn"
+          :class="extraActionTone === 'primary' ? 'concord-create-sheet__btn--save' : 'concord-create-sheet__btn--danger'"
+          @click="$emit('extra')"
+        >
+          {{ extraActionLabel }}
         </button>
         <button
           type="button"
@@ -56,12 +68,21 @@ export default {
       default: 'danger',
       validator: (value) => ['danger', 'primary'].includes(value),
     },
+    extraActionLabel: {
+      type: String,
+      default: '',
+    },
+    extraActionTone: {
+      type: String,
+      default: 'danger',
+      validator: (value) => ['danger', 'primary'].includes(value),
+    },
     closeOnBackdrop: {
       type: Boolean,
       default: true,
     },
   },
-  emits: ['confirm', 'cancel', 'dismiss'],
+  emits: ['confirm', 'cancel', 'dismiss', 'extra'],
   setup(props, { emit }) {
     const titleId = `concord-confirm-sheet-title-${Math.random().toString(36).slice(2, 9)}`
 
