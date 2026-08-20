@@ -762,6 +762,122 @@ export function ensureAgreementSections(agreement) {
   return agreement
 }
 
+export function isLaunchedAgreement(agreement) {
+  return Boolean(agreement?.status && agreement.status !== 'draft')
+}
+
+export function agreementHasVotes(agreement) {
+  return (agreement?.sections || []).some((section) => (section.votes || []).length > 0)
+}
+
+export function getAgreementEditFingerprint(agreement) {
+  if (!agreement) {
+    return ''
+  }
+  return JSON.stringify({
+    title: agreement.title || '',
+    description: agreement.description || '',
+    startDate: agreement.startDate || '',
+    deadline: agreement.deadline || '',
+    isUrgent: Boolean(agreement.isUrgent),
+    sections: (agreement.sections || []).map((section) => ({
+      id: section.id,
+      title: section.title || '',
+      participantIds: [...(section.participantIds || [])].sort(),
+      groupIds: [...(section.groupIds || [])].sort(),
+      leaderId: section.leaderId || null,
+      startDate: section.startDate || '',
+      deadline: section.deadline || '',
+      settings: section.settings || null,
+      blocks: (section.blocks || []).map((block) => ({
+        id: block.id,
+        type: block.type,
+        label: block.label || '',
+        title: block.title || '',
+        description: block.description || '',
+        content: block.content || '',
+        prompt: block.prompt || '',
+        photos: (block.photos || []).map((photo) => ({
+          id: photo.id,
+          name: photo.name || '',
+          comment: photo.comment || '',
+        })),
+        files: (block.files || []).map((file) => ({
+          id: file.id,
+          name: file.name || '',
+          comment: file.comment || '',
+        })),
+        links: (block.links || []).map((link) => ({
+          id: link.id,
+          url: link.url || '',
+          title: link.title || '',
+        })),
+        items: (block.items || []).map((item) => ({
+          id: item.id,
+          label: item.label || '',
+          checked: Boolean(item.checked),
+        })),
+      })),
+    })),
+  })
+}
+
+export function ensureAgreementEditBaseline(agreement) {
+  if (!agreement || !isLaunchedAgreement(agreement)) {
+    return
+  }
+  if (!agreement.editBaselineFingerprint) {
+    agreement.editBaselineFingerprint = getAgreementEditFingerprint(agreement)
+  }
+}
+
+export function setAgreementEditBaseline(agreement) {
+  if (!agreement) {
+    return
+  }
+  agreement.editBaselineFingerprint = getAgreementEditFingerprint(agreement)
+}
+
+export function agreementHasPendingEdits(agreement) {
+  if (!agreement || !isLaunchedAgreement(agreement)) {
+    return false
+  }
+  ensureAgreementEditBaseline(agreement)
+  return getAgreementEditFingerprint(agreement) !== agreement.editBaselineFingerprint
+}
+
+export function collectAgreementVotedParticipantIds(agreement) {
+  const ids = new Set()
+  for (const section of agreement?.sections || []) {
+    for (const vote of section.votes || []) {
+      if (vote?.participantId) {
+        ids.add(vote.participantId)
+      }
+    }
+  }
+  return [...ids]
+}
+
+export function resetAgreementVotes(agreement) {
+  const resetParticipantIds = collectAgreementVotedParticipantIds(agreement)
+  if (!agreement?.sections) {
+    return resetParticipantIds
+  }
+  for (const section of agreement.sections) {
+    section.votes = []
+    delete section.userVote
+    section.voted = 0
+    const total = section.total || section.voterIds?.length || 0
+    section.votingStats = {
+      approved: 0,
+      rejected: 0,
+      pending: total > 0 ? 100 : 0,
+    }
+  }
+  agreement.voted = 0
+  return resetParticipantIds
+}
+
 /**
  * @typedef {Object} CreateAgreementForm
  * @property {string} title

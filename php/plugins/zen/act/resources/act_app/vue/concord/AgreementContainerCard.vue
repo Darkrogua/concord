@@ -70,17 +70,27 @@
       </div>
 
       <div class="concord-container__footer-facts">
-        <div class="concord-container__footer-fact">
+        <button
+          type="button"
+          class="concord-container__footer-fact concord-container__footer-fact--action"
+          aria-label="Настроить сроки раздела"
+          @click="$emit('section-schedule')"
+        >
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
             <rect x="4.5" y="5.5" width="15" height="14" rx="1.5" stroke="currentColor" stroke-width="1.6"/>
             <path d="M8 3.8v3.6M16 3.8v3.6M4.5 10h15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
           </svg>
           <div>
             <span>Срок согласования</span>
-            <strong>{{ agreement.deadline || 'Не указан' }}</strong>
+            <strong>{{ sectionDeadline || 'Не указан' }}</strong>
           </div>
-        </div>
-        <div class="concord-container__footer-fact">
+        </button>
+        <button
+          type="button"
+          class="concord-container__footer-fact concord-container__footer-fact--action"
+          aria-label="Настроить участников раздела"
+          @click="$emit('section-participants')"
+        >
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
             <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6"/>
             <path d="M5.5 20c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -89,7 +99,7 @@
             <span>Согласующих</span>
             <strong>{{ votersLabel }}</strong>
           </div>
-        </div>
+        </button>
       </div>
 
       <div class="concord-container__voting">
@@ -210,7 +220,7 @@ export default {
       default: () => [],
     },
   },
-  emits: ['preview', 'section-settings'],
+  emits: ['preview', 'section-settings', 'section-schedule', 'section-participants'],
   setup() {
     const expanded = ref(true)
     const reasonModalOpen = ref(false)
@@ -244,6 +254,9 @@ export default {
     },
     sectionMeta() {
       return buildSectionMeta(this.section)
+    },
+    sectionDeadline() {
+      return this.section?.deadline || this.agreement?.deadline || ''
     },
     sectionParticipants() {
       return resolveSectionParticipants(this.section, this.groups, this.contacts)

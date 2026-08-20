@@ -1181,18 +1181,12 @@
   gap: 0;
   padding: 4px 4px calc(4px + var(--concord-safe-bottom));
   background: var(--concord-nav-bg);
-  border-top: 1px solid var(--concord-nav-border);
+  border-top: none;
   border-radius: 0;
 }
 
 .concord-nav__divider {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: var(--concord-nav-separator-bottom);
-  height: 1px;
-  background: var(--concord-border);
-  pointer-events: none;
+  display: none;
 }
 
 .concord-nav__item {
@@ -1735,6 +1729,14 @@
   background: rgba(0, 0, 0, 0.35);
 }
 
+.concord-sheet-backdrop--top {
+  z-index: 280;
+}
+
+.concord-confirm-sheet--top {
+  z-index: 290;
+}
+
 .concord-sheet {
   position: fixed;
   left: 0;
@@ -2008,6 +2010,104 @@
   align-items: center;
   gap: 10px;
   color: var(--concord-text-secondary);
+}
+
+.concord-page--editor .concord-container--editor .concord-container__footer-fact--action {
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.concord-page--editor .concord-container--editor .concord-container__footer-fact--action:focus-visible {
+  outline: 2px solid var(--concord-primary);
+  outline-offset: 3px;
+  border-radius: var(--concord-radius-xs);
+}
+
+.concord-section-schedule-sheet {
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.concord-section-participants-sheet {
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+.concord-section-participants-sheet__hint {
+  margin: 0 0 14px;
+  font-size: var(--concord-text-caption);
+  line-height: 1.4;
+  color: var(--concord-text-secondary);
+}
+
+.concord-section-participants-sheet__settings-link {
+  display: block;
+  width: 100%;
+  margin: 8px 0 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--concord-text-caption);
+  line-height: 1.4;
+  color: var(--concord-purple);
+  text-align: left;
+  cursor: pointer;
+}
+
+.concord-section-participants-sheet__settings-link:focus-visible {
+  outline: 2px solid var(--concord-primary);
+  outline-offset: 2px;
+  border-radius: var(--concord-radius-xs);
+}
+
+.concord-section-schedule-sheet__hint,
+.concord-section-schedule-sheet__error {
+  margin: 0 0 14px;
+  font-size: var(--concord-text-caption);
+  line-height: 1.4;
+}
+
+.concord-section-schedule-sheet__hint {
+  color: var(--concord-text-secondary);
+}
+
+.concord-section-schedule-sheet__error {
+  color: var(--concord-status-red-text);
+}
+
+.concord-section-schedule-sheet__fields {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.concord-section-schedule-sheet__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--concord-text-caption);
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-text-secondary);
+}
+
+.concord-section-schedule-sheet__field > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: 8px;
+}
+
+.concord-section-schedule-sheet__field input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-surface-muted);
+  color: var(--concord-text);
 }
 
 .concord-page--editor .concord-container--editor .concord-container__footer-fact > div {
@@ -6734,6 +6834,53 @@
   padding: 12px 16px;
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface-muted);
+  color: var(--concord-text);
+}
+
+.concord-section-settings__dates-hint,
+.concord-section-settings__dates-error {
+  margin: 0 0 10px;
+  font-size: var(--concord-text-caption);
+  line-height: 1.4;
+}
+
+.concord-section-settings__dates-hint {
+  color: var(--concord-text-secondary);
+}
+
+.concord-section-settings__dates-error {
+  color: var(--concord-status-red-text);
+}
+
+.concord-section-settings__dates-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.concord-section-settings__date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--concord-text-caption);
+  font-weight: var(--concord-weight-medium);
+  color: var(--concord-text-secondary);
+}
+
+.concord-section-settings__date-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: 8px;
+}
+
+.concord-section-settings__date-controls input {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-xs);
   background: var(--concord-surface-muted);
   color: var(--concord-text);
 }

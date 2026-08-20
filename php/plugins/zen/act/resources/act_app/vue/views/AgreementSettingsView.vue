@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, defineExpose } from 'vue'
 import AgreementFormFields from '../concord/AgreementFormFields.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
 import {
@@ -78,6 +78,12 @@ export default {
       }
     )
 
+    function hasUnsavedChanges() {
+      const payload = agreementFormToPayload(form.value)
+      const baseline = agreementFormToPayload(createAgreementFormFromAgreement(props.agreement))
+      return JSON.stringify(payload) !== JSON.stringify(baseline)
+    }
+
     function save() {
       const payload = agreementFormToPayload(form.value)
       if (!payload.title || hasInvalidDateRange.value) {
@@ -87,6 +93,8 @@ export default {
       emit('save', payload)
       emit('back')
     }
+
+    defineExpose({ hasUnsavedChanges, save })
 
     return { form, hasInvalidDateRange, save }
   },

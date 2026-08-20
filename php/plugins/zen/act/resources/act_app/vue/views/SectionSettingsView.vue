@@ -45,6 +45,76 @@
         <button
           type="button"
           class="concord-section-settings__accordion-head"
+          :aria-expanded="expanded.dates"
+          @click="toggle('dates')"
+        >
+          <span>Сроки раздела</span>
+          <svg
+            class="concord-section-settings__chevron"
+            :class="{ 'concord-section-settings__chevron--open': expanded.dates }"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div v-if="expanded.dates" class="concord-section-settings__accordion-body">
+          <p v-if="agreementPeriodHint" class="concord-section-settings__dates-hint">
+            {{ agreementPeriodHint }}
+          </p>
+          <div class="concord-section-settings__dates-grid">
+            <label class="concord-section-settings__date-field">
+              <span>Начало</span>
+              <div class="concord-section-settings__date-controls">
+                <input
+                  v-model="form.startDate"
+                  type="date"
+                  :min="sectionStartDateMin"
+                  :max="sectionStartDateMax"
+                  aria-label="Дата начала раздела"
+                >
+                <input
+                  v-model="form.startTime"
+                  type="time"
+                  :min="sectionStartTimeMin"
+                  :max="sectionStartTimeMax"
+                  aria-label="Время начала раздела"
+                >
+              </div>
+            </label>
+            <label class="concord-section-settings__date-field">
+              <span>Окончание</span>
+              <div class="concord-section-settings__date-controls">
+                <input
+                  v-model="form.endDate"
+                  type="date"
+                  :min="sectionEndDateMin"
+                  :max="sectionEndDateMax"
+                  aria-label="Дата окончания раздела"
+                >
+                <input
+                  v-model="form.endTime"
+                  type="time"
+                  :min="sectionEndTimeMin"
+                  :max="sectionEndTimeMax"
+                  aria-label="Время окончания раздела"
+                >
+              </div>
+            </label>
+          </div>
+          <p v-if="hasInvalidDateRange" class="concord-section-settings__dates-error">
+            Период раздела должен находиться в рамках периода согласования.
+          </p>
+        </div>
+      </section>
+
+      <section class="concord-section-settings__accordion">
+        <button
+          type="button"
+          class="concord-section-settings__accordion-head"
           :aria-expanded="expanded.participants"
           @click="toggle('participants')"
         >
@@ -321,7 +391,12 @@
     </main>
 
     <footer class="concord-section-settings__footer">
-      <button type="button" class="concord-section-settings__done" @click="save">
+      <button
+        type="button"
+        class="concord-section-settings__done"
+        :disabled="hasInvalidDateRange"
+        @click="save"
+      >
         Готово
       </button>
     </footer>
@@ -376,7 +451,14 @@ import { computed, defineExpose, onMounted, reactive, ref, watch } from 'vue'
 import ContactCheckboxList from '../concord/ContactCheckboxList.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
-import { DEFAULT_SECTION_SETTINGS, ensureSectionSettings } from '../concord/mock-agreements.js'
+import {
+  combineRuDateTime,
+  DEFAULT_SECTION_SETTINGS,
+  ensureSectionSettings,
+  formatIsoDateToRu,
+  formatRuDateTimeToFormParts,
+  parseRuDateTime,
+} from '../concord/mock-agreements.js'
 import {
   collectSelectedGroupMemberIds,
   filterContacts,
@@ -396,10 +478,30 @@ function cloneSettings(settings = DEFAULT_SECTION_SETTINGS) {
   }
 }
 
+function toRuDateTime(date, time) {
+  if (!date) {
+    return ''
+  }
+  return combineRuDateTime(formatIsoDateToRu(date), time)
+}
+
+function parseDateTime(date, time, fallbackTime) {
+  if (!date) {
+    return null
+  }
+  return parseRuDateTime(
+    combineRuDateTime(formatIsoDateToRu(date), time || fallbackTime)
+  )
+}
+
 export default {
   name: 'SectionSettingsView',
   components: { ContactCheckboxList, ConcordConfirmSheet, ConcordGroupHeaderActions },
   props: {
+    agreement: {
+      type: Object,
+      default: null,
+    },
     section: {
       type: Object,
       required: true,
@@ -417,6 +519,7 @@ export default {
   setup(props, { emit }) {
     const expanded = reactive({
       name: false,
+      dates: false,
       participants: true,
       reminder: false,
       completion: false,
@@ -492,6 +595,76 @@ export default {
       },
     })
 
+    const agreementPeriod = computed(() => ({
+      start: formatRuDateTimeToFormParts(props.agreement?.startDate || ''),
+      end: formatRuDateTimeToFormParts(props.agreement?.deadline || ''),
+    }))
+
+    const agreementPeriodHint = computed(() => {
+      const { start, end } = agreementPeriod.value
+      if (!start.date && !end.date) {
+        return ''
+      }
+      const startLabel = props.agreement?.startDate || 'не указано'
+      const endLabel = props.agreement?.deadline || 'не указано'
+      return `В рамках согласования: ${startLabel} — ${endLabel}`
+    })
+
+    const sectionStartDateMin = computed(() => agreementPeriod.value.start.date || '')
+    const sectionStartDateMax = computed(() => agreementPeriod.value.end.date || '')
+    const sectionEndDateMin = computed(() => agreementPeriod.value.start.date || '')
+    const sectionEndDateMax = computed(() => agreementPeriod.value.end.date || '')
+
+    const sectionStartTimeMin = computed(() => (
+      form.value.startDate === agreementPeriod.value.start.date
+        ? agreementPeriod.value.start.time
+        : ''
+    ))
+    const sectionStartTimeMax = computed(() => (
+      form.value.startDate === agreementPeriod.value.end.date
+        ? agreementPeriod.value.end.time
+        : ''
+    ))
+    const sectionEndTimeMin = computed(() => (
+      form.value.endDate === agreementPeriod.value.start.date
+        ? agreementPeriod.value.start.time
+        : ''
+    ))
+    const sectionEndTimeMax = computed(() => (
+      form.value.endDate === agreementPeriod.value.end.date
+        ? agreementPeriod.value.end.time
+        : ''
+    ))
+
+    const hasInvalidDateRange = computed(() => {
+      const { startDate, startTime, endDate, endTime } = form.value
+      if (!startDate && !endDate) {
+        return false
+      }
+      if (!startDate || !endDate) {
+        return true
+      }
+
+      const sectionStart = parseDateTime(startDate, startTime, '00:00')
+      const sectionEnd = parseDateTime(endDate, endTime, '23:59')
+      const agreementStart = parseDateTime(
+        agreementPeriod.value.start.date,
+        agreementPeriod.value.start.time,
+        '00:00'
+      )
+      const agreementEnd = parseDateTime(
+        agreementPeriod.value.end.date,
+        agreementPeriod.value.end.time,
+        '23:59'
+      )
+
+      return Boolean(
+        (sectionStart && sectionEnd && sectionEnd < sectionStart)
+        || (sectionStart && agreementStart && sectionStart < agreementStart)
+        || (sectionEnd && agreementEnd && sectionEnd > agreementEnd)
+      )
+    })
+
     function createFormFromSection(section) {
       ensureSectionSettings(section)
       const groupIds = [...(section.groupIds || [])]
@@ -501,6 +674,10 @@ export default {
         participantIds: [...(section.participantIds || [])].filter((id) => !covered.has(id)),
         groupIds,
         leaderId: section.leaderId || null,
+        startDate: formatRuDateTimeToFormParts(section.startDate || '').date,
+        startTime: formatRuDateTimeToFormParts(section.startDate || '').time,
+        endDate: formatRuDateTimeToFormParts(section.deadline || '').date,
+        endTime: formatRuDateTimeToFormParts(section.deadline || '').time,
         settings: cloneSettings(section.settings),
       }
     }
@@ -582,16 +759,61 @@ export default {
       emit('pick-groups', [...form.value.groupIds])
     }
 
-    function save() {
+    function getSavePayload() {
+      if (hasInvalidDateRange.value) {
+        return null
+      }
       const title = form.value.title.trim() || props.section?.title?.trim() || 'Раздел'
       const participantIds = pruneParticipantsCoveredByGroups(form.value.participantIds)
-      form.value.participantIds = participantIds
-      emit('save', {
+      return {
         title,
-        participantIds,
-        groupIds: [...form.value.groupIds],
-        leaderId: form.value.leaderId,
+        participantIds: [...participantIds].sort(),
+        groupIds: [...form.value.groupIds].sort(),
+        leaderId: form.value.leaderId || null,
+        startDate: toRuDateTime(form.value.startDate, form.value.startTime),
+        deadline: toRuDateTime(form.value.endDate, form.value.endTime),
         settings: cloneSettings(form.value.settings),
+      }
+    }
+
+    function getSectionPayload(section) {
+      ensureSectionSettings(section)
+      const groupIds = [...(section.groupIds || [])]
+      const covered = collectSelectedGroupMemberIds(groupIds, props.groups)
+      const participantIds = [...(section.participantIds || [])].filter((id) => !covered.has(id))
+      return {
+        title: section.title?.trim() || 'Раздел',
+        participantIds: participantIds.sort(),
+        groupIds: groupIds.sort(),
+        leaderId: section.leaderId || null,
+        startDate: section.startDate || '',
+        deadline: section.deadline || '',
+        settings: cloneSettings(section.settings),
+      }
+    }
+
+    function hasUnsavedChanges() {
+      const next = getSavePayload()
+      if (!next) {
+        return true
+      }
+      return JSON.stringify(next) !== JSON.stringify(getSectionPayload(props.section))
+    }
+
+    function save() {
+      const payload = getSavePayload()
+      if (!payload) {
+        return
+      }
+      form.value.participantIds = payload.participantIds
+      emit('save', {
+        title: payload.title,
+        participantIds: payload.participantIds,
+        groupIds: payload.groupIds,
+        leaderId: payload.leaderId,
+        startDate: payload.startDate,
+        deadline: payload.deadline,
+        settings: payload.settings,
       })
       emit('back')
     }
@@ -602,7 +824,7 @@ export default {
       emit('back')
     }
 
-    defineExpose({ applyGroupSelection })
+    defineExpose({ applyGroupSelection, hasUnsavedChanges, save })
 
     return {
       expanded,
@@ -618,6 +840,16 @@ export default {
       filteredContacts,
       allFilteredContactsSelected,
       showResultsAfter,
+      agreementPeriodHint,
+      sectionStartDateMin,
+      sectionStartDateMax,
+      sectionEndDateMin,
+      sectionEndDateMax,
+      sectionStartTimeMin,
+      sectionStartTimeMax,
+      sectionEndTimeMin,
+      sectionEndTimeMax,
+      hasInvalidDateRange,
       groupMemberCount,
       toggle,
       toggleLeader,

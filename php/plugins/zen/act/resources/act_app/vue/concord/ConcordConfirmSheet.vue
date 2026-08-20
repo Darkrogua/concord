@@ -1,7 +1,7 @@
 <template>
   <template v-if="open">
-    <div class="concord-sheet-backdrop" @click="$emit('cancel')" />
-    <div class="concord-sheet concord-confirm-sheet" role="alertdialog" :aria-labelledby="titleId">
+    <div class="concord-sheet-backdrop concord-sheet-backdrop--top" @click="onBackdropClick" />
+    <div class="concord-sheet concord-confirm-sheet concord-confirm-sheet--top" role="alertdialog" :aria-labelledby="titleId">
       <div class="concord-sheet__handle" aria-hidden="true" />
       <h2 :id="titleId" class="concord-confirm-sheet__title">{{ title }}</h2>
       <p v-if="message" class="concord-confirm-sheet__message">{{ message }}</p>
@@ -56,11 +56,22 @@ export default {
       default: 'danger',
       validator: (value) => ['danger', 'primary'].includes(value),
     },
+    closeOnBackdrop: {
+      type: Boolean,
+      default: true,
+    },
   },
-  emits: ['confirm', 'cancel'],
-  setup() {
+  emits: ['confirm', 'cancel', 'dismiss'],
+  setup(props, { emit }) {
     const titleId = `concord-confirm-sheet-title-${Math.random().toString(36).slice(2, 9)}`
-    return { titleId }
+
+    function onBackdropClick() {
+      if (props.closeOnBackdrop) {
+        emit('dismiss')
+      }
+    }
+
+    return { titleId, onBackdropClick }
   },
 }
 </script>

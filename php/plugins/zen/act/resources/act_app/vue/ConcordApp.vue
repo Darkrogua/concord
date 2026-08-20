@@ -93,6 +93,7 @@
 
     <AgreementEditorView
       v-else-if="currentView === 'agreement-editor' && editingAgreement?.isOwner"
+      ref="agreementEditorRef"
       :agreement="editingAgreement"
       :contacts="groupContacts"
       :groups="profileGroups"
@@ -107,7 +108,10 @@
       @launch="onLaunchAgreement"
       @create-group="onCreateGroup"
       @update-group="onUpdateGroup"
-      @update-agreement="persist"
+      @update-agreement="onAgreementEditorUpdated"
+      @reset-votes="onResetAgreementVotes"
+      @request-leave="onEditorRequestLeave"
+      @edited="onAgreementEditorEdited"
     />
 
     <AgreementApproverView
@@ -138,7 +142,7 @@
       @navigate="onNavigate"
       @create="startCreateAgreement"
       @notifications="onNotifications"
-      @switch-account="accountOpen = true"
+      @switch-account="onSwitchAccount"
     />
 
     <AccountSwitcherSheet
@@ -148,6 +152,21 @@
       @close="accountOpen = false"
       @create-account="onCreateAccount"
     />
+
+    <Teleport to="body">
+      <ConcordConfirmSheet
+        :open="leaveConfirmOpen"
+        :title="leaveConfirmTitle"
+        :message="leaveConfirmMessage"
+        :confirm-label="leaveConfirmConfirmLabel"
+        :cancel-label="leaveConfirmCancelLabel"
+        confirm-tone="primary"
+        :close-on-backdrop="true"
+        @confirm="onLeaveConfirmPrimary"
+        @cancel="onLeaveConfirmSecondary"
+        @dismiss="onLeaveConfirmDismiss"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -167,13 +186,14 @@ import GroupMembersView from './views/GroupMembersView.vue'
 import CreateGroupView from './views/CreateGroupView.vue'
 import AccountSwitcherSheet from './concord/AccountSwitcherSheet.vue'
 import ConcordBottomNav from './concord/ConcordBottomNav.vue'
+import ConcordConfirmSheet from './concord/ConcordConfirmSheet.vue'
 import ConcordSplashScreen from './concord/ConcordSplashScreen.vue'
 import { formatAccountNavLabel, getAccountById } from './concord/mock-accounts.js'
-import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, formatDateRu, getNextAgreementNumber } from './concord/mock-agreements.js'
+import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, formatDateRu, getNextAgreementNumber, setAgreementEditBaseline, agreementHasVotes, isLaunchedAgreement, resetAgreementVotes } from './concord/mock-agreements.js'
 import { useConcordAgreements } from './composables/useConcordAgreements.js'
 import { useConcordGroups } from './composables/useConcordGroups.js'
 import { useConcordProfile } from './composables/useConcordProfile.js'
-import { MOCK_NOTIFICATION_SECTIONS_BY_ACCOUNT, cloneNotificationSectionsByAccount, countUnreadNotifications } from './concord/mock-notifications.js'
+import { MOCK_NOTIFICATION_SECTIONS_BY_ACCOUNT, cloneNotificationSectionsByAccount, countUnreadNotifications, pushVoteResetNotifications } from './concord/mock-notifications.js'
 import {
   MOCK_CONTACTS,
   collectSectionVoterIds,
@@ -199,6 +219,7 @@ export default {
     CreateGroupView,
     AccountSwitcherSheet,
     ConcordBottomNav,
+    ConcordConfirmSheet,
     ConcordSplashScreen,
   },
   setup() {
@@ -256,6 +277,10 @@ export default {
     const editorName = ref('')
     const editorFilters = ref([])
     const pickerOpen = ref(false)
+    const agreementEditorRef = ref(null)
+    const leaveConfirmOpen = ref(false)
+    const agreementEditorDirty = ref(false)
+    const leaveTarget = ref('list')
 
     const accountOpen = ref(false)
     const activeAccountId = ref('1')
@@ -350,9 +375,116 @@ export default {
       currentView.value = 'list'
     }
 
-    function onAgreementEditorBack() {
+    const leaveConfirmTitle = computed(() => 'Сохранить изменения?')
+
+    const leaveConfirmMessage = computed(() => {
+      if (agreementHasVotes(editingAgreement.value)) {
+        return 'Обнулить — все уже поставленные голоса будут сняты, и согласующим нужно будет проголосовать заново. Не обнулять — сохранит изменения и выйдет из редактора.'
+      }
+      return 'Сохранить изменения и выйти из редактора?'
+    })
+
+    const leaveConfirmConfirmLabel = computed(() => (
+      agreementHasVotes(editingAgreement.value) ? 'Не обнулять' : 'Сохранить'
+    ))
+
+    const leaveConfirmCancelLabel = computed(() => (
+      agreementHasVotes(editingAgreement.value) ? 'Обнулить' : 'Отмена'
+    ))
+
+    function resetAgreementEditorSession() {
+      agreementEditorDirty.value = false
+      leaveConfirmOpen.value = false
+      leaveTarget.value = 'list'
+      const agreement = editingAgreement.value
+      if (agreement && isLaunchedAgreement(agreement)) {
+        setAgreementEditBaseline(agreement)
+      }
+    }
+
+    function onAgreementEditorEdited() {
+      if (isLaunchedAgreement(editingAgreement.value)) {
+        agreementEditorDirty.value = true
+      }
+    }
+
+    function onAgreementEditorLeaveCancelled() {
+      leaveTarget.value = 'list'
+    }
+
+    function onEditorRequestLeave() {
+      leaveTarget.value = 'list'
+      if (!editorNeedsLeaveConfirmation()) {
+        leaveEditorTo('list')
+        return
+      }
+      leaveConfirmOpen.value = true
+    }
+
+    function onLeaveConfirmPrimary() {
+      leaveConfirmOpen.value = false
+      agreementEditorRef.value?.flushOpenEditorsBeforeLeave?.()
+      if (editingAgreement.value) {
+        setAgreementEditBaseline(editingAgreement.value)
+      }
+      agreementEditorDirty.value = false
       persist()
-      goToList()
+      leaveEditorTo(leaveTarget.value)
+    }
+
+    function onLeaveConfirmSecondary() {
+      if (agreementHasVotes(editingAgreement.value)) {
+        leaveConfirmOpen.value = false
+        agreementEditorRef.value?.flushOpenEditorsBeforeLeave?.()
+        const agreement = editingAgreement.value
+        if (agreement) {
+          const participantIds = resetAgreementVotes(agreement)
+          if (participantIds.length) {
+            pushVoteResetNotifications(notificationSectionsByAccount.value, {
+              agreement,
+              participantIds,
+            })
+          }
+          setAgreementEditBaseline(agreement)
+        }
+        agreementEditorDirty.value = false
+        persist()
+        leaveEditorTo(leaveTarget.value)
+        return
+      }
+      onLeaveConfirmDismiss()
+    }
+
+    function onLeaveConfirmDismiss() {
+      leaveConfirmOpen.value = false
+      onAgreementEditorLeaveCancelled()
+    }
+
+    function onAgreementEditorBack() {
+      leaveEditorTo(leaveTarget.value)
+    }
+
+    function leaveEditorTo(target) {
+      leaveTarget.value = 'list'
+      if (target === 'list') {
+        goToList()
+        return
+      }
+      if (target === 'settings') {
+        goToSettings()
+        return
+      }
+      if (target === 'notifications') {
+        currentView.value = 'notifications'
+        return
+      }
+      if (target === 'create-agreement') {
+        currentView.value = 'create-agreement'
+        return
+      }
+      if (target === 'switch-account') {
+        accountOpen.value = true
+      }
     }
 
     function goToSettings() {
@@ -424,7 +556,36 @@ export default {
       })
     }
 
+    function editorNeedsLeaveConfirmation() {
+      if (currentView.value !== 'agreement-editor' || !editingAgreement.value?.isOwner) {
+        return false
+      }
+      if (!isLaunchedAgreement(editingAgreement.value)) {
+        return false
+      }
+      if (agreementEditorRef.value?.hasOpenUnsavedOverlay?.()) {
+        return true
+      }
+      return agreementEditorDirty.value
+    }
+
+    function tryLeaveAgreementEditor(nextView = 'list') {
+      if (currentView.value !== 'agreement-editor' || !editingAgreement.value?.isOwner) {
+        return true
+      }
+      leaveTarget.value = nextView
+      if (!editorNeedsLeaveConfirmation()) {
+        leaveTarget.value = 'list'
+        return true
+      }
+      leaveConfirmOpen.value = true
+      return false
+    }
+
     function onNavigate(view) {
+      if (!tryLeaveAgreementEditor(view)) {
+        return
+      }
       if (view === 'list') {
         currentView.value = 'list'
         return
@@ -548,6 +709,7 @@ export default {
       const open = () => {
         ensureAgreementSections(item)
         editingAgreementId.value = id
+        resetAgreementEditorSession()
         currentView.value = 'agreement-editor'
       }
       if (!document.startViewTransition) {
@@ -572,6 +734,7 @@ export default {
       }
       ensureAgreementSections(item)
       editingAgreementId.value = id
+      resetAgreementEditorSession()
       currentView.value = 'agreement-editor'
     }
 
@@ -580,6 +743,9 @@ export default {
     }
 
     function startCreateAgreement() {
+      if (!tryLeaveAgreementEditor('create-agreement')) {
+        return
+      }
       currentView.value = 'create-agreement'
     }
 
@@ -612,6 +778,7 @@ export default {
         section.votingStats = { approved: 0, rejected: 0, pending: 100 }
       }
       persist()
+      onAgreementEditorEdited()
     }
 
     function onDeleteAgreementBlock({ sectionId, blockId }) {
@@ -625,6 +792,7 @@ export default {
       }
       section.blocks = section.blocks.filter((block) => block.id !== blockId)
       persist()
+      onAgreementEditorEdited()
     }
 
     function onAddAgreementSection(payload) {
@@ -638,6 +806,7 @@ export default {
       section.groupIds = [...payload.groupIds]
       agreement.sections.push(section)
       persist()
+      onAgreementEditorEdited()
     }
 
     function onDeleteAgreementSection(sectionId) {
@@ -647,6 +816,7 @@ export default {
       }
       agreement.sections = agreement.sections.filter((section) => section.id !== sectionId)
       persist()
+      onAgreementEditorEdited()
     }
 
     function onVote({ agreementId, sectionId, decision, reason, participantId }) {
@@ -683,6 +853,10 @@ export default {
       persist()
     }
 
+function onAgreementEditorUpdated() {
+      // Persistence is handled by the debounced agreements watcher.
+    }
+
     function onLaunchAgreement() {
       const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
       if (!agreement) {
@@ -692,8 +866,21 @@ export default {
         agreement.createdAt = formatDateRu()
       }
       agreement.status = 'awaiting'
+      setAgreementEditBaseline(agreement)
       persist()
       goToList()
+    }
+
+    function onResetAgreementVotes({ participantIds }) {
+      const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
+      if (!agreement || !participantIds?.length) {
+        return
+      }
+      pushVoteResetNotifications(notificationSectionsByAccount.value, {
+        agreement,
+        participantIds,
+      })
+      persist()
     }
 
     function onUpdateAgreementSection({
@@ -702,6 +889,8 @@ export default {
       participantIds,
       groupIds,
       leaderId,
+      startDate,
+      deadline,
       settings,
     }) {
       const agreement = agreements.value.find((item) => item.id === editingAgreementId.value)
@@ -730,6 +919,12 @@ export default {
       if (leaderId !== undefined) {
         section.leaderId = leaderId
       }
+      if (startDate !== undefined) {
+        section.startDate = startDate
+      }
+      if (deadline !== undefined) {
+        section.deadline = deadline
+      }
       if (settings) {
         section.settings = {
           ...section.settings,
@@ -746,6 +941,7 @@ export default {
         }
       }
       persist()
+      onAgreementEditorEdited()
     }
 
     function onCreateAccount() {
@@ -753,7 +949,17 @@ export default {
     }
 
     function onNotifications() {
+      if (!tryLeaveAgreementEditor('notifications')) {
+        return
+      }
       currentView.value = 'notifications'
+    }
+
+    function onSwitchAccount() {
+      if (!tryLeaveAgreementEditor('switch-account')) {
+        return
+      }
+      accountOpen.value = true
     }
 
     function markNotificationRead(notificationId) {
@@ -795,6 +1001,17 @@ export default {
       goToFilterSettings,
       goToList,
       onAgreementEditorBack,
+      onEditorRequestLeave,
+      onAgreementEditorEdited,
+      leaveTarget,
+      leaveConfirmOpen,
+      leaveConfirmTitle,
+      leaveConfirmMessage,
+      leaveConfirmConfirmLabel,
+      leaveConfirmCancelLabel,
+      onLeaveConfirmPrimary,
+      onLeaveConfirmSecondary,
+      onLeaveConfirmDismiss,
       goToSettings,
       goToNotificationSettings,
       goToGroupsManage,
@@ -825,13 +1042,17 @@ export default {
       onAddAgreementSection,
       onDeleteAgreementSection,
       onLaunchAgreement,
+      onAgreementEditorUpdated,
+      onResetAgreementVotes,
       onUpdateAgreementSection,
       onVote,
       editingAgreement,
       editingAgreementId,
+      agreementEditorRef,
       searchTargetSectionId,
       onCreateAccount,
       onNotifications,
+      onSwitchAccount,
       notificationSections,
       unreadNotificationsCount,
       otherAccountsNotificationsBadge,

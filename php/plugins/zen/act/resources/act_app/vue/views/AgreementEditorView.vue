@@ -1,4 +1,5 @@
 <template>
+  <div class="concord-agreement-editor-host">
   <GroupMembersView
     v-if="sectionGroupMembersOpen && editingGroup"
     :group-title="editingGroup.title"
@@ -28,6 +29,7 @@
 
   <AgreementSettingsView
     v-if="agreementSettingsOpen && agreement"
+    ref="agreementSettingsRef"
     :agreement="agreement"
     @back="closeAgreementSettings"
     @save="onAgreementSettingsSave"
@@ -37,6 +39,7 @@
     v-if="sectionSettingsOpen && activeSection"
     v-show="!sectionGroupPickerOpen && !sectionGroupCreateOpen && !sectionGroupMembersOpen"
     ref="sectionSettingsRef"
+    :agreement="agreement"
     :section="activeSection"
     :contacts="contacts"
     :groups="groups"
@@ -44,6 +47,28 @@
     @delete="onSectionDelete"
     @save="onSectionSettingsSave"
     @pick-groups="openSectionGroupPicker"
+  />
+
+  <SectionScheduleSheet
+    v-if="sectionScheduleOpen && scheduleSection"
+    :open="sectionScheduleOpen"
+    :agreement="agreement"
+    :section="scheduleSection"
+    @close="closeSectionSchedule"
+    @save="saveSectionSchedule"
+  />
+
+  <SectionParticipantsSheet
+    v-if="sectionParticipantsOpen && participantsSection"
+    ref="sectionParticipantsRef"
+    :open="sectionParticipantsOpen"
+    :section="participantsSection"
+    :contacts="contacts"
+    :groups="groups"
+    @close="closeSectionParticipants"
+    @save="saveSectionParticipants"
+    @pick-groups="openSectionGroupPicker"
+    @open-settings="openParticipantsSectionSettings"
   />
 
   <AgreementApproverView
@@ -149,7 +174,10 @@
       :style="{ height: `${editorChromeHeight}px` }"
     />
 
-    <main ref="editorMainRef" class="concord-agreement-editor">
+    <main
+      ref="editorMainRef"
+      class="concord-agreement-editor"
+    >
       <section v-if="showDraftIntro" class="concord-agreement-editor__panel">
         <div v-if="agreement.description" class="concord-agreement-editor__description-wrap">
           <p
@@ -204,6 +232,8 @@
           :contacts="contacts"
           @preview="openSectionPreview(section.id)"
           @section-settings="openSectionSettings(section.id)"
+          @section-schedule="openSectionSchedule(section.id)"
+          @section-participants="openSectionParticipants(section.id)"
         >
           <template #default="{ expanded: sectionExpanded }">
             <ConcordEditorBlocksList
@@ -324,13 +354,15 @@
         </p>
       </section>
     </main>
+  </div>
 
-    <TextBlockEditorSheet
-      :open="textEditorOpen"
-      :block="editingTextBlock"
-      @close="closeTextEditor"
-    />
+  <TextBlockEditorSheet
+    :open="textEditorOpen"
+    :block="editingTextBlock"
+    @close="closeTextEditor"
+  />
 
+  <Teleport to="body">
     <ConcordConfirmSheet
       :open="blockDeleteConfirmOpen"
       title="Удалить блок?"
@@ -339,6 +371,7 @@
       cancel-label="Нет"
       @confirm="confirmDeleteBlock"
       @cancel="cancelDeleteBlock"
+      @dismiss="cancelDeleteBlock"
     />
 
     <ConcordConfirmSheet
@@ -350,17 +383,22 @@
       confirm-tone="primary"
       @confirm="confirmAddSection"
       @cancel="openPreviousSectionSettings"
+      @dismiss="dismissSectionSetupConfirm"
     />
+  </Teleport>
   </div>
 </template>
 
 <script>
-import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount, nextTick, defineExpose } from 'vue'
 import {
   AGREEMENT_EDITOR_BLOCK_TYPES,
   AGREEMENT_EDITOR_INTRO,
+  ensureAgreementEditBaseline,
   ensureAgreementSections,
   formatSectionTabTitle,
+  isLaunchedAgreement,
+  setAgreementEditBaseline,
 } from '../concord/mock-agreements.js'
 import AgreementContainerCard from '../concord/AgreementContainerCard.vue'
 import BlockAddZone from '../concord/BlockAddZone.vue'
@@ -383,6 +421,8 @@ import GroupMembersView from './GroupMembersView.vue'
 import CreateGroupView from './CreateGroupView.vue'
 import TextBlockEditorSheet from '../concord/TextBlockEditorSheet.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
+import SectionScheduleSheet from '../concord/SectionScheduleSheet.vue'
+import SectionParticipantsSheet from '../concord/SectionParticipantsSheet.vue'
 import { resetConcordScrollPosition } from '../concord/scroll-top.js'
 
 export default {
@@ -401,6 +441,8 @@ export default {
     GroupMembersView,
     GroupsManageView,
     SectionSettingsView,
+    SectionScheduleSheet,
+    SectionParticipantsSheet,
     TextBlockEditorSheet,
     ConcordConfirmSheet,
   },
@@ -426,7 +468,7 @@ export default {
       default: '',
     },
   },
-  emits: ['back', 'add-block', 'add-section', 'delete-section', 'delete-block', 'update-section', 'create-group', 'update-group', 'launch', 'update-agreement'],
+  emits: ['back', 'add-block', 'add-section', 'delete-section', 'delete-block', 'update-section', 'create-group', 'update-group', 'launch', 'update-agreement', 'reset-votes', 'request-leave', 'edited'],
   setup(props, { emit }) {
     const activeSectionId = ref(null)
     const openBlockTypesSectionId = ref(null)
@@ -449,6 +491,8 @@ export default {
     const sectionSettingsOpen = ref(false)
     const agreementSettingsOpen = ref(false)
     const sectionSettingsRef = ref(null)
+    const agreementSettingsRef = ref(null)
+    const sectionParticipantsRef = ref(null)
     const sectionGroupPickerOpen = ref(false)
     const sectionGroupPickerIds = ref([])
     const sectionGroupCreateOpen = ref(false)
@@ -460,11 +504,33 @@ export default {
     const editingTextBlock = ref(null)
     const sectionPreviewOpen = ref(false)
     const previewSectionId = ref(null)
+    const sectionScheduleOpen = ref(false)
+    const scheduleSectionId = ref(null)
+    const sectionParticipantsOpen = ref(false)
+    const participantsSectionId = ref(null)
 
     const blockDeleteConfirmOpen = ref(false)
     const pendingBlockDelete = ref(null)
     const sectionSetupConfirmOpen = ref(false)
     const previousSectionForSetup = ref(null)
+    const editorReady = ref(false)
+    const editsTrackingEnabled = ref(false)
+    let pendingDirtyTimer = null
+
+    function notifyEdited() {
+      if (!editorReady.value || !editsTrackingEnabled.value || !isLaunchedAgreement(props.agreement)) {
+        return
+      }
+      emit('edited')
+    }
+
+    function scheduleNotifyEdited() {
+      if (!editorReady.value || !editsTrackingEnabled.value || !isLaunchedAgreement(props.agreement)) {
+        return
+      }
+      clearTimeout(pendingDirtyTimer)
+      pendingDirtyTimer = setTimeout(notifyEdited, 400)
+    }
 
     const blockDeleteConfirmMessage = computed(() => {
       const label = pendingBlockDelete.value?.label
@@ -506,6 +572,12 @@ export default {
     )
 
     const previewAgreement = computed(() => props.agreement || null)
+    const scheduleSection = computed(() =>
+      props.agreement?.sections?.find((section) => section.id === scheduleSectionId.value) || null
+    )
+    const participantsSection = computed(() =>
+      props.agreement?.sections?.find((section) => section.id === participantsSectionId.value) || null
+    )
 
     const firstSectionHasBlocks = computed(() => (props.agreement?.sections?.[0]?.blocks?.length || 0) > 0)
 
@@ -528,6 +600,13 @@ export default {
         && !['awaiting', 'approved', 'completed', 'expired', 'archived'].includes(status)
       )
     })
+
+    function initEditBaseline() {
+      if (!props.agreement || !isLaunchedAgreement(props.agreement)) {
+        return
+      }
+      setAgreementEditBaseline(props.agreement)
+    }
 
     const editorPageStyle = computed(() => ({
       '--concord-editor-scroll-anchor-offset': `${editorChromeHeight.value + 8}px`,
@@ -805,6 +884,12 @@ export default {
           updateActiveSectionFromScroll()
           updateDescriptionOverflow()
           updateEditorTitleLines()
+          ensureAgreementEditBaseline(props.agreement)
+          initEditBaseline()
+          editorReady.value = true
+          window.setTimeout(() => {
+            editsTrackingEnabled.value = true
+          }, 600)
         })
       })
       window.addEventListener('scroll', onScroll, { passive: true })
@@ -813,6 +898,7 @@ export default {
     })
 
     onBeforeUnmount(() => {
+      clearTimeout(pendingDirtyTimer)
       sectionObserver?.disconnect()
       chromeResizeObserver?.disconnect()
       window.removeEventListener('scroll', onScroll)
@@ -890,10 +976,11 @@ export default {
         props.agreement.daysLabel = payload.daysLabel
       }
       emit('update-agreement')
+      notifyEdited()
     }
 
     function goBack() {
-      emit('back')
+      emit('request-leave')
     }
 
     function launchAgreement() {
@@ -913,6 +1000,7 @@ export default {
       }
       emit('add-block', { sectionId, blockType })
       openBlockTypesSectionId.value = null
+      notifyEdited()
     }
 
     function galleryPreviewPhotos(block) {
@@ -959,6 +1047,7 @@ export default {
         participantIds: [],
         groupIds: [],
       })
+      notifyEdited()
     }
 
     function openNewSection() {
@@ -993,6 +1082,11 @@ export default {
       }
     }
 
+    function dismissSectionSetupConfirm() {
+      sectionSetupConfirmOpen.value = false
+      previousSectionForSetup.value = null
+    }
+
     function openSectionSettings(sectionId) {
       activeSectionId.value = sectionId
       sectionSettingsOpen.value = true
@@ -1005,6 +1099,64 @@ export default {
     function openSectionPreview(sectionId) {
       previewSectionId.value = sectionId
       sectionPreviewOpen.value = true
+    }
+
+    function openSectionSchedule(sectionId) {
+      scheduleSectionId.value = sectionId
+      sectionScheduleOpen.value = true
+    }
+
+    function closeSectionSchedule() {
+      sectionScheduleOpen.value = false
+      scheduleSectionId.value = null
+    }
+
+    function saveSectionSchedule(payload) {
+      if (!scheduleSection.value) {
+        return
+      }
+      scheduleSection.value.startDate = payload.startDate
+      scheduleSection.value.deadline = payload.deadline
+      emit('update-agreement')
+      closeSectionSchedule()
+      notifyEdited()
+    }
+
+    function openSectionParticipants(sectionId) {
+      participantsSectionId.value = sectionId
+      sectionParticipantsOpen.value = true
+    }
+
+    function closeSectionParticipants() {
+      sectionParticipantsOpen.value = false
+      participantsSectionId.value = null
+    }
+
+    function saveSectionParticipants(payload) {
+      if (!participantsSection.value) {
+        return
+      }
+      emit('update-section', {
+        sectionId: participantsSection.value.id,
+        title: participantsSection.value.title,
+        participantIds: payload.participantIds,
+        groupIds: payload.groupIds,
+        leaderId: participantsSection.value.leaderId,
+        startDate: participantsSection.value.startDate,
+        deadline: participantsSection.value.deadline,
+        settings: participantsSection.value.settings,
+      })
+      closeSectionParticipants()
+      notifyEdited()
+    }
+
+    function openParticipantsSectionSettings() {
+      if (!participantsSectionId.value) {
+        return
+      }
+      const sectionId = participantsSectionId.value
+      closeSectionParticipants()
+      nextTick(() => openSectionSettings(sectionId))
     }
 
     function closeSectionPreview() {
@@ -1033,6 +1185,7 @@ export default {
         props.agreement.isUrgent = payload.settings.isImportant
         props.agreement.urgentAcknowledged = !payload.settings.isImportant
       }
+      notifyEdited()
     }
 
     function onSectionDelete(sectionId) {
@@ -1072,6 +1225,7 @@ export default {
         blockId: pendingBlockDelete.value.blockId,
       })
       cancelDeleteBlock()
+      notifyEdited()
     }
 
     function openSectionGroupPicker(groupIds = []) {
@@ -1085,6 +1239,7 @@ export default {
 
     function onSectionGroupsConfirm(groupIds) {
       sectionSettingsRef.value?.applyGroupSelection(groupIds)
+      sectionParticipantsRef.value?.applyGroupSelection(groupIds)
       closeSectionGroupPicker()
     }
 
@@ -1136,6 +1291,54 @@ export default {
       closeSectionGroupMembers()
     }
 
+    function hasOpenUnsavedOverlay() {
+      if (sectionSettingsOpen.value && sectionSettingsRef.value?.hasUnsavedChanges?.()) {
+        return true
+      }
+      if (agreementSettingsOpen.value && agreementSettingsRef.value?.hasUnsavedChanges?.()) {
+        return true
+      }
+      return false
+    }
+
+    function flushOpenEditorsBeforeLeave() {
+      if (sectionSettingsOpen.value && sectionSettingsRef.value?.hasUnsavedChanges?.()) {
+        sectionSettingsRef.value.save()
+      }
+      if (agreementSettingsOpen.value && agreementSettingsRef.value?.hasUnsavedChanges?.()) {
+        agreementSettingsRef.value.save()
+      }
+    }
+
+    function resetEditTracking() {
+      editsTrackingEnabled.value = false
+      editorReady.value = false
+      nextTick(() => {
+        initEditBaseline()
+        editorReady.value = true
+        window.setTimeout(() => {
+          editsTrackingEnabled.value = true
+        }, 600)
+      })
+    }
+
+    defineExpose({ flushOpenEditorsBeforeLeave, hasOpenUnsavedOverlay })
+
+    watch(
+      () => props.agreement?.sections,
+      () => {
+        scheduleNotifyEdited()
+      },
+      { deep: true }
+    )
+
+    watch(
+      () => props.agreement?.id,
+      () => {
+        resetEditTracking()
+      }
+    )
+
     watch(
       () => props.agreement?.sections?.length,
       (length, prev) => {
@@ -1165,6 +1368,10 @@ export default {
       activeSection,
       sectionPreviewOpen,
       previewAgreement,
+      sectionScheduleOpen,
+      scheduleSection,
+      sectionParticipantsOpen,
+      participantsSection,
       showEditorSurface,
       firstSectionId,
       editorMainRef,
@@ -1225,6 +1432,13 @@ export default {
       openNewSection,
       openSectionPreview,
       closeSectionPreview,
+      openSectionSchedule,
+      closeSectionSchedule,
+      saveSectionSchedule,
+      openSectionParticipants,
+      closeSectionParticipants,
+      saveSectionParticipants,
+      openParticipantsSectionSettings,
       openPreviewSectionSettings,
       openSectionSettings,
       closeSectionSettings,
@@ -1239,6 +1453,7 @@ export default {
       confirmDeleteBlock,
       confirmAddSection,
       openPreviousSectionSettings,
+      dismissSectionSetupConfirm,
       openSectionGroupPicker,
       closeSectionGroupPicker,
       onSectionGroupsConfirm,

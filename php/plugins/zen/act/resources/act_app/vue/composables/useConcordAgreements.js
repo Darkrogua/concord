@@ -27,10 +27,56 @@ function cloneAgreement(item) {
   }
 }
 
+function stripHeavyBlockContent(block) {
+  return {
+    ...block,
+    photos: (block.photos || []).map((photo) => ({
+      id: photo.id,
+      name: photo.name || '',
+      comment: photo.comment || '',
+    })),
+    files: (block.files || []).map((file) => ({
+      id: file.id,
+      name: file.name || '',
+      mime: file.mime || '',
+      comment: file.comment || '',
+      size: file.size,
+    })),
+  }
+}
+
+function serializeAgreementsForStorage(agreements) {
+  return agreements.map((agreement) => ({
+    ...agreement,
+    sections: (agreement.sections || []).map((section) => ({
+      ...section,
+      blocks: (section.blocks || []).map(stripHeavyBlockContent),
+    })),
+  }))
+}
+
+function stripHeavyContentInPlace(agreement) {
+  for (const section of agreement.sections || []) {
+    for (const block of section.blocks || []) {
+      for (const photo of block.photos || []) {
+        if (photo.previewUrl) {
+          delete photo.previewUrl
+        }
+      }
+      for (const file of block.files || []) {
+        delete file.downloadUrl
+        delete file.previewUrl
+        delete file.textContent
+      }
+    }
+  }
+}
+
 function normalizeLoadedAgreements(items) {
   return items.map((item) => {
     const agreement = cloneAgreement(item)
     ensureAgreementSections(agreement)
+    stripHeavyContentInPlace(agreement)
     return agreement
   })
 }
@@ -51,9 +97,18 @@ function loadAgreements() {
   }
 }
 
+function scheduleLeanStorageRewrite(agreements) {
+  if (typeof window === 'undefined') {
+    return
+  }
+  window.setTimeout(() => {
+    persistAgreements(agreements)
+  }, 0)
+}
+
 function persistAgreements(agreements) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(agreements))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeAgreementsForStorage(agreements)))
   } catch {
     // ignore quota / private mode errors in preview
   }
@@ -64,6 +119,7 @@ export function useConcordAgreements() {
   const loading = ref(true)
 
   if (typeof window !== 'undefined') {
+    scheduleLeanStorageRewrite(agreements.value)
     window.requestAnimationFrame(() => {
       window.setTimeout(() => {
         loading.value = false
@@ -77,7 +133,13 @@ export function useConcordAgreements() {
     persistAgreements(agreements.value)
   }
 
-  watch(agreements, persist, { deep: true, flush: 'sync' })
+  let persistTimer = null
+  watch(agreements, () => {
+    clearTimeout(persistTimer)
+    persistTimer = setTimeout(() => {
+      persistAgreements(agreements.value)
+    }, 1200)
+  }, { deep: true })
 
   if (typeof window !== 'undefined') {
     window.addEventListener('beforeunload', persist)

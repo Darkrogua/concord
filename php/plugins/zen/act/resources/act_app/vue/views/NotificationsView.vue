@@ -6,7 +6,7 @@
           <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-      <h1 class="concord-header__title">Уведомления</h1>
+      <h1 class="concord-header__title">События</h1>
     </header>
 
     <main class="concord-alerts">

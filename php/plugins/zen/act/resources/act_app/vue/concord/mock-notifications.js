@@ -163,3 +163,62 @@ export function countUnreadNotifications(sections = []) {
   }
   return count
 }
+
+/** Demo mapping: contact id → account that receives in-app events for that person. */
+export const PARTICIPANT_ACCOUNT_IDS = {
+  'alex-ablizin': '1',
+  'artem-dmitrenko': '2',
+  'elena-vasilyeva': '3',
+  'maria-gorbunova': '2',
+  'roman-gorbachev': '3',
+  'sergey-gordienko': '2',
+  'ivan-petrov': '3',
+  'elena-smirnova': '2',
+}
+
+function formatNotificationTime(date = new Date()) {
+  return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+}
+
+/**
+ * @param {Record<string, NotificationSection[]>} sectionsByAccount
+ * @param {{ agreement: object, participantIds: string[] }} payload
+ */
+export function pushVoteResetNotifications(sectionsByAccount, { agreement, participantIds }) {
+  if (!agreement || !participantIds?.length || !sectionsByAccount) {
+    return
+  }
+
+  const linkText = `Согласованию #${agreement.number}`
+  const time = formatNotificationTime()
+
+  for (const participantId of participantIds) {
+    const accountId = PARTICIPANT_ACCOUNT_IDS[participantId]
+    if (!accountId) {
+      continue
+    }
+
+    const sections = sectionsByAccount[accountId]
+    if (!sections) {
+      continue
+    }
+
+    let todaySection = sections.find((section) => section.dateLabel === 'Сегодня')
+    if (!todaySection) {
+      todaySection = { dateLabel: 'Сегодня', items: [] }
+      sections.unshift(todaySection)
+    }
+
+    todaySection.items.unshift({
+      id: `vote-reset-${Date.now()}-${participantId}-${Math.random().toString(36).slice(2, 6)}`,
+      isRead: false,
+      avatarInitial: 'А',
+      title: 'Система',
+      body: 'Ваш голос по согласованию был обнулён. Необходимо согласовать заново:',
+      linkText,
+      agreementNumber: agreement.number,
+      agreementId: agreement.id,
+      time,
+    })
+  }
+}
