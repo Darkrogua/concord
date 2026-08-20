@@ -48,13 +48,13 @@
           <span class="concord-card__status-label">Создано мной</span>
           <template v-if="agreement.deadline">
             <span class="concord-card__status-label">до</span>
-            <span class="concord-card__status-date">{{ agreement.deadline }}</span>
+            <span class="concord-card__status-date">{{ deadlineDate }}</span>
           </template>
         </span>
 
         <span v-else class="concord-card__status-pill concord-card__status-pill--waiting">
           <span class="concord-card__status-label">Ждёт решения до:</span>
-          <span class="concord-card__status-date">{{ agreement.deadline }}</span>
+          <span class="concord-card__status-date">{{ deadlineDate }}</span>
         </span>
       </div>
 
@@ -374,6 +374,9 @@ export default {
     },
     authorInitials() {
       return getPersonInitials(this.agreement.author?.name)
+    },
+    deadlineDate() {
+      return String(this.agreement.deadline || '').trim().split(/\s+/)[0]
     },
     urgencyTitle() {
       return this.agreement.isUrgent ? 'Срочность установлена' : 'Срочность не установлена'

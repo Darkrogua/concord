@@ -35,9 +35,24 @@ export function agreementFormHasDates(form) {
   return Boolean(form.startDate && form.endDate)
 }
 
-export function agreementFormHasInvalidRange(form) {
+export function getTodayIsoDate(now = new Date()) {
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+export function getAgreementFormDateError(form, today = getTodayIsoDate()) {
+  if (form.startDate && form.startDate < today) {
+    return 'Дата начала не может быть раньше сегодняшнего дня'
+  }
+
+  if (form.endDate && form.endDate < today) {
+    return 'Дата окончания не может быть раньше сегодняшнего дня'
+  }
+
   if (!form.startDate || !form.endDate) {
-    return false
+    return ''
   }
 
   const start = parseRuDateTime(
@@ -48,10 +63,16 @@ export function agreementFormHasInvalidRange(form) {
   )
 
   if (!start || !end) {
-    return false
+    return ''
   }
 
   return end.getTime() < start.getTime()
+    ? 'Дата и время окончания не могут быть раньше начала'
+    : ''
+}
+
+export function agreementFormHasInvalidRange(form) {
+  return Boolean(getAgreementFormDateError(form))
 }
 
 export function normalizeAgreementFormRange(form) {

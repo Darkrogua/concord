@@ -191,7 +191,7 @@ import ConcordBottomNav from './concord/ConcordBottomNav.vue'
 import ConcordConfirmSheet from './concord/ConcordConfirmSheet.vue'
 import ConcordSplashScreen from './concord/ConcordSplashScreen.vue'
 import { formatAccountNavLabel, getAccountById } from './concord/mock-accounts.js'
-import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, formatDateRu, getNextAgreementNumber, setAgreementEditBaseline, agreementHasVotes, isLaunchedAgreement, resetAgreementVotes } from './concord/mock-agreements.js'
+import { DEFAULT_FILTER_SECTIONS, createDraftAgreement, createAgreementBlock, createAgreementSection, ensureAgreementSections, formatDateRu, getNextAgreementNumber, setAgreementEditBaseline, isLaunchedAgreement, resetAgreementVotes } from './concord/mock-agreements.js'
 import { useConcordAgreements } from './composables/useConcordAgreements.js'
 import { useConcordGroups } from './composables/useConcordGroups.js'
 import { useConcordProfile } from './composables/useConcordProfile.js'
@@ -379,22 +379,19 @@ export default {
 
     const leaveConfirmTitle = computed(() => 'Сохранить изменения?')
 
-    const leaveConfirmMessage = computed(() => {
-      if (agreementHasVotes(editingAgreement.value)) {
-        return 'Согласование уже запущено, и участники могли проголосовать. Сохранить без сброса — текущие голоса останутся в силе. Обнулить и сохранить — все поставленные голоса будут сняты, и согласующим потребуется проголосовать заново.'
-      }
-      return 'Сохранить изменения и выйти из редактора?'
-    })
+    const leaveConfirmMessage = computed(() => (
+      `Согласование уже запущено. Кто-то из участников мог уже проголосовать.
 
-    const leaveConfirmConfirmLabel = computed(() => (
-      agreementHasVotes(editingAgreement.value) ? 'Сохранить без сброса' : 'Сохранить'
+Сохранить без сброса — изменения сохранятся, а текущие голоса останутся.
+
+Обнулить и сохранить — изменения сохранятся, все голоса будут удалены. Участникам потребуется проголосовать заново.`
     ))
+
+    const leaveConfirmConfirmLabel = computed(() => 'Сохранить без сброса')
 
     const leaveConfirmCancelLabel = computed(() => 'Отмена')
 
-    const leaveConfirmResetLabel = computed(() => (
-      agreementHasVotes(editingAgreement.value) ? 'Обнулить и сохранить' : ''
-    ))
+    const leaveConfirmResetLabel = computed(() => 'Обнулить и сохранить')
 
     function resetAgreementEditorSession() {
       agreementEditorDirty.value = false
@@ -437,26 +434,22 @@ export default {
     }
 
     function onLeaveConfirmSecondary() {
-      if (agreementHasVotes(editingAgreement.value)) {
-        leaveConfirmOpen.value = false
-        agreementEditorRef.value?.flushOpenEditorsBeforeLeave?.()
-        const agreement = editingAgreement.value
-        if (agreement) {
-          const participantIds = resetAgreementVotes(agreement)
-          if (participantIds.length) {
-            pushVoteResetNotifications(notificationSectionsByAccount.value, {
-              agreement,
-              participantIds,
-            })
-          }
-          setAgreementEditBaseline(agreement)
+      leaveConfirmOpen.value = false
+      agreementEditorRef.value?.flushOpenEditorsBeforeLeave?.()
+      const agreement = editingAgreement.value
+      if (agreement) {
+        const participantIds = resetAgreementVotes(agreement)
+        if (participantIds.length) {
+          pushVoteResetNotifications(notificationSectionsByAccount.value, {
+            agreement,
+            participantIds,
+          })
         }
-        agreementEditorDirty.value = false
-        persist()
-        leaveEditorTo(leaveTarget.value)
-        return
+        setAgreementEditBaseline(agreement)
       }
-      onLeaveConfirmDismiss()
+      agreementEditorDirty.value = false
+      persist()
+      leaveEditorTo(leaveTarget.value)
     }
 
     function onLeaveConfirmDismiss() {

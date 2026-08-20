@@ -7,7 +7,11 @@
         </svg>
       </button>
       <h1 class="concord-header__title">Настройки согласования</h1>
-      <ConcordGroupHeaderActions :show-count="false" @save="save" />
+      <ConcordGroupHeaderActions
+        :show-count="false"
+        :disabled="hasInvalidDateRange"
+        @save="save"
+      />
     </header>
 
     <main class="concord-section-settings">

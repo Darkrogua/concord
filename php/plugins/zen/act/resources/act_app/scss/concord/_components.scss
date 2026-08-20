@@ -1526,7 +1526,8 @@
   font-size: var(--concord-text-body);
   line-height: var(--concord-leading-body);
   color: var(--concord-text-secondary);
-  text-align: center;
+  text-align: left;
+  white-space: pre-line;
 }
 
 .concord-overlay {

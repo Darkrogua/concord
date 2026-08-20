@@ -154,6 +154,10 @@ export default defineConfig(({ command, mode }) => {
       port: 5173,
       strictPort: true,
       open: '/concord-preview.html',
+      watch: {
+        usePolling: true,
+        interval: 300,
+      },
     },
     build: {
       outDir,

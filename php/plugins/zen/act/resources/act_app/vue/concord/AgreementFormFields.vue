@@ -35,7 +35,8 @@
               v-model="form.startDate"
               class="concord-agreement-form__input"
               type="date"
-              :max="form.endDate || undefined"
+              :min="today"
+              :max="startDateMax"
             >
             <input
               v-model="form.startTime"
@@ -52,7 +53,7 @@
               v-model="form.endDate"
               class="concord-agreement-form__input"
               type="date"
-              :min="form.startDate || undefined"
+              :min="endDateMin"
             >
             <input
               v-model="form.endTime"
@@ -62,8 +63,8 @@
           </div>
         </div>
 
-        <p v-if="hasInvalidDateRange" class="concord-agreement-form__hint concord-agreement-form__hint--error">
-          Дата и время окончания не могут быть раньше начала
+        <p v-if="dateError" class="concord-agreement-form__hint concord-agreement-form__hint--error">
+          {{ dateError }}
         </p>
       </div>
     </section>
@@ -80,7 +81,10 @@
 
 <script>
 import { computed } from 'vue'
-import { agreementFormHasInvalidRange } from './agreement-form-utils.js'
+import {
+  getAgreementFormDateError,
+  getTodayIsoDate,
+} from './agreement-form-utils.js'
 
 export default {
   name: 'AgreementFormFields',
@@ -91,10 +95,20 @@ export default {
     },
   },
   setup(props) {
-    const hasInvalidDateRange = computed(() => agreementFormHasInvalidRange(props.form))
+    const today = getTodayIsoDate()
+    const dateError = computed(() => getAgreementFormDateError(props.form, today))
+    const startDateMax = computed(() => (
+      props.form.endDate >= today ? props.form.endDate : undefined
+    ))
+    const endDateMin = computed(() => (
+      props.form.startDate > today ? props.form.startDate : today
+    ))
 
     return {
-      hasInvalidDateRange,
+      today,
+      dateError,
+      startDateMax,
+      endDateMin,
     }
   },
 }
