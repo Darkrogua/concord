@@ -2219,17 +2219,17 @@
 }
 
 .concord-page--editor .concord-container--editor .concord-container__blocks {
-  gap: 8px;
+  gap: 14px;
   padding: 0;
 }
 
 .concord-editor-block {
   display: block;
   padding: 12px;
-  border: none;
+  border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-sm);
   background: var(--concord-surface);
-  box-shadow: none;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
 }
 
 .concord-editor-block--collapsed {
@@ -4872,7 +4872,7 @@
 .concord-agreement-editor__blocks {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .concord-agreement-editor__block-card {
@@ -7433,7 +7433,7 @@
 .concord-approver__block {
   box-sizing: border-box;
   width: 100%;
-  padding: 22px var(--concord-approver-inline-pad) 24px;
+  padding: 26px var(--concord-approver-inline-pad) 28px;
   border: none;
   border-radius: 0;
   background: transparent;
@@ -7441,7 +7441,7 @@
 }
 
 .concord-approver__block + .concord-approver__block {
-  border-top: 1px solid rgba(94, 77, 178, 0.1);
+  border-top: 1px solid var(--concord-border);
 }
 
 .concord-approver__block-eyebrow {
