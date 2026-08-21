@@ -457,7 +457,6 @@ import {
   ensureSectionSettings,
   formatIsoDateToRu,
   formatRuDateTimeToFormParts,
-  parseRuDateTime,
 } from '../concord/mock-agreements.js'
 import {
   collectSelectedGroupMemberIds,
@@ -466,6 +465,7 @@ import {
   resolveSectionVotersCount,
 } from '../concord/mock-groups.js'
 import { resetConcordScrollPosition } from '../concord/scroll-top.js'
+import { sectionScheduleHasInvalidRange } from '../concord/agreement-form-utils.js'
 
 function cloneSettings(settings = DEFAULT_SECTION_SETTINGS) {
   return {
@@ -483,15 +483,6 @@ function toRuDateTime(date, time) {
     return ''
   }
   return combineRuDateTime(formatIsoDateToRu(date), time)
-}
-
-function parseDateTime(date, time, fallbackTime) {
-  if (!date) {
-    return null
-  }
-  return parseRuDateTime(
-    combineRuDateTime(formatIsoDateToRu(date), time || fallbackTime)
-  )
 }
 
 export default {
@@ -636,34 +627,9 @@ export default {
         : ''
     ))
 
-    const hasInvalidDateRange = computed(() => {
-      const { startDate, startTime, endDate, endTime } = form.value
-      if (!startDate && !endDate) {
-        return false
-      }
-      if (!startDate || !endDate) {
-        return true
-      }
-
-      const sectionStart = parseDateTime(startDate, startTime, '00:00')
-      const sectionEnd = parseDateTime(endDate, endTime, '23:59')
-      const agreementStart = parseDateTime(
-        agreementPeriod.value.start.date,
-        agreementPeriod.value.start.time,
-        '00:00'
-      )
-      const agreementEnd = parseDateTime(
-        agreementPeriod.value.end.date,
-        agreementPeriod.value.end.time,
-        '23:59'
-      )
-
-      return Boolean(
-        (sectionStart && sectionEnd && sectionEnd < sectionStart)
-        || (sectionStart && agreementStart && sectionStart < agreementStart)
-        || (sectionEnd && agreementEnd && sectionEnd > agreementEnd)
-      )
-    })
+    const hasInvalidDateRange = computed(() =>
+      sectionScheduleHasInvalidRange(form.value, agreementPeriod.value)
+    )
 
     function createFormFromSection(section) {
       ensureSectionSettings(section)

@@ -50,17 +50,11 @@ import {
   combineRuDateTime,
   formatIsoDateToRu,
   formatRuDateTimeToFormParts,
-  parseRuDateTime,
 } from './mock-agreements.js'
+import { sectionScheduleHasInvalidRange } from './agreement-form-utils.js'
 
 function toRuDateTime(date, time) {
   return date ? combineRuDateTime(formatIsoDateToRu(date), time) : ''
-}
-
-function toDate(date, time, fallbackTime) {
-  return date
-    ? parseRuDateTime(combineRuDateTime(formatIsoDateToRu(date), time || fallbackTime))
-    : null
 }
 
 export default {
@@ -108,21 +102,9 @@ export default {
     const endTimeMin = computed(() => form.value.endDate === agreementPeriod.value.start.date ? agreementPeriod.value.start.time : '')
     const endTimeMax = computed(() => form.value.endDate === agreementPeriod.value.end.date ? agreementPeriod.value.end.time : '')
 
-    const hasInvalidRange = computed(() => {
-      const { startDate, startTime, endDate, endTime } = form.value
-      if (!startDate && !endDate) return false
-      if (!startDate || !endDate) return true
-
-      const start = toDate(startDate, startTime, '00:00')
-      const end = toDate(endDate, endTime, '23:59')
-      const agreementStart = toDate(agreementPeriod.value.start.date, agreementPeriod.value.start.time, '00:00')
-      const agreementEnd = toDate(agreementPeriod.value.end.date, agreementPeriod.value.end.time, '23:59')
-      return Boolean(
-        (start && end && end < start)
-        || (start && agreementStart && start < agreementStart)
-        || (end && agreementEnd && end > agreementEnd)
-      )
-    })
+    const hasInvalidRange = computed(() =>
+      sectionScheduleHasInvalidRange(form.value, agreementPeriod.value)
+    )
 
     function save() {
       if (hasInvalidRange.value) return

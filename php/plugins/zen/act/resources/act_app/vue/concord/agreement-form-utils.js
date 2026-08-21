@@ -75,6 +75,55 @@ export function agreementFormHasInvalidRange(form) {
   return Boolean(getAgreementFormDateError(form))
 }
 
+function parseSectionScheduleDateTime(isoDate, time, fallbackTime) {
+  if (!isoDate) {
+    return null
+  }
+  return parseRuDateTime(
+    combineRuDateTime(formatIsoDateToRu(isoDate), time || fallbackTime)
+  )
+}
+
+export function sectionScheduleHasInvalidRange(form, agreementPeriod) {
+  const { startDate, startTime, endDate, endTime } = form
+  if (!startDate && !endDate) {
+    return false
+  }
+
+  const agreementStart = parseSectionScheduleDateTime(
+    agreementPeriod?.start?.date,
+    agreementPeriod?.start?.time,
+    '00:00'
+  )
+  const agreementEnd = parseSectionScheduleDateTime(
+    agreementPeriod?.end?.date,
+    agreementPeriod?.end?.time,
+    '23:59'
+  )
+  const sectionStart = parseSectionScheduleDateTime(startDate, startTime, '00:00')
+  const sectionEnd = parseSectionScheduleDateTime(endDate, endTime, '23:59')
+
+  if (sectionStart && !sectionEnd) {
+    return Boolean(
+      (agreementStart && sectionStart < agreementStart)
+      || (agreementEnd && sectionStart > agreementEnd)
+    )
+  }
+
+  if (!sectionStart && sectionEnd) {
+    return Boolean(
+      (agreementStart && sectionEnd < agreementStart)
+      || (agreementEnd && sectionEnd > agreementEnd)
+    )
+  }
+
+  return Boolean(
+    (sectionStart && sectionEnd && sectionEnd < sectionStart)
+    || (sectionStart && agreementStart && sectionStart < agreementStart)
+    || (sectionEnd && agreementEnd && sectionEnd > agreementEnd)
+  )
+}
+
 export function normalizeAgreementFormRange(form) {
   if (!agreementFormHasInvalidRange(form)) {
     return form
