@@ -251,7 +251,6 @@
                 </template>
 
                 <template v-else-if="block.type === 'gallery'">
-                  <p class="concord-editor-block__preview-meta">{{ getEditorBlockSummary(block) }}</p>
                   <div v-if="(block.photos || []).length" class="concord-editor-block__gallery-preview">
                     <div class="concord-editor-block__gallery-thumbs">
                       <img
@@ -268,7 +267,6 @@
                 </template>
 
                 <template v-else-if="block.type === 'files'">
-                  <p class="concord-editor-block__preview-meta">{{ getEditorBlockSummary(block) }}</p>
                   <div v-if="(block.files || []).length" class="concord-editor-block__chips">
                     <span
                       v-for="file in filesPreviewItems(block)"
@@ -288,14 +286,16 @@
                 </template>
 
                 <template v-else-if="block.type === 'link'">
-                  <p class="concord-editor-block__preview-meta">{{ getEditorBlockSummary(block) }}</p>
                   <div v-if="(block.links || []).length" class="concord-editor-block__chips">
                     <span
                       v-for="link in linksPreviewItems(block)"
                       :key="link.id"
                       class="concord-editor-block__chip concord-editor-block__chip--url"
+                      :title="link.url"
                     >
-                      {{ link.url }}
+                      <span class="concord-editor-block__chip-text">
+                        {{ formatLinkPreviewUrl(link.url) }}
+                      </span>
                     </span>
                     <span v-if="linksMoreCount(block)" class="concord-editor-block__more-badge">
                       +{{ linksMoreCount(block) }}
@@ -1025,6 +1025,23 @@ export default {
       return (block.links || []).slice(0, 2)
     }
 
+    function formatLinkPreviewUrl(value) {
+      const raw = String(value || '').trim()
+      if (!raw) {
+        return ''
+      }
+
+      try {
+        const parsed = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
+        const path = parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/$/, '')
+        const display = `${parsed.hostname}${path}`
+        return display.length > 46 ? `${display.slice(0, 45)}…` : display
+      } catch {
+        const display = raw.replace(/^https?:\/\//i, '').split(/[?#]/)[0].replace(/\/$/, '')
+        return display.length > 46 ? `${display.slice(0, 45)}…` : display
+      }
+    }
+
     function linksMoreCount(block) {
       const total = block.links?.length || 0
       return total > 2 ? total - 2 : 0
@@ -1426,6 +1443,7 @@ export default {
       filesPreviewItems,
       filesMoreCount,
       linksPreviewItems,
+      formatLinkPreviewUrl,
       linksMoreCount,
       openTextEditor,
       closeTextEditor,

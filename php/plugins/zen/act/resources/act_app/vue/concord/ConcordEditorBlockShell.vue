@@ -8,49 +8,50 @@
     :data-block-id="blockId"
     @click="onShellClick"
   >
-    <button
-      type="button"
-      class="concord-editor-block__handle"
-      data-concord-no-toggle
-      aria-label="Перетащить блок"
-      @click.stop
-    >
-      <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
-        <circle cx="5" cy="4" r="1.2" />
-        <circle cx="11" cy="4" r="1.2" />
-        <circle cx="5" cy="8" r="1.2" />
-        <circle cx="11" cy="8" r="1.2" />
-        <circle cx="5" cy="12" r="1.2" />
-        <circle cx="11" cy="12" r="1.2" />
-      </svg>
-    </button>
-
     <div class="concord-editor-block__main">
       <div class="concord-editor-block__head">
-        <label
-          class="concord-editor-block__head-text"
-          data-concord-no-toggle
-          @click.stop
-        >
-          <span class="concord-editor-block__label-hint">Название</span>
-          <input
-            ref="labelInputRef"
-            v-model="draftLabel"
-            class="concord-editor-block__label-input"
-            type="text"
-            :placeholder="placeholder"
-            autocomplete="off"
-            autocorrect="off"
-            spellcheck="false"
+        <div class="concord-editor-block__head-title">
+          <button
+            type="button"
+            class="concord-editor-block__handle"
+            data-concord-no-toggle
+            aria-label="Перетащить блок"
             @click.stop
-            @mousedown.stop
-            @pointerdown.stop
-            @keydown.enter.prevent="blurLabelInput"
-            @keydown.esc.prevent="revertLabel"
-            @focus="onLabelFocus"
-            @blur="commitLabel"
           >
-        </label>
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <circle cx="5" cy="4" r="1.2" />
+              <circle cx="11" cy="4" r="1.2" />
+              <circle cx="5" cy="8" r="1.2" />
+              <circle cx="11" cy="8" r="1.2" />
+              <circle cx="5" cy="12" r="1.2" />
+              <circle cx="11" cy="12" r="1.2" />
+            </svg>
+          </button>
+          <label
+            class="concord-editor-block__head-text"
+            data-concord-no-toggle
+            @click.stop
+          >
+            <span class="concord-editor-block__label-hint">Название</span>
+            <input
+              ref="labelInputRef"
+              v-model="draftLabel"
+              class="concord-editor-block__label-input"
+              type="text"
+              :placeholder="placeholder"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+              @click.stop
+              @mousedown.stop
+              @pointerdown.stop
+              @keydown.enter.prevent="blurLabelInput"
+              @keydown.esc.prevent="revertLabel"
+              @focus="onLabelFocus"
+              @blur="commitLabel"
+            >
+          </label>
+        </div>
         <div class="concord-editor-block__head-actions">
           <span v-if="summary" class="concord-editor-block__summary">{{ summary }}</span>
           <button

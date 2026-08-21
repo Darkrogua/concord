@@ -3,6 +3,19 @@ import { MOCK_AGREEMENTS, ensureAgreementSections } from '../concord/mock-agreem
 
 const STORAGE_KEY = 'concord_agreements_v14'
 
+const bundledPhotoPreviews = new Map()
+for (const agreement of MOCK_AGREEMENTS) {
+  for (const section of agreement.sections || []) {
+    for (const block of section.blocks || []) {
+      for (const photo of block.photos || []) {
+        if (photo.id && photo.previewUrl) {
+          bundledPhotoPreviews.set(photo.id, photo.previewUrl)
+        }
+      }
+    }
+  }
+}
+
 function cloneAgreement(item) {
   return {
     ...item,
@@ -55,18 +68,13 @@ function serializeAgreementsForStorage(agreements) {
   }))
 }
 
-function stripHeavyContentInPlace(agreement) {
+function restoreBundledPhotoPreviews(agreement) {
   for (const section of agreement.sections || []) {
     for (const block of section.blocks || []) {
       for (const photo of block.photos || []) {
-        if (photo.previewUrl) {
-          delete photo.previewUrl
+        if (!photo.previewUrl && bundledPhotoPreviews.has(photo.id)) {
+          photo.previewUrl = bundledPhotoPreviews.get(photo.id)
         }
-      }
-      for (const file of block.files || []) {
-        delete file.downloadUrl
-        delete file.previewUrl
-        delete file.textContent
       }
     }
   }
@@ -76,7 +84,7 @@ function normalizeLoadedAgreements(items) {
   return items.map((item) => {
     const agreement = cloneAgreement(item)
     ensureAgreementSections(agreement)
-    stripHeavyContentInPlace(agreement)
+    restoreBundledPhotoPreviews(agreement)
     return agreement
   })
 }

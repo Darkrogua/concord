@@ -144,6 +144,11 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import ConcordImageViewer from './ConcordImageViewer.vue'
 import { normalizeGalleryBlock } from './mock-agreements.js'
+import {
+  deleteGalleryPhoto,
+  loadGalleryPhoto,
+  saveGalleryPhoto,
+} from './gallery-media-storage.js'
 
 const PAGE_SIZE = 6
 
@@ -162,10 +167,32 @@ export default {
     const viewerOpen = ref(false)
     const viewerIndex = ref(0)
     const activePage = ref(0)
+    const restoringPhotoIds = new Set()
 
     normalizeGalleryBlock(props.block)
 
     const photos = computed(() => props.block.photos || [])
+
+    async function hydratePhotoPreviews() {
+      for (const photo of photos.value) {
+        if (!photo.id || photo.previewUrl || restoringPhotoIds.has(photo.id)) {
+          continue
+        }
+        restoringPhotoIds.add(photo.id)
+        try {
+          const blob = await loadGalleryPhoto(photo.id)
+          if (blob instanceof Blob && !photo.previewUrl) {
+            photo.previewUrl = URL.createObjectURL(blob)
+          }
+        } catch {
+          // Photo metadata remains available if browser storage is unavailable.
+        } finally {
+          restoringPhotoIds.delete(photo.id)
+        }
+      }
+    }
+
+    hydratePhotoPreviews()
 
     const photoPages = computed(() => {
       const list = photos.value
@@ -179,6 +206,7 @@ export default {
     watch(
       () => photos.value.length,
       () => {
+        hydratePhotoPreviews()
         const maxPage = Math.max(photoPages.value.length - 1, 0)
         if (activePage.value > maxPage) {
           activePage.value = maxPage
@@ -198,16 +226,11 @@ export default {
           id: `photo-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           name: file.name,
           mime: file.type,
-          previewUrl: '',
+          previewUrl: URL.createObjectURL(file),
           comment: '',
         }
         props.block.photos.push(entry)
-
-        const reader = new FileReader()
-        reader.onload = () => {
-          entry.previewUrl = reader.result
-        }
-        reader.readAsDataURL(file)
+        saveGalleryPhoto(entry.id, file).catch(() => {})
       }
       event.target.value = ''
       nextTick(() => {
@@ -219,6 +242,7 @@ export default {
 
     function removePhoto(photoId) {
       props.block.photos = props.block.photos.filter((item) => item.id !== photoId)
+      deleteGalleryPhoto(photoId).catch(() => {})
     }
 
     function openViewer(index) {

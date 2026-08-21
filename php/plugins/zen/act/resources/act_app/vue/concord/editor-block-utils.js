@@ -107,3 +107,28 @@ export function getTextBlockPreviewExcerpt(block, limit = 120) {
   }
   return content.length > limit ? `${content.slice(0, limit)}…` : content
 }
+
+export function formatLinkDisplayUrl(value = '', maxLength = 42) {
+  const raw = String(value || '').trim()
+  if (!raw) {
+    return ''
+  }
+
+  try {
+    const parsed = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
+    const path = parsed.pathname === '/' ? '' : parsed.pathname.replace(/\/$/, '')
+    const display = `${parsed.hostname}${path}`
+    return display.length > maxLength ? `${display.slice(0, maxLength - 1)}…` : display
+  } catch {
+    const display = raw.replace(/^https?:\/\//i, '').split(/[?#]/)[0].replace(/\/$/, '')
+    return display.length > maxLength ? `${display.slice(0, maxLength - 1)}…` : display
+  }
+}
+
+export function getLinkDisplayLabel(link) {
+  const title = String(link?.title || '').trim()
+  if (title) {
+    return title
+  }
+  return formatLinkDisplayUrl(link?.url || '')
+}

@@ -1,6 +1,7 @@
 :root {
   /* === Foundation === */
-  --concord-bg: #f6f8fb;
+  --concord-shell-muted: #f6f8fb;
+  --concord-bg: #ffffff;
   --concord-surface: #ffffff;
   --concord-surface-muted: #f1f5f9;
   --concord-border: #e6eaf0;
@@ -56,7 +57,7 @@
   --concord-tracking-title: -0.02em;
 
   /* === Shell === */
-  --concord-header-bg: var(--concord-surface);
+  --concord-header-bg: var(--concord-shell-muted);
   --concord-header-border: var(--concord-border);
   --concord-nav-bg: var(--concord-surface);
   --concord-nav-border: var(--concord-border);
@@ -138,7 +139,7 @@
   --concord-card-title-gap: 6px;
   --concord-card-bg: #ffffff;
   --concord-card-border: var(--concord-border);
-  --concord-card-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+  --concord-card-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
   --concord-card-divider: var(--concord-divider);
   --concord-card-meta: var(--concord-text-secondary);
   --concord-card-magenta: var(--concord-deadline-overdue);

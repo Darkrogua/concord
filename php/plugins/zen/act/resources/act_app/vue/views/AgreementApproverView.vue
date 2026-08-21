@@ -141,7 +141,56 @@
                     {{ block.title.trim() }}
                   </p>
                   <p v-if="block.description" class="concord-approver__block-lead">{{ block.description }}</p>
-                  <p v-if="block.content" class="concord-approver__block-content">{{ stripContent(block.content) }}</p>
+                  <ConcordApproverTextContent :content="block.content" />
+                </template>
+                <template v-else-if="block.type === 'link'">
+                  <h3 v-if="getEditorBlockLabel(block)" class="concord-approver__block-title">
+                    {{ getEditorBlockLabel(block) }}
+                  </h3>
+                  <div v-if="(block.links || []).length" class="concord-approver__links concord-approver__links--compact">
+                    <div
+                      v-for="link in block.links"
+                      :key="link.id"
+                      class="concord-approver__link-item"
+                      :class="{ 'concord-approver__link-item--commented': linkComment(link) }"
+                    >
+                      <a
+                        :href="link.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="concord-approver__link concord-approver__link--compact"
+                        :title="link.url"
+                      >
+                        <span class="concord-approver__link-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+                            <path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            <path d="M14 4h6v6M10 14 20 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </span>
+                        <span class="concord-approver__link-main">
+                          <span
+                            class="concord-approver__link-line"
+                            :class="{ 'concord-approver__link-line--stacked': !linkComment(link) }"
+                          >
+                            <span class="concord-approver__link-title">{{ getLinkDisplayLabel(link) }}</span>
+                            <span class="concord-approver__link-url">{{ formatLinkDisplayUrl(link.url) }}</span>
+                          </span>
+                        </span>
+                      </a>
+                      <button
+                        v-if="linkComment(link)"
+                        type="button"
+                        class="concord-approver__comment-trigger concord-approver__link-comment-trigger"
+                        :aria-label="`Показать комментарий к ссылке ${getLinkDisplayLabel(link)}`"
+                        @click.stop="openReasonModal(linkComment(link))"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+                          <path d="M5 5.5h14v10H9l-4 3v-13Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                          <path d="M8.5 9h7M8.5 12h4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </template>
                 <template v-else>
                   <h3 v-if="block.title || block.label" class="concord-approver__block-title">
@@ -152,36 +201,53 @@
                 </template>
 
                 <div v-if="(block.files || []).length" class="concord-approver__files">
-                  <button
+                  <div
                     v-for="file in block.files"
                     :key="file.id"
-                    type="button"
-                    class="concord-approver__file"
-                    :aria-label="fileDownloadLabel(file)"
-                    @click="onFileDownload(file)"
+                    class="concord-approver__file-item"
+                    :class="{ 'concord-approver__file-item--commented': fileComment(file) }"
                   >
-                    <span class="concord-approver__file-preview">
-                      <img v-if="file.previewUrl" :src="file.previewUrl" alt="">
-                      <svg v-else viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
-                        <path d="M8 3h6l5 5v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/>
-                        <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.4"/>
-                      </svg>
-                      <span class="concord-approver__file-download" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
-                          <path d="M12 4v10M7 9l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                          <path d="M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <button
+                      type="button"
+                      class="concord-approver__file"
+                      :aria-label="fileDownloadLabel(file)"
+                      @click="onFileDownload(file)"
+                    >
+                      <span class="concord-approver__file-preview">
+                        <img v-if="file.previewUrl" :src="file.previewUrl" alt="">
+                        <svg v-else viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
+                          <path d="M8 3h6l5 5v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.4"/>
+                          <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.4"/>
                         </svg>
+                        <span class="concord-approver__file-download" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+                            <path d="M12 4v10M7 9l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                          </svg>
+                        </span>
                       </span>
-                    </span>
-                    <span class="concord-approver__file-name">{{ file.name }}</span>
-                    <span v-if="fileComment(file)" class="concord-approver__file-comment">{{ fileComment(file) }}</span>
-                  </button>
+                      <span class="concord-approver__file-name">{{ file.name }}</span>
+                    </button>
+                    <button
+                      v-if="fileComment(file)"
+                      type="button"
+                      class="concord-approver__comment-trigger concord-approver__file-comment-trigger"
+                      :aria-label="`Показать комментарий к файлу ${file.name || ''}`"
+                      @click.stop="openReasonModal(fileComment(file))"
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+                        <path d="M5 5.5h14v10H9l-4 3v-13Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                        <path d="M8.5 9h7M8.5 12h4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 <ConcordGalleryCarousel
                   v-if="(block.photos || []).length"
                   :photos="block.photos"
                   @open="openGalleryViewer(block.photos, $event)"
+                  @comment="openReasonModal"
                 />
 
                 <div v-if="(block.items || []).length" class="concord-approver__checkboxes">
@@ -201,7 +267,7 @@
                   </ul>
                 </div>
 
-                <div v-if="(block.links || []).length" class="concord-approver__links">
+                <div v-if="block.type !== 'link' && (block.links || []).length" class="concord-approver__links">
                   <a
                     v-for="link in block.links"
                     :key="link.id"
@@ -313,7 +379,11 @@
 
 <script>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
-import { getEditorBlockLabel } from '../concord/editor-block-utils.js'
+import {
+  formatLinkDisplayUrl,
+  getEditorBlockLabel,
+  getLinkDisplayLabel,
+} from '../concord/editor-block-utils.js'
 import { downloadAgreementFile, openAgreementFile } from '../concord/file-download-utils.js'
 import { ensureAgreementSections, formatSectionTabTitle, getAgreementDaysRemaining, formatAgreementDaysLabel, CURRENT_APPROVER_ID } from '../concord/mock-agreements.js'
 import { resolveSectionParticipants, MOCK_CONTACTS } from '../concord/mock-groups.js'
@@ -321,6 +391,7 @@ import ParticipantAvatars from '../concord/ParticipantAvatars.vue'
 import ConcordUrgencyFlame from '../concord/ConcordUrgencyFlame.vue'
 import ConcordImageViewer from '../concord/ConcordImageViewer.vue'
 import ConcordGalleryCarousel from '../concord/ConcordGalleryCarousel.vue'
+import ConcordApproverTextContent from '../concord/ConcordApproverTextContent.vue'
 import ApproverVoteSection from '../concord/ApproverVoteSection.vue'
 import ApproverVoteStats from '../concord/ApproverVoteStats.vue'
 import ApproverVoteConfirmModal from '../concord/ApproverVoteConfirmModal.vue'
@@ -335,6 +406,7 @@ export default {
     ConcordUrgencyFlame,
     ConcordImageViewer,
     ConcordGalleryCarousel,
+    ConcordApproverTextContent,
     ConcordReasonViewModal,
     ApproverVoteSection,
     ApproverVoteStats,
@@ -677,10 +749,13 @@ export default {
       return String(file?.comment || '').trim()
     }
 
+    function linkComment(link) {
+      return String(link?.description || link?.comment || '').trim()
+    }
+
     function fileDownloadLabel(file) {
       const name = file?.name || 'файл'
-      const comment = fileComment(file)
-      return comment ? `Скачать ${name}. ${comment}` : `Скачать ${name}`
+      return `Скачать ${name}`
     }
 
     function onFileDownload(file) {
@@ -753,6 +828,8 @@ export default {
       isDeadlineOverdue,
       stripContent,
       getEditorBlockLabel,
+      formatLinkDisplayUrl,
+      getLinkDisplayLabel,
       sectionAnchorId,
       setSectionRef,
       toggleSection,
@@ -762,6 +839,7 @@ export default {
       openGalleryViewer,
       closeImageViewer,
       fileComment,
+      linkComment,
       fileDownloadLabel,
       onFileDownload,
       openReasonModal,

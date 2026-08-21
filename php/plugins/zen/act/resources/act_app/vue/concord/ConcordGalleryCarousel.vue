@@ -19,9 +19,18 @@
             class="concord-gallery-carousel__image"
             loading="lazy"
           >
-          <figcaption v-if="galleryPhotoCaption(photo)" class="concord-gallery-carousel__caption">
-            {{ galleryPhotoCaption(photo) }}
-          </figcaption>
+          <button
+            v-if="galleryPhotoCaption(photo)"
+            type="button"
+            class="concord-approver__comment-trigger concord-gallery-carousel__comment-trigger"
+            :aria-label="`Показать комментарий к ${photo.name || `фото ${index + 1}`}`"
+            @click.stop="$emit('comment', galleryPhotoCaption(photo))"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+              <path d="M5 5.5h14v10H9l-4 3v-13Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              <path d="M8.5 9h7M8.5 12h4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
         </figure>
       </div>
 
@@ -104,7 +113,7 @@ export default {
       default: () => [],
     },
   },
-  emits: ['open'],
+  emits: ['open', 'comment'],
   setup(props) {
     const trackRef = ref(null)
     const thumbsRef = ref(null)
