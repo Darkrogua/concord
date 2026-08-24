@@ -1,13 +1,6 @@
 <template>
   <div class="concord-page concord-page--agreement-form">
-    <header class="concord-header concord-header--editor">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="$emit('back')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title">Новый лист согласования</h1>
-    </header>
+    <ConcordPageHeader title="Новый лист согласования" show-back @back="$emit('back')" />
 
     <main class="concord-section-settings">
       <AgreementFormFields :form="form" />
@@ -41,6 +34,7 @@
 import { computed, ref, watch } from 'vue'
 import AgreementFormFields from '../concord/AgreementFormFields.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import {
   EMPTY_AGREEMENT_FORM,
   agreementFormHasDates,
@@ -50,7 +44,7 @@ import {
 
 export default {
   name: 'CreateAgreementView',
-  components: { AgreementFormFields, ConcordConfirmSheet },
+  components: { AgreementFormFields, ConcordConfirmSheet, ConcordPageHeader },
   emits: ['back', 'save-draft'],
   setup(props, { emit }) {
     const form = ref({ ...EMPTY_AGREEMENT_FORM })

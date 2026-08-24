@@ -1,30 +1,29 @@
 <template>
   <div class="concord-page concord-page--groups">
-    <header class="concord-header concord-header--editor concord-header--groups">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="$emit('back')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title concord-group-title">
-        <span class="concord-group-title__prefix">Группа:</span>
-        <input
-          ref="titleInputRef"
-          v-model="editableTitle"
-          type="text"
-          class="concord-group-title__input"
-          :aria-label="`Название группы: ${groupTitle}`"
-          autocomplete="off"
-          spellcheck="false"
-          @keydown.enter.prevent="titleInputRef?.blur()"
-        >
-      </h1>
-      <ConcordGroupHeaderActions
-        :member-count="selectedMemberIds.length"
-        :disabled="!canSave"
-        @save="saveAndBack"
-      />
-    </header>
+    <ConcordPageHeader show-back @back="$emit('back')">
+      <template #title>
+        <h1 class="concord-page-header__title concord-group-title">
+          <span class="concord-group-title__prefix">Группа:</span>
+          <input
+            ref="titleInputRef"
+            v-model="editableTitle"
+            type="text"
+            class="concord-group-title__input"
+            :aria-label="`Название группы: ${groupTitle}`"
+            autocomplete="off"
+            spellcheck="false"
+            @keydown.enter.prevent="titleInputRef?.blur()"
+          >
+        </h1>
+      </template>
+      <template #right>
+        <ConcordGroupHeaderActions
+          :member-count="selectedMemberIds.length"
+          :disabled="!canSave"
+          @save="saveAndBack"
+        />
+      </template>
+    </ConcordPageHeader>
 
     <main class="concord-groups">
       <ContactCheckboxList
@@ -42,11 +41,12 @@
 import { computed, ref, watch } from 'vue'
 import ContactCheckboxList from '../concord/ContactCheckboxList.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import { filterContacts } from '../concord/mock-groups.js'
 
 export default {
   name: 'GroupMembersView',
-  components: { ContactCheckboxList, ConcordGroupHeaderActions },
+  components: { ContactCheckboxList, ConcordGroupHeaderActions, ConcordPageHeader },
   props: {
     groupTitle: {
       type: String,

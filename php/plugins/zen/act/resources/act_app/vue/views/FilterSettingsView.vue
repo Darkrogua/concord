@@ -1,13 +1,6 @@
 <template>
   <div class="concord-page concord-page--settings">
-    <header class="concord-header concord-header--editor">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="$emit('back')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title">Настройки</h1>
-    </header>
+    <ConcordPageHeader title="Настройки" show-back @back="$emit('back')" />
 
     <main ref="sectionsRef" class="concord-settings">
       <section
@@ -73,11 +66,12 @@
 <script>
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 import FilterChipSortableList from '../concord/FilterChipSortableList.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import { useFilterSectionSortable } from '../concord/useFilterSectionSortable.js'
 
 export default {
   name: 'FilterSettingsView',
-  components: { FilterChipSortableList },
+  components: { FilterChipSortableList, ConcordPageHeader },
   props: {
     sections: {
       type: Array,

@@ -5,32 +5,30 @@
       ref="approverChromeRef"
       class="concord-agreement-editor__chrome"
     >
-      <header
-        class="concord-header concord-header--editor concord-agreement-editor__chrome-header"
-        :class="{ 'concord-agreement-editor__chrome-header--hidden': !approverHeaderVisible }"
+      <ConcordPageHeader
+        class="concord-agreement-editor__chrome-header"
+        :title="agreement?.title || 'Без названия'"
+        chrome
+        :hidden="!approverHeaderVisible"
+        show-back
+        @back="goBack"
       >
-        <button type="button" class="concord-icon-btn" aria-label="Назад" @click="goBack">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <h1 class="concord-header__title concord-header__title--editor-clamp">
-          {{ agreement?.title || 'Без названия' }}
-        </h1>
-        <button
-          v-if="!preview"
-          type="button"
-          class="concord-icon-btn"
-          aria-label="Меню согласования"
-          @click="openMenu"
-        >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-            <circle cx="5" cy="12" r="1.6" fill="currentColor"/>
-            <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
-            <circle cx="19" cy="12" r="1.6" fill="currentColor"/>
-          </svg>
-        </button>
-      </header>
+        <template #right>
+          <button
+            v-if="!preview"
+            type="button"
+            class="concord-icon-btn"
+            aria-label="Меню согласования"
+            @click="openMenu"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+              <circle cx="5" cy="12" r="1.6" fill="currentColor"/>
+              <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+              <circle cx="19" cy="12" r="1.6" fill="currentColor"/>
+            </svg>
+          </button>
+        </template>
+      </ConcordPageHeader>
 
       <div class="concord-agreement-editor__tabs-wrap">
         <div ref="sectionTabsRef" class="concord-tabs concord-tabs--scroll" role="tablist" aria-label="Разделы согласования">
@@ -52,29 +50,29 @@
   </Teleport>
 
   <div class="concord-page concord-page--approver" :style="[approverPageStyle, { viewTransitionName }]">
-    <header v-if="!showSectionTabs" class="concord-header concord-header--editor">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="goBack">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title concord-header__title--editor-clamp">
-        {{ agreement?.title || 'Без названия' }}
-      </h1>
-      <button
-        v-if="!preview"
-        type="button"
-        class="concord-icon-btn"
-        aria-label="Меню согласования"
-        @click="openMenu"
-      >
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
-          <circle cx="5" cy="12" r="1.6" fill="currentColor"/>
-          <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
-          <circle cx="19" cy="12" r="1.6" fill="currentColor"/>
-        </svg>
-      </button>
-    </header>
+    <ConcordPageHeader
+      v-if="!showSectionTabs"
+      :title="agreement?.title || 'Без названия'"
+      :title-lines="2"
+      show-back
+      @back="goBack"
+    >
+      <template #right>
+        <button
+          v-if="!preview"
+          type="button"
+          class="concord-icon-btn"
+          aria-label="Меню согласования"
+          @click="openMenu"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+            <circle cx="5" cy="12" r="1.6" fill="currentColor"/>
+            <circle cx="12" cy="12" r="1.6" fill="currentColor"/>
+            <circle cx="19" cy="12" r="1.6" fill="currentColor"/>
+          </svg>
+        </button>
+      </template>
+    </ConcordPageHeader>
 
     <div
       v-if="showSectionTabs"
@@ -397,6 +395,7 @@ import ApproverVoteStats from '../concord/ApproverVoteStats.vue'
 import ApproverVoteConfirmModal from '../concord/ApproverVoteConfirmModal.vue'
 import ApproverVoteRejectModal from '../concord/ApproverVoteRejectModal.vue'
 import ConcordReasonViewModal from '../concord/ConcordReasonViewModal.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import { resetConcordScrollPosition } from '../concord/scroll-top.js'
 
 export default {
@@ -412,6 +411,7 @@ export default {
     ApproverVoteStats,
     ApproverVoteConfirmModal,
     ApproverVoteRejectModal,
+    ConcordPageHeader,
   },
   props: {
     agreement: {

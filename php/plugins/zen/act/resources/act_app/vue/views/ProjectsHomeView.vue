@@ -1,24 +1,28 @@
 <template>
   <div class="concord-page">
-    <header class="concord-header">
-      <h1 class="concord-header__title">Все проекты</h1>
-      <div class="concord-header__actions">
-        <button type="button" class="concord-icon-btn" aria-label="Поиск" @click="searchOpen = true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M16 16l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <button type="button" class="concord-icon-btn" aria-label="Настройки фильтра" @click="settingsOpen = true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="6" r="1.5" fill="currentColor"/>
-            <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-            <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
-          </svg>
-        </button>
-      </div>
-    </header>
+    <ConcordPageHeader title="Все проекты">
+      <template #right>
+        <div class="concord-page-header__actions">
+          <button type="button" class="concord-icon-btn" aria-label="Поиск" @click="searchOpen = true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M16 16l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button type="button" class="concord-icon-btn" aria-label="Настройки фильтра" @click="settingsOpen = true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="6" r="1.5" fill="currentColor"/>
+              <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+              <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      </template>
+    </ConcordPageHeader>
 
+    <div
+      class="concord-list-tabs-sticky"
+    >
     <div class="concord-tabs-wrap" :class="{ 'concord-tabs-wrap--scrollable': showTabsOverflow }">
       <div
         ref="tabsRef"
@@ -53,6 +57,7 @@
           </svg>
         </span>
       </button>
+    </div>
     </div>
 
     <div class="concord-sort">
@@ -196,6 +201,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import AgreementCard from '../concord/AgreementCard.vue'
 import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import AccountSwitcherSheet from '../concord/AccountSwitcherSheet.vue'
 import ConcordBottomNav from '../concord/ConcordBottomNav.vue'
 import CreateProjectSheet from '../concord/CreateProjectSheet.vue'
@@ -212,7 +218,7 @@ const DEFAULT_TAB_IDS = DEFAULT_TOP_TABS.map((t) => t.id)
 
 export default {
   name: 'ProjectsHomeView',
-  components: { AgreementCard, ConcordSearchOverlay, AccountSwitcherSheet, ConcordBottomNav, CreateProjectSheet },
+  components: { AgreementCard, ConcordSearchOverlay, ConcordPageHeader, AccountSwitcherSheet, ConcordBottomNav, CreateProjectSheet },
   setup() {
     const agreements = ref(MOCK_AGREEMENTS.map((item) => ({ ...item })))
     const activeTab = ref('agreements')

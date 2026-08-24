@@ -1,13 +1,6 @@
 <template>
   <div class="concord-page concord-page--editor">
-    <header class="concord-header concord-header--editor">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="$emit('back')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title">{{ sectionTitle }}</h1>
-    </header>
+    <ConcordPageHeader :title="sectionTitle" show-back @back="$emit('back')" />
 
     <main class="concord-filter-editor">
       <label class="concord-filter-editor__field">
@@ -60,6 +53,7 @@
 import { computed, ref, watch } from 'vue'
 import FilterChip from '../concord/FilterChip.vue'
 import FilterPickerModal from '../concord/FilterPickerModal.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import {
   FILTER_CATEGORIES,
   formatCreatedFilterLabel,
@@ -69,7 +63,7 @@ import {
 
 export default {
   name: 'FilterEditorView',
-  components: { FilterChip, FilterPickerModal },
+  components: { FilterChip, FilterPickerModal, ConcordPageHeader },
   props: {
     sectionTitle: {
       type: String,

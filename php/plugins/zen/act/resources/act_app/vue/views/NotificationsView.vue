@@ -1,13 +1,6 @@
 <template>
   <div class="concord-page concord-page--alerts">
-    <header class="concord-header concord-header--editor">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="$emit('back')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title">События</h1>
-    </header>
+    <ConcordPageHeader title="События" show-back @back="$emit('back')" />
 
     <main class="concord-alerts">
       <p v-if="!visibleSections.length" class="concord-alerts__empty">
@@ -61,8 +54,11 @@
 </template>
 
 <script>
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
+
 export default {
   name: 'NotificationsView',
+  components: { ConcordPageHeader },
   props: {
     sections: {
       type: Array,

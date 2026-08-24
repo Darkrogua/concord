@@ -1,27 +1,15 @@
 <template>
   <div class="concord-page concord-page--notifications">
-    <header class="concord-notifications__profile">
-      <button
-        type="button"
-        class="concord-notifications__avatar-btn"
-        aria-label="Изменить фото профиля"
-        @click="openPhotoSheet"
-      >
-        <img
-          v-if="profile.avatarUrl"
-          :src="profile.avatarUrl"
-          alt=""
-          class="concord-notifications__avatar concord-notifications__avatar--image"
-        />
-        <span v-else class="concord-notifications__avatar" aria-hidden="true">{{ profile.avatarInitial }}</span>
-      </button>
-      <div class="concord-notifications__profile-text">
-        <h1 class="concord-notifications__name">{{ fullName }}</h1>
-        <p class="concord-notifications__handle">@{{ profile.login }}</p>
-      </div>
-    </header>
+    <ConcordPageHeader title="Профиль" />
 
     <main class="concord-notifications">
+      <ConcordProfileHero
+        :name="fullName"
+        :handle="profile.login"
+        :avatar-url="profile.avatarUrl"
+        :avatar-initial="profile.avatarInitial"
+        @avatar-click="openPhotoSheet"
+      />
       <section class="concord-accordion concord-accordion--static">
         <h2 class="concord-accordion__title">Аккаунт</h2>
 
@@ -269,6 +257,8 @@ import ConcordAvatarCropSheet from '../concord/ConcordAvatarCropSheet.vue'
 import ConcordProfileFieldRow from '../concord/ConcordProfileFieldRow.vue'
 import ConcordProfileFieldSheet from '../concord/ConcordProfileFieldSheet.vue'
 import ConcordProfileFieldMenu from '../concord/ConcordProfileFieldMenu.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
+import ConcordProfileHero from '../concord/ConcordProfileHero.vue'
 import { usePwaInstall } from '../pwa-install.js'
 import { useConcordProfile } from '../composables/useConcordProfile.js'
 import { useAvatarPhotoFlow } from '../composables/useAvatarPhotoFlow.js'
@@ -287,6 +277,8 @@ export default {
     ConcordProfileFieldRow,
     ConcordProfileFieldSheet,
     ConcordProfileFieldMenu,
+    ConcordPageHeader,
+    ConcordProfileHero,
   },
   props: {
     accountId: {

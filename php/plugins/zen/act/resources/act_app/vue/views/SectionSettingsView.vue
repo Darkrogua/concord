@@ -1,14 +1,10 @@
 <template>
   <div class="concord-page concord-page--section-settings">
-    <header class="concord-header concord-header--editor concord-header--groups">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="save">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title">Настройки раздела</h1>
-      <ConcordGroupHeaderActions :show-count="false" @save="save" />
-    </header>
+    <ConcordPageHeader title="Настройки раздела" show-back @back="save">
+      <template #right>
+        <ConcordGroupHeaderActions :show-count="false" @save="save" />
+      </template>
+    </ConcordPageHeader>
 
     <main class="concord-section-settings">
       <section class="concord-section-settings__accordion">
@@ -451,6 +447,7 @@ import { computed, defineExpose, onMounted, reactive, ref, watch } from 'vue'
 import ContactCheckboxList from '../concord/ContactCheckboxList.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import {
   combineRuDateTime,
   DEFAULT_SECTION_SETTINGS,
@@ -487,7 +484,7 @@ function toRuDateTime(date, time) {
 
 export default {
   name: 'SectionSettingsView',
-  components: { ContactCheckboxList, ConcordConfirmSheet, ConcordGroupHeaderActions },
+  components: { ContactCheckboxList, ConcordConfirmSheet, ConcordGroupHeaderActions, ConcordPageHeader },
   props: {
     agreement: {
       type: Object,

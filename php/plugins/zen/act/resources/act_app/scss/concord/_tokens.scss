@@ -1,14 +1,24 @@
 :root {
+  /* === Neutrals (single scale — all gray/black UI derives from here) === */
+  --concord-neutral-0: #ffffff;
+  --concord-neutral-50: #f6f8fb;
+  --concord-neutral-100: #eef2f6;
+  --concord-neutral-200: #e6eaf0;
+  --concord-neutral-500: #667085;
+  --concord-neutral-900: #1f2937;
+  --concord-neutral-rgb: 31, 41, 55;
+
   /* === Foundation === */
-  --concord-shell-muted: #f6f8fb;
-  --concord-bg: #ffffff;
-  --concord-surface: #ffffff;
-  --concord-surface-muted: #f1f5f9;
-  --concord-border: #e6eaf0;
-  --concord-divider: #eef2f6;
-  --concord-text: #1f2937;
-  --concord-text-secondary: #667085;
-  --concord-text-disabled: #98a2b3;
+  --concord-shell-muted: var(--concord-neutral-50);
+  --concord-bg: var(--concord-neutral-0);
+  --concord-surface: var(--concord-neutral-0);
+  --concord-surface-muted: var(--concord-neutral-50);
+  --concord-border: var(--concord-neutral-200);
+  --concord-divider: var(--concord-neutral-100);
+  --concord-text: var(--concord-neutral-900);
+  --concord-text-muted: var(--concord-neutral-500);
+  --concord-text-secondary: var(--concord-text-muted);
+  --concord-text-disabled: var(--concord-text-muted);
 
   /* === Primary (interactive only) === */
   --concord-primary: #2563eb;
@@ -40,7 +50,11 @@
   /* Typography */
   --concord-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --concord-text-title: 22px;
+  --concord-text-header: 18px;
   --concord-text-card: 14px;
+  --concord-text-card-title: 16px;
+  --concord-text-card-stat: 16px;
+  --concord-leading-card-title: 1.35;
   --concord-text-body: 14px;
   --concord-text-caption: 12px;
   --concord-text-field: 16px;
@@ -57,12 +71,13 @@
   --concord-tracking-title: -0.02em;
 
   /* === Shell === */
+  --concord-header-height: 56px;
   --concord-header-bg: var(--concord-shell-muted);
   --concord-header-border: var(--concord-border);
   --concord-nav-bg: var(--concord-surface);
   --concord-nav-border: var(--concord-border);
   --concord-nav-active: var(--concord-primary);
-  --concord-nav-inactive: var(--concord-text-secondary);
+  --concord-nav-inactive: var(--concord-text-muted);
 
   /* === Status (neutral shell) === */
   --concord-status-green: #16a34a;
@@ -71,7 +86,7 @@
   --concord-status-blue-bg: var(--concord-primary-subtle);
   --concord-status-grey-border: var(--concord-border);
   --concord-status-grey-bg: var(--concord-surface-muted);
-  --concord-status-grey-text: var(--concord-text-secondary);
+  --concord-status-grey-text: var(--concord-text-muted);
   --concord-status-red-border: #fecaca;
   --concord-status-red-bg: #fef2f2;
   --concord-status-red-text: #dc2626;
@@ -137,26 +152,40 @@
   --concord-card-padding-bottom: 10px;
   --concord-card-header-padding-y: 2px;
   --concord-card-title-gap: 6px;
-  --concord-card-bg: #ffffff;
+  --concord-card-bg: var(--concord-neutral-0);
   --concord-card-border: var(--concord-border);
-  --concord-card-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
+  --concord-card-shadow: 0 2px 12px rgba(var(--concord-neutral-rgb), 0.08);
   --concord-card-divider: var(--concord-divider);
-  --concord-card-meta: var(--concord-text-secondary);
+  --concord-card-meta: var(--concord-text-muted);
   --concord-card-magenta: var(--concord-deadline-overdue);
   --concord-card-author: var(--concord-text);
-  --concord-card-avatar-bg: #667085;
+  --concord-card-avatar-bg: var(--concord-neutral-500);
   --concord-card-count-active: var(--concord-primary);
   --concord-card-progress-track: var(--concord-divider);
   --concord-card-progress-fill: var(--concord-primary);
   --concord-card-icon: var(--concord-primary);
-  --concord-card-icon-muted: var(--concord-text-secondary);
+  --concord-card-icon-muted: var(--concord-text-muted);
   --concord-card-circle-size: 32px;
-  --concord-card-number: var(--concord-text-disabled);
+  --concord-card-footer-action-size: 32px;
+  --concord-card-footer-icon-size: 24px;
+  --concord-card-progress-height: 10px;
+  --concord-card-number: var(--concord-text-muted);
   --concord-card-status-date: var(--concord-text);
+
+  /* Card body type scale (header strip above title is frozen — do not change) */
+  --concord-card-body-title-size: var(--concord-text-card-title);
+  --concord-card-body-title-weight: var(--concord-weight-semibold);
+  --concord-card-body-meta-size: var(--concord-text-body);
+  --concord-card-body-author-weight: var(--concord-weight-semibold);
+  --concord-card-body-meta-weight: var(--concord-weight-medium);
+  --concord-card-body-meta-line: var(--concord-leading-body);
+  --concord-card-body-secondary-weight: var(--concord-weight-regular);
+  --concord-card-body-stat-size: var(--concord-text-card-stat);
+  --concord-card-body-stat-weight: var(--concord-weight-semibold);
 
   /* Card header states */
   --concord-card-header-draft-bg: var(--concord-surface-muted);
-  --concord-card-header-draft-text: var(--concord-text-secondary);
+  --concord-card-header-draft-text: var(--concord-text-muted);
   --concord-card-header-overdue-bg: var(--concord-deadline-overdue-bg);
   --concord-card-header-overdue-text: var(--concord-deadline-overdue);
   --concord-card-header-approved-bg: var(--concord-role-approved-bg);
@@ -191,9 +220,14 @@
   --concord-card-progress-done-fill: var(--concord-role-approved-accent);
   --concord-card-progress-done-track: var(--concord-role-approved-bg);
   --concord-card-progress-done-count: var(--concord-role-approved-accent);
-  --concord-card-progress-draft-fill: var(--concord-text-disabled);
+  --concord-card-progress-draft-fill: var(--concord-neutral-200);
   --concord-card-progress-draft-track: var(--concord-divider);
-  --concord-card-progress-draft-count: var(--concord-text-secondary);
+  --concord-card-progress-draft-count: var(--concord-text-muted);
+
+  /* List chrome */
+  --concord-list-date-pill-bg: var(--concord-neutral-100);
+  --concord-list-date-pill-text: var(--concord-text-muted);
+  --concord-list-date-pill-border: var(--concord-border);
 
   --concord-page-gutter: 12px;
 }

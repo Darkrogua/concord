@@ -1,16 +1,19 @@
 <template>
   <div class="concord-page" :style="listPageStyle">
-    <header
+    <ConcordPageHeader
       ref="listHeaderRef"
-      class="concord-header concord-header--scroll-reveal"
-      :class="{ 'concord-header--scroll-reveal-hidden': !headerVisible }"
+      scroll-reveal
+      :hidden="!headerVisible"
     >
-      <h1 class="concord-header__title concord-header__brand">
-        <ConcordLogoMark size="sm" />
-        <span class="concord-header__brand-name">Concord</span>
-      </h1>
-      <div class="concord-header__actions">
-        <button type="button" class="concord-icon-btn" aria-label="Поиск" @click="searchOpen = true">
+      <template #left>
+        <h1 class="concord-page-header__brand">
+          <ConcordLogoMark size="sm" />
+          <span class="concord-page-header__brand-name">Concord</span>
+        </h1>
+      </template>
+      <template #right>
+        <div class="concord-page-header__actions">
+          <button type="button" class="concord-icon-btn" aria-label="Поиск" @click="searchOpen = true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/>
             <path d="M16 16l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -60,8 +63,9 @@
             <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
           </svg>
         </button>
-      </div>
-    </header>
+        </div>
+      </template>
+    </ConcordPageHeader>
 
     <div
       class="concord-list-header-spacer"
@@ -112,7 +116,28 @@
     </div>
 
     <div v-if="loading" class="concord-list concord-card-skeleton" aria-label="Загрузка согласований">
-      <div v-for="n in 3" :key="n" class="concord-card-skeleton__item" />
+      <article
+        v-for="n in 3"
+        :key="n"
+        class="concord-card concord-card-skeleton__card"
+        aria-hidden="true"
+      >
+        <div class="concord-card-skeleton__header">
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--number" />
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--status" />
+        </div>
+        <span class="concord-card-skeleton__bone concord-card-skeleton__bone--title" />
+        <div class="concord-card-skeleton__info">
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--avatar" />
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--author" />
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--participants" />
+        </div>
+        <div class="concord-card-skeleton__footer">
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--star" />
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--progress" />
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--count" />
+        </div>
+      </article>
     </div>
 
     <TransitionGroup v-else name="concord-card-list" tag="main" class="concord-list">
@@ -174,6 +199,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AgreementCard from '../concord/AgreementCard.vue'
 import ConcordLogoMark from '../concord/ConcordLogoMark.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import ConcordSearchOverlay from '../concord/ConcordSearchOverlay.vue'
 import ConcordSearchResultCard from '../concord/ConcordSearchResultCard.vue'
 import { useTabsScrollHint } from '../composables/useTabsScrollHint.js'
@@ -187,7 +213,7 @@ import {
 
 export default {
   name: 'AgreementsListView',
-  components: { AgreementCard, ConcordLogoMark, ConcordSearchOverlay, ConcordSearchResultCard },
+  components: { AgreementCard, ConcordLogoMark, ConcordPageHeader, ConcordSearchOverlay, ConcordSearchResultCard },
   props: {
     agreements: {
       type: Array,
@@ -253,21 +279,26 @@ export default {
       '--concord-list-header-height': `${listHeaderHeight.value}px`,
     }))
 
+    function getListHeaderElement() {
+      return listHeaderRef.value?.rootRef || listHeaderRef.value?.$el || null
+    }
+
     function updateListHeaderHeight() {
-      const measured = listHeaderRef.value?.offsetHeight || 0
-      listHeaderHeight.value = measured || 65
+      const measured = getListHeaderElement()?.offsetHeight || 0
+      listHeaderHeight.value = measured || 56
     }
 
     function setupHeaderResizeObserver() {
       chromeResizeObserver?.disconnect()
       updateListHeaderHeight()
-      if (!listHeaderRef.value || typeof ResizeObserver === 'undefined') {
+      const headerEl = getListHeaderElement()
+      if (!headerEl || typeof ResizeObserver === 'undefined') {
         return
       }
       chromeResizeObserver = new ResizeObserver(() => {
         updateListHeaderHeight()
       })
-      chromeResizeObserver.observe(listHeaderRef.value)
+      chromeResizeObserver.observe(headerEl)
     }
 
     function onScroll() {

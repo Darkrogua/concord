@@ -1,18 +1,14 @@
 <template>
   <div class="concord-page concord-page--agreement-form concord-page--agreement-settings">
-    <header class="concord-header concord-header--editor concord-header--groups">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="save">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title">Настройки согласования</h1>
-      <ConcordGroupHeaderActions
-        :show-count="false"
-        :disabled="hasInvalidDateRange"
-        @save="save"
-      />
-    </header>
+    <ConcordPageHeader title="Настройки согласования" show-back @back="save">
+      <template #right>
+        <ConcordGroupHeaderActions
+          :show-count="false"
+          :disabled="hasInvalidDateRange"
+          @save="save"
+        />
+      </template>
+    </ConcordPageHeader>
 
     <main class="concord-section-settings">
       <AgreementFormFields :form="form" />
@@ -35,6 +31,7 @@
 import { computed, ref, watch, defineExpose } from 'vue'
 import AgreementFormFields from '../concord/AgreementFormFields.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import {
   agreementFormHasInvalidRange,
   agreementFormToPayload,
@@ -44,7 +41,7 @@ import {
 
 export default {
   name: 'AgreementSettingsView',
-  components: { AgreementFormFields, ConcordGroupHeaderActions },
+  components: { AgreementFormFields, ConcordGroupHeaderActions, ConcordPageHeader },
   props: {
     agreement: {
       type: Object,

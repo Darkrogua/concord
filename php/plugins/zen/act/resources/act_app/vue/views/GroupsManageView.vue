@@ -1,17 +1,13 @@
 <template>
   <div v-if="pickerMode" class="concord-page concord-page--groups concord-page--groups-picker">
-    <header class="concord-header concord-header--editor concord-header--groups">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="onDone">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title">Группы</h1>
-      <ConcordGroupHeaderActions
-        :show-count="false"
-        @save="onDone"
-      />
-    </header>
+    <ConcordPageHeader title="Группы" show-back @back="onDone">
+      <template #right>
+        <ConcordGroupHeaderActions
+          :show-count="false"
+          @save="onDone"
+        />
+      </template>
+    </ConcordPageHeader>
 
     <main class="concord-groups concord-groups--picker">
       <div
@@ -58,24 +54,7 @@
   </div>
 
   <div v-else class="concord-page concord-page--notifications">
-    <header class="concord-notifications__profile concord-notifications__profile--subpage">
-      <button type="button" class="concord-notifications__back" aria-label="Назад" @click="$emit('back')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-
-      <div class="concord-notifications__profile-main">
-        <img
-          v-if="profile.avatarUrl"
-          :src="profile.avatarUrl"
-          alt=""
-          class="concord-notifications__avatar concord-notifications__avatar--image"
-        >
-        <span v-else class="concord-notifications__avatar" aria-hidden="true">{{ profile.avatarInitial }}</span>
-        <h1 class="concord-notifications__name">{{ fullName }}</h1>
-      </div>
-    </header>
+    <ConcordPageHeader title="Группы" show-back @back="$emit('back')" />
 
     <main class="concord-notifications">
       <section class="concord-accordion concord-accordion--static">
@@ -142,12 +121,13 @@ import { computed, ref, toRef, watch } from 'vue'
 import ConcordGroupDeleteIcon from '../concord/ConcordGroupDeleteIcon.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import { getGroupMembersCount } from '../concord/mock-groups.js'
 import { useConcordProfile } from '../composables/useConcordProfile.js'
 
 export default {
   name: 'GroupsManageView',
-  components: { ConcordGroupDeleteIcon, ConcordGroupHeaderActions, ConcordConfirmSheet },
+  components: { ConcordGroupDeleteIcon, ConcordGroupHeaderActions, ConcordConfirmSheet, ConcordPageHeader },
   props: {
     accountId: {
       type: String,

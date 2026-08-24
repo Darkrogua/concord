@@ -1,18 +1,14 @@
 <template>
   <div class="concord-page concord-page--groups">
-    <header class="concord-header concord-header--editor concord-header--groups">
-      <button type="button" class="concord-icon-btn" aria-label="Назад" @click="$emit('back')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 6 8 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <h1 class="concord-header__title">Создание группы</h1>
-      <ConcordGroupHeaderActions
-        :member-count="selectedMemberIds.length"
-        :disabled="!canSave"
-        @save="saveGroup"
-      />
-    </header>
+    <ConcordPageHeader title="Создание группы" show-back @back="$emit('back')">
+      <template #right>
+        <ConcordGroupHeaderActions
+          :member-count="selectedMemberIds.length"
+          :disabled="!canSave"
+          @save="saveGroup"
+        />
+      </template>
+    </ConcordPageHeader>
 
     <main class="concord-groups">
       <label class="concord-groups__field">
@@ -42,11 +38,12 @@
 import { computed, ref } from 'vue'
 import ContactCheckboxList from '../concord/ContactCheckboxList.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
+import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import { filterContacts } from '../concord/mock-groups.js'
 
 export default {
   name: 'CreateGroupView',
-  components: { ContactCheckboxList, ConcordGroupHeaderActions },
+  components: { ContactCheckboxList, ConcordGroupHeaderActions, ConcordPageHeader },
   props: {
     contacts: {
       type: Array,
