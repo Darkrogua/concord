@@ -1702,6 +1702,28 @@
   white-space: pre-line;
 }
 
+.concord-text-file-preview-sheet {
+  max-height: min(88vh, 720px);
+}
+
+.concord-text-file-preview-sheet__content {
+  flex: 1;
+  min-height: 0;
+  max-height: 52vh;
+  margin: 0 0 16px;
+  padding: 12px;
+  overflow: auto;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-surface-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .concord-overlay {
   position: fixed;
   inset: 0;
@@ -2813,6 +2835,22 @@
   flex-direction: column;
   gap: 10px;
   width: 100%;
+}
+
+.concord-agreement-editor__block-picker--open .concord-profile-card--block-picker-open {
+  border-color: color-mix(in srgb, var(--concord-primary) 32%, var(--concord-border));
+  background: color-mix(in srgb, var(--concord-primary-subtle) 72%, var(--concord-card-bg));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--concord-primary) 14%, transparent),
+    0 4px 14px rgba(37, 99, 235, 0.1);
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.concord-agreement-editor__block-picker--open .concord-agreement-editor__block-type-row:active {
+  background: color-mix(in srgb, var(--concord-primary-subtle) 65%, var(--concord-surface-muted));
 }
 
 .concord-agreement-editor__block-picker-head {
@@ -4445,7 +4483,7 @@
 .concord-files-block__item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
@@ -4501,13 +4539,54 @@
   z-index: 2;
 }
 
+.concord-files-block__view {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(24, 24, 28, 0.68);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.92);
+  transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+  z-index: 1;
+}
+
 .concord-files-block__preview:hover .concord-files-block__delete,
-.concord-files-block__preview:focus-within .concord-files-block__delete {
+.concord-files-block__preview:hover .concord-files-block__view,
+.concord-files-block__preview:focus-within .concord-files-block__delete,
+.concord-files-block__preview:focus-within .concord-files-block__view {
   opacity: 1;
 }
 
-.concord-files-block__delete:hover {
+.concord-files-block__preview:hover .concord-files-block__view,
+.concord-files-block__preview:focus-within .concord-files-block__view {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.concord-files-block__delete:hover,
+.concord-files-block__view:hover {
   background: rgba(24, 24, 28, 0.86);
+}
+
+@media (hover: none) {
+  .concord-files-block__delete,
+  .concord-files-block__view {
+    opacity: 1;
+  }
+
+  .concord-files-block__view {
+    width: 38px;
+    height: 38px;
+  }
 }
 
 .concord-files-block__name {
@@ -4528,24 +4607,14 @@
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface-muted);
   box-sizing: border-box;
-  font-size: var(--concord-form-input-size);
-  font-weight: var(--concord-form-input-weight);
-  line-height: var(--concord-leading-body);
-  color: var(--concord-form-input-color);
-  text-align: left;
-}
-
-.concord-page .concord-files-block input.concord-files-block__comment {
-  min-height: 36px;
-  height: auto;
-  padding: 8px 10px;
-}
-
-.concord-page .concord-gallery-block input.concord-gallery-block__comment {
   min-height: 30px;
   height: 30px;
   padding: 5px 8px;
+  font-size: var(--concord-form-input-size);
+  font-weight: var(--concord-form-input-weight);
   line-height: var(--concord-leading-tight);
+  color: var(--concord-form-input-color);
+  text-align: left;
 }
 
 .concord-page .concord-files-block input.concord-files-block__comment::placeholder,

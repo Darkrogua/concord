@@ -78,13 +78,19 @@ export function downloadAgreementFile(file) {
  */
 export function openAgreementFile(file) {
   const blob = resolveAgreementFileBlob(file)
-  if (!blob) {
+  if (blob) {
+    const blobUrl = URL.createObjectURL(blob)
+    const opened = window.open(blobUrl, '_blank', 'noopener,noreferrer')
+    window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
+    return Boolean(opened)
+  }
+
+  const source = getAgreementFileSource(file)
+  if (!source.startsWith('data:')) {
     return false
   }
 
-  const blobUrl = URL.createObjectURL(blob)
-  const opened = window.open(blobUrl, '_blank', 'noopener,noreferrer')
-  window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
+  const opened = window.open(source, '_blank', 'noopener,noreferrer')
   return Boolean(opened)
 }
 
@@ -132,6 +138,55 @@ function triggerDownload(url, fileName, revokeAfter) {
   }, 60_000)
 
   return true
+}
+
+/**
+ * @param {{ id?: string, name?: string, mime?: string, downloadUrl?: string, previewUrl?: string | null, textContent?: string }} file
+ * @returns {boolean}
+ */
+export function isImageAgreementFile(file) {
+  const cached = getCachedAgreementFileContent(file?.id)
+  const mime = String(cached?.mime || file?.mime || '').toLowerCase()
+  if (mime.startsWith('image/')) {
+    return true
+  }
+  if (file?.previewUrl) {
+    return true
+  }
+  const source = getAgreementFileSource(file)
+  return /^data:image\//i.test(source)
+}
+
+/**
+ * @param {{ id?: string, name?: string, mime?: string, downloadUrl?: string, previewUrl?: string | null, textContent?: string }} file
+ * @returns {string}
+ */
+export function getAgreementFileTextContent(file) {
+  hydrateAgreementFileTextContent(file)
+  const cached = getCachedAgreementFileContent(file?.id)
+  return String(cached?.textContent ?? file?.textContent ?? '')
+}
+
+/**
+ * @param {{ id?: string, name?: string, mime?: string, downloadUrl?: string, previewUrl?: string | null, textContent?: string }} file
+ * @returns {boolean}
+ */
+export function isTextPreviewableAgreementFile(file) {
+  if (getAgreementFileTextContent(file)) {
+    return true
+  }
+
+  const cached = getCachedAgreementFileContent(file?.id)
+  const mime = String(cached?.mime || file?.mime || '').toLowerCase()
+  const name = String(cached?.name || file?.name || '').toLowerCase()
+  return mime.startsWith('text/')
+    || mime === 'application/json'
+    || mime === 'application/xml'
+    || name.endsWith('.md')
+    || name.endsWith('.txt')
+    || name.endsWith('.csv')
+    || name.endsWith('.json')
+    || name.endsWith('.xml')
 }
 
 /**

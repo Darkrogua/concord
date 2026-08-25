@@ -1,6 +1,9 @@
 <template>
   <section class="concord-agreement-editor__add-zone concord-agreement-editor__add-zone--block">
-    <div class="concord-agreement-editor__block-picker">
+    <div
+      class="concord-agreement-editor__block-picker"
+      :class="{ 'concord-agreement-editor__block-picker--open': showBlockTypes }"
+    >
       <div v-if="showBlockTypes" class="concord-agreement-editor__block-picker-head">
         <h3 class="concord-agreement-editor__block-picker-title">Добавить блок</h3>
         <button
@@ -12,7 +15,10 @@
         </button>
       </div>
 
-      <div class="concord-profile-card">
+      <div
+        class="concord-profile-card"
+        :class="{ 'concord-profile-card--block-picker-open': showBlockTypes }"
+      >
         <button
           v-if="!showBlockTypes"
           type="button"

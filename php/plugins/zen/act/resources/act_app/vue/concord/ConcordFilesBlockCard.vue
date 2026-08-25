@@ -21,10 +21,10 @@
           class="concord-files-block__preview"
           role="button"
           tabindex="0"
-          :aria-label="`Скачать ${file.name || 'файл'}`"
-          @click="downloadFile(file)"
-          @keydown.enter.prevent="downloadFile(file)"
-          @keydown.space.prevent="downloadFile(file)"
+          :aria-label="`Открыть ${file.name || 'файл'}`"
+          @click="openFilePreview(file)"
+          @keydown.enter.prevent="openFilePreview(file)"
+          @keydown.space.prevent="openFilePreview(file)"
         >
           <img
             v-if="file.previewUrl"
@@ -38,6 +38,17 @@
               <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.4"/>
             </svg>
           </div>
+          <button
+            type="button"
+            class="concord-files-block__view"
+            aria-label="Открыть файл"
+            @click.stop="openFilePreview(file)"
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+              <path d="M2.8 12s3.3-5.5 9.2-5.5 9.2 5.5 9.2 5.5-3.3 5.5-9.2 5.5S2.8 12 2.8 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+          </button>
           <button
             type="button"
             class="concord-files-block__delete"
@@ -69,19 +80,48 @@
     <button type="button" class="concord-block__add-btn" @click="openFilePicker">
       Добавить
     </button>
+
+    <ConcordImageViewer
+      :open="imageViewerOpen"
+      :src="imageViewerSrc"
+      :alt="imageViewerAlt"
+      @close="imageViewerOpen = false"
+    />
+
+    <ConcordTextFilePreviewSheet
+      :open="textPreviewOpen"
+      :file-name="textPreviewName"
+      :content="textPreviewContent"
+      @close="textPreviewOpen = false"
+      @download="downloadTextPreview"
+    />
   </article>
 </template>
 
 <script>
 import { ref } from 'vue'
 import ConcordGroupDeleteIcon from './ConcordGroupDeleteIcon.vue'
+import ConcordImageViewer from './ConcordImageViewer.vue'
+import ConcordTextFilePreviewSheet from './ConcordTextFilePreviewSheet.vue'
 import { cacheAgreementFileContent } from './agreement-file-content.js'
-import { downloadAgreementFile, getAgreementFileSource, isTextLikeAgreementFile } from './file-download-utils.js'
+import {
+  downloadAgreementFile,
+  getAgreementFileSource,
+  getAgreementFileTextContent,
+  isImageAgreementFile,
+  isTextLikeAgreementFile,
+  isTextPreviewableAgreementFile,
+  openAgreementFile,
+} from './file-download-utils.js'
 import { normalizeFilesBlock } from './mock-agreements.js'
 
 export default {
   name: 'ConcordFilesBlockCard',
-  components: { ConcordGroupDeleteIcon },
+  components: {
+    ConcordGroupDeleteIcon,
+    ConcordImageViewer,
+    ConcordTextFilePreviewSheet,
+  },
   props: {
     block: {
       type: Object,
@@ -90,6 +130,13 @@ export default {
   },
   setup(props) {
     const fileInput = ref(null)
+    const imageViewerOpen = ref(false)
+    const imageViewerSrc = ref('')
+    const imageViewerAlt = ref('')
+    const textPreviewOpen = ref(false)
+    const textPreviewName = ref('')
+    const textPreviewContent = ref('')
+    const textPreviewFile = ref(null)
 
     normalizeFilesBlock(props.block)
 
@@ -149,16 +196,56 @@ export default {
       props.block.files = props.block.files.filter((item) => item.id !== fileId)
     }
 
-    function downloadFile(file) {
-      downloadAgreementFile(file)
+    function openImagePreview(file) {
+      imageViewerSrc.value = file.previewUrl || getAgreementFileSource(file)
+      imageViewerAlt.value = file.name || 'Файл'
+      imageViewerOpen.value = true
+    }
+
+    function openTextPreview(file) {
+      textPreviewFile.value = file
+      textPreviewName.value = file.name || 'Файл'
+      textPreviewContent.value = getAgreementFileTextContent(file)
+      textPreviewOpen.value = true
+    }
+
+    function openFilePreview(file) {
+      if (isImageAgreementFile(file)) {
+        openImagePreview(file)
+        return
+      }
+      if (isTextPreviewableAgreementFile(file)) {
+        openTextPreview(file)
+        return
+      }
+      if (openAgreementFile(file)) {
+        return
+      }
+      if (downloadAgreementFile(file)) {
+        return
+      }
+      window.alert('Файл недоступен для просмотра. Попробуйте загрузить его заново.')
+    }
+
+    function downloadTextPreview() {
+      if (textPreviewFile.value) {
+        downloadAgreementFile(textPreviewFile.value)
+      }
     }
 
     return {
       fileInput,
+      imageViewerOpen,
+      imageViewerSrc,
+      imageViewerAlt,
+      textPreviewOpen,
+      textPreviewName,
+      textPreviewContent,
       openFilePicker,
       onFilesSelected,
       removeFile,
-      downloadFile,
+      openFilePreview,
+      downloadTextPreview,
     }
   },
 }
