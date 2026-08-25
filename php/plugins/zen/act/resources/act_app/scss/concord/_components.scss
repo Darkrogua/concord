@@ -2905,9 +2905,11 @@
   border-radius: 50%;
   background: var(--concord-primary-subtle);
   color: var(--concord-primary);
-  font-size: 24px;
-  font-weight: var(--concord-weight-regular);
-  line-height: 1;
+}
+
+.concord-agreement-editor__block-type-icon .concord-plus-icon {
+  display: block;
+  flex-shrink: 0;
 }
 
 .concord-agreement-editor__block-type-label {
@@ -3928,6 +3930,10 @@
 .concord-page--agreement-settings .concord-section-settings__done {
   background: var(--concord-primary-subtle);
   color: var(--concord-primary);
+}
+
+.concord-page--agreement-settings .concord-agreement-settings__delete {
+  margin-top: 4px;
 }
 
 .concord-agreement-editor__add-divider {
@@ -5085,10 +5091,13 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  font-size: 30px;
-  font-weight: var(--concord-weight-regular);
   background: var(--concord-primary-subtle);
   color: var(--concord-primary);
+}
+
+.concord-agreement-editor__add-btn--section .concord-plus-icon {
+  display: block;
+  flex-shrink: 0;
 }
 
 .concord-agreement-editor__add-section-label {

@@ -20,7 +20,9 @@
           aria-label="Добавить блок"
           @click="$emit('toggle')"
         >
-          <span class="concord-agreement-editor__block-type-icon" aria-hidden="true">+</span>
+          <span class="concord-agreement-editor__block-type-icon" aria-hidden="true">
+            <ConcordPlusIcon />
+          </span>
           <span class="concord-agreement-editor__block-type-label">Добавить блок</span>
         </button>
 
@@ -33,7 +35,9 @@
             :class="{ 'concord-agreement-editor__block-type-row--last': index === blockTypes.length - 1 }"
             @click="$emit('add', blockType)"
           >
-            <span class="concord-agreement-editor__block-type-icon" aria-hidden="true">+</span>
+            <span class="concord-agreement-editor__block-type-icon" aria-hidden="true">
+              <ConcordPlusIcon />
+            </span>
             <span class="concord-agreement-editor__block-type-label">{{ blockType.label }}</span>
           </button>
         </template>
@@ -43,8 +47,11 @@
 </template>
 
 <script>
+import ConcordPlusIcon from './ConcordPlusIcon.vue'
+
 export default {
   name: 'BlockAddZone',
+  components: { ConcordPlusIcon },
   props: {
     showBlockTypes: {
       type: Boolean,

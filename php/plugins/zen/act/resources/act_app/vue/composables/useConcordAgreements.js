@@ -137,22 +137,38 @@ export function useConcordAgreements() {
     loading.value = false
   }
 
-  function persist() {
+  let persistTimer = null
+
+  function flushPersist() {
+    clearTimeout(persistTimer)
+    persistTimer = null
     persistAgreements(agreements.value)
   }
 
-  let persistTimer = null
-  watch(agreements, () => {
-    clearTimeout(persistTimer)
-    persistTimer = setTimeout(() => {
-      persistAgreements(agreements.value)
-    }, 1200)
-  }, { deep: true })
-
-  if (typeof window !== 'undefined') {
-    window.addEventListener('beforeunload', persist)
-    window.addEventListener('pagehide', persist)
+  function persist() {
+    flushPersist()
   }
 
-  return { agreements, loading, persist }
+  function schedulePersist(delay = 400) {
+    clearTimeout(persistTimer)
+    persistTimer = setTimeout(() => {
+      persistTimer = null
+      persistAgreements(agreements.value)
+    }, delay)
+  }
+
+  watch(
+    () => agreements.value,
+    () => {
+      schedulePersist(1200)
+    },
+    { deep: true }
+  )
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', flushPersist)
+    window.addEventListener('pagehide', flushPersist)
+  }
+
+  return { agreements, loading, persist, flushPersist, schedulePersist }
 }

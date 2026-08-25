@@ -12,6 +12,15 @@
 
     <main class="concord-notifications">
       <AgreementFormFields :form="form" />
+
+      <button
+        v-if="canDelete"
+        type="button"
+        class="concord-section-settings__delete concord-agreement-settings__delete"
+        @click="deleteConfirmOpen = true"
+      >
+        Удалить согласование
+      </button>
     </main>
 
     <footer class="concord-section-settings__footer">
@@ -24,12 +33,24 @@
         Готово
       </button>
     </footer>
+
+    <ConcordConfirmSheet
+      :open="deleteConfirmOpen"
+      title="Удалить согласование?"
+      :message="deleteConfirmMessage"
+      confirm-label="Удалить"
+      cancel-label="Отмена"
+      @confirm="confirmDelete"
+      @cancel="deleteConfirmOpen = false"
+      @dismiss="deleteConfirmOpen = false"
+    />
   </div>
 </template>
 
 <script>
 import { computed, ref, watch, defineExpose } from 'vue'
 import AgreementFormFields from '../concord/AgreementFormFields.vue'
+import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
 import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import {
@@ -41,18 +62,33 @@ import {
 
 export default {
   name: 'AgreementSettingsView',
-  components: { AgreementFormFields, ConcordGroupHeaderActions, ConcordPageHeader },
+  components: {
+    AgreementFormFields,
+    ConcordConfirmSheet,
+    ConcordGroupHeaderActions,
+    ConcordPageHeader,
+  },
   props: {
     agreement: {
       type: Object,
       required: true,
     },
   },
-  emits: ['back', 'save'],
+  emits: ['back', 'save', 'delete'],
   setup(props, { emit }) {
     const form = ref(createAgreementFormFromAgreement(props.agreement))
+    const deleteConfirmOpen = ref(false)
 
     const hasInvalidDateRange = computed(() => agreementFormHasInvalidRange(form.value))
+
+    const canDelete = computed(() =>
+      props.agreement?.status === 'draft' || !props.agreement?.createdAt
+    )
+
+    const deleteConfirmMessage = computed(() => {
+      const title = props.agreement?.title?.trim() || 'Согласование'
+      return `«${title}» и все разделы будут удалены без возможности восстановления.`
+    })
 
     watch(
       () => props.agreement,
@@ -95,9 +131,22 @@ export default {
       emit('back')
     }
 
+    function confirmDelete() {
+      deleteConfirmOpen.value = false
+      emit('delete')
+    }
+
     defineExpose({ hasUnsavedChanges, save })
 
-    return { form, hasInvalidDateRange, save }
+    return {
+      form,
+      hasInvalidDateRange,
+      canDelete,
+      deleteConfirmOpen,
+      deleteConfirmMessage,
+      save,
+      confirmDelete,
+    }
   },
 }
 </script>

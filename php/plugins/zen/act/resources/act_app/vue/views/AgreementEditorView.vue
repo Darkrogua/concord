@@ -33,6 +33,7 @@
     :agreement="agreement"
     @back="closeAgreementSettings"
     @save="onAgreementSettingsSave"
+    @delete="onAgreementDelete"
   />
 
   <SectionSettingsView
@@ -333,7 +334,7 @@
           aria-label="Добавить раздел"
           @click="openNewSection"
         >
-          <span aria-hidden="true">+</span>
+          <ConcordPlusIcon :size="28" />
         </button>
         <p class="concord-agreement-editor__add-section-label">Новый раздел</p>
 
@@ -419,6 +420,7 @@ import CreateGroupView from './CreateGroupView.vue'
 import TextBlockEditorSheet from '../concord/TextBlockEditorSheet.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
+import ConcordPlusIcon from '../concord/ConcordPlusIcon.vue'
 import SectionScheduleSheet from '../concord/SectionScheduleSheet.vue'
 import SectionParticipantsSheet from '../concord/SectionParticipantsSheet.vue'
 import { resetConcordScrollPosition } from '../concord/scroll-top.js'
@@ -444,6 +446,7 @@ export default {
     TextBlockEditorSheet,
     ConcordConfirmSheet,
     ConcordPageHeader,
+    ConcordPlusIcon,
   },
   props: {
     agreement: {
@@ -467,7 +470,7 @@ export default {
       default: '',
     },
   },
-  emits: ['back', 'add-block', 'add-section', 'delete-section', 'delete-block', 'update-section', 'create-group', 'update-group', 'launch', 'update-agreement', 'reset-votes', 'request-leave', 'edited'],
+  emits: ['back', 'add-block', 'add-section', 'delete-section', 'delete-block', 'update-section', 'create-group', 'update-group', 'launch', 'update-agreement', 'reset-votes', 'request-leave', 'edited', 'delete-agreement'],
   setup(props, { emit }) {
     const activeSectionId = ref(null)
     const openBlockTypesSectionId = ref(null)
@@ -978,6 +981,11 @@ export default {
       notifyEdited()
     }
 
+    function onAgreementDelete() {
+      emit('delete-agreement')
+      closeAgreementSettings()
+    }
+
     function goBack() {
       emit('request-leave')
     }
@@ -1433,6 +1441,7 @@ export default {
       openAgreementSettings,
       closeAgreementSettings,
       onAgreementSettingsSave,
+      onAgreementDelete,
       addBlock,
       getEditorBlockSummary,
       getTextBlockPreviewTitle,

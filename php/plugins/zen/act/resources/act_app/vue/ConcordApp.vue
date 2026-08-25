@@ -112,6 +112,7 @@
       @reset-votes="onResetAgreementVotes"
       @request-leave="onEditorRequestLeave"
       @edited="onAgreementEditorEdited"
+      @delete-agreement="onDeleteAgreement"
     />
 
     <AgreementApproverView
@@ -225,7 +226,7 @@ export default {
     ConcordSplashScreen,
   },
   setup() {
-    const { agreements, loading: agreementsLoading, persist } = useConcordAgreements()
+    const { agreements, loading: agreementsLoading, persist, flushPersist, schedulePersist } = useConcordAgreements()
     // Show splash once per app session; sessionStorage survives refresh, clears on new open.
     const SPLASH_SESSION_KEY = 'concord_splash_seen_v1'
 
@@ -316,7 +317,10 @@ export default {
       'filter-editor',
     ].includes(currentView.value))
 
-    watch(currentView, () => {
+    watch(currentView, (next, prev) => {
+      if (prev === 'agreement-editor') {
+        flushPersist()
+      }
       nextTick(() => {
         requestAnimationFrame(() => {
           resetConcordScrollPosition()
@@ -404,6 +408,7 @@ export default {
     }
 
     function onAgreementEditorEdited() {
+      schedulePersist()
       if (isLaunchedAgreement(editingAgreement.value)) {
         agreementEditorDirty.value = true
       }
@@ -462,6 +467,7 @@ export default {
     }
 
     function leaveEditorTo(target) {
+      flushPersist()
       leaveTarget.value = 'list'
       if (target === 'list') {
         goToList()
@@ -816,6 +822,20 @@ export default {
       onAgreementEditorEdited()
     }
 
+    function onDeleteAgreement() {
+      const id = editingAgreementId.value
+      if (!id) {
+        return
+      }
+      agreements.value = agreements.value.filter((item) => item.id !== id)
+      if (newlyCreatedAgreementId.value === id) {
+        newlyCreatedAgreementId.value = null
+      }
+      editingAgreementId.value = null
+      flushPersist()
+      goToList()
+    }
+
     function onVote({ agreementId, sectionId, decision, reason, participantId }) {
       const agreement = agreements.value.find((item) => item.id === agreementId)
       if (!agreement) {
@@ -850,8 +870,8 @@ export default {
       persist()
     }
 
-function onAgreementEditorUpdated() {
-      // Persistence is handled by the debounced agreements watcher.
+    function onAgreementEditorUpdated() {
+      flushPersist()
     }
 
     function onLaunchAgreement() {
@@ -1039,6 +1059,7 @@ function onAgreementEditorUpdated() {
       onDeleteAgreementBlock,
       onAddAgreementSection,
       onDeleteAgreementSection,
+      onDeleteAgreement,
       onLaunchAgreement,
       onAgreementEditorUpdated,
       onResetAgreementVotes,
