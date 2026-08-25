@@ -9,7 +9,7 @@
 
       <template v-for="section in visibleSections" :key="section.dateLabel">
         <div class="concord-alerts__day-divider">
-          <span>{{ section.dateLabel }}</span>
+          <span class="concord-list__date-pill">{{ section.dateLabel }}</span>
         </div>
 
         <article

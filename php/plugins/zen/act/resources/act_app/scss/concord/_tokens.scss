@@ -168,7 +168,7 @@
   --concord-card-circle-size: 32px;
   --concord-card-footer-action-size: 32px;
   --concord-card-footer-icon-size: 24px;
-  --concord-card-progress-height: 10px;
+  --concord-card-progress-height: 8px;
   --concord-card-number: var(--concord-text-muted);
   --concord-card-status-date: var(--concord-text);
 
@@ -229,5 +229,70 @@
   --concord-list-date-pill-text: var(--concord-text-muted);
   --concord-list-date-pill-border: var(--concord-border);
 
+  /* Settings / profile */
+  --concord-settings-section-title-size: var(--concord-text-body);
+  --concord-settings-section-title-weight: var(--concord-weight-semibold);
+  --concord-settings-nav-size: var(--concord-text-body);
+  --concord-settings-nav-weight: var(--concord-weight-semibold);
+  --concord-settings-field-size: var(--concord-text-body);
+  --concord-settings-field-label-color: var(--concord-text-muted);
+  --concord-settings-field-label-weight: var(--concord-weight-regular);
+  --concord-settings-field-value-color: var(--concord-text);
+  --concord-settings-field-value-weight: var(--concord-weight-medium);
+  --concord-settings-field-value-strong-weight: var(--concord-weight-semibold);
+  --concord-settings-danger: var(--concord-deadline-overdue);
+  --concord-settings-row-height: 48px;
+  --concord-settings-row-padding-x: 14px;
+
+  /* Form fields (create/edit agreement) — aligned with settings scale */
+  --concord-form-section-title-size: var(--concord-settings-section-title-size);
+  --concord-form-section-title-weight: var(--concord-settings-section-title-weight);
+  --concord-form-label-size: var(--concord-settings-field-size);
+  --concord-form-label-color: var(--concord-settings-field-label-color);
+  --concord-form-label-weight: var(--concord-settings-field-label-weight);
+  --concord-form-input-size: var(--concord-settings-field-size);
+  --concord-form-input-color: var(--concord-settings-field-value-color);
+  --concord-form-input-weight: var(--concord-settings-field-value-weight);
+  --concord-form-placeholder-size: var(--concord-text-caption);
+  --concord-form-placeholder-color: var(--concord-text-muted);
+
+  --concord-toggle-track-off: var(--concord-neutral-200);
+  --concord-toggle-thumb: var(--concord-neutral-0);
+
   --concord-page-gutter: 12px;
+  --concord-page-content-top: 12px;
+
+  /* Alerts / events feed */
+  --concord-alert-divider-bg: var(--concord-list-date-pill-bg);
+  --concord-alert-divider-text: var(--concord-list-date-pill-text);
+  --concord-alert-divider-border: var(--concord-list-date-pill-border);
+  --concord-alert-sender-size: var(--concord-text-caption);
+  --concord-alert-body-size: var(--concord-text-body);
+  --concord-alert-time-size: var(--concord-text-caption);
+  --concord-alert-unread-bg: var(--concord-card-bg);
+  --concord-alert-unread-border: var(--concord-card-border);
+  --concord-alert-unread-shadow: var(--concord-card-shadow);
+  --concord-alert-read-bg: var(--concord-surface-muted);
+
+  /* Account switcher sheet */
+  --concord-account-sheet-row-height: var(--concord-settings-row-height);
+  --concord-account-sheet-row-padding-x: var(--concord-settings-row-padding-x);
+  --concord-account-sheet-name-size: var(--concord-settings-field-size);
+  --concord-account-sheet-name-weight: var(--concord-settings-field-value-weight);
+  --concord-account-sheet-action-size: var(--concord-settings-nav-size);
+  --concord-account-sheet-action-weight: var(--concord-settings-nav-weight);
+
+  /* Agreement editor */
+  --concord-editor-body-size: var(--concord-text-body);
+  --concord-editor-caption-size: var(--concord-text-caption);
+  --concord-editor-section-title-size: var(--concord-text-card-title);
+  --concord-editor-section-title-weight: var(--concord-weight-semibold);
+  --concord-editor-muted: var(--concord-text-muted);
+  --concord-editor-card-border: var(--concord-card-border);
+  --concord-editor-card-bg: var(--concord-card-bg);
+  --concord-editor-card-shadow: var(--concord-card-shadow);
+  --concord-editor-surface-muted: var(--concord-surface-muted);
+  --concord-editor-blocks-bg: var(--concord-surface-muted);
+  --concord-editor-block-bg: var(--concord-card-bg);
+  --concord-editor-block-shadow: 0 1px 4px rgba(var(--concord-neutral-rgb), 0.07);
 }

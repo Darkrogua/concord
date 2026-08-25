@@ -10,7 +10,7 @@
         </button>
       </div>
 
-      <ul class="concord-account-sheet__list" role="radiogroup" aria-label="Аккаунты">
+      <ul class="concord-profile-card concord-account-sheet__list" role="radiogroup" aria-label="Аккаунты">
         <li v-for="account in accounts" :key="account.id">
           <button
             type="button"

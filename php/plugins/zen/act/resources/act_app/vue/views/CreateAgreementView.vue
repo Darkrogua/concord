@@ -2,7 +2,7 @@
   <div class="concord-page concord-page--agreement-form">
     <ConcordPageHeader title="Новый лист согласования" show-back @back="$emit('back')" />
 
-    <main class="concord-section-settings">
+    <main class="concord-notifications">
       <AgreementFormFields :form="form" />
     </main>
 

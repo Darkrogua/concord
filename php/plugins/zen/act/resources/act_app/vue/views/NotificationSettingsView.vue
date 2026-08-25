@@ -3,26 +3,22 @@
     <ConcordPageHeader title="Уведомления" show-back @back="$emit('back')" />
 
     <main class="concord-notifications">
-      <section class="concord-accordion concord-accordion--static">
-        <h2 class="concord-accordion__title">Уведомления</h2>
+      <section class="concord-settings-group">
+        <div class="concord-profile-card">
+          <label class="concord-notifications__toggle-row">
+            <span>Общие чаты</span>
+            <input v-model="notificationSettings.generalChats" type="checkbox" class="concord-toggle">
+          </label>
 
-        <div class="concord-accordion__body concord-accordion__body--open">
-          <div class="concord-profile-card">
-            <label class="concord-notifications__toggle-row">
-              <span>Общие чаты</span>
-              <input v-model="notificationSettings.generalChats" type="checkbox" class="concord-toggle">
-            </label>
+          <label class="concord-notifications__toggle-row">
+            <span>Личные чаты</span>
+            <input v-model="notificationSettings.personalChats" type="checkbox" class="concord-toggle">
+          </label>
 
-            <label class="concord-notifications__toggle-row">
-              <span>Личные чаты</span>
-              <input v-model="notificationSettings.personalChats" type="checkbox" class="concord-toggle">
-            </label>
-
-            <label class="concord-notifications__toggle-row">
-              <span>Группы</span>
-              <input v-model="notificationSettings.groups" type="checkbox" class="concord-toggle">
-            </label>
-          </div>
+          <label class="concord-notifications__toggle-row">
+            <span>Группы</span>
+            <input v-model="notificationSettings.groups" type="checkbox" class="concord-toggle">
+          </label>
         </div>
       </section>
     </main>

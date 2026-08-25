@@ -44,7 +44,7 @@
           aria-label="Удалить ссылку"
           @click="removeLink(link.id)"
         >
-          Удалить
+          <ConcordGroupDeleteIcon />
         </button>
       </div>
     </div>
@@ -60,10 +60,12 @@
 </template>
 
 <script>
+import ConcordGroupDeleteIcon from './ConcordGroupDeleteIcon.vue'
 import { normalizeLinksBlock } from './mock-agreements.js'
 
 export default {
   name: 'ConcordLinksBlockCard',
+  components: { ConcordGroupDeleteIcon },
   props: {
     block: {
       type: Object,

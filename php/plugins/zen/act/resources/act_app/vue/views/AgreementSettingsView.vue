@@ -10,7 +10,7 @@
       </template>
     </ConcordPageHeader>
 
-    <main class="concord-section-settings">
+    <main class="concord-notifications">
       <AgreementFormFields :form="form" />
     </main>
 

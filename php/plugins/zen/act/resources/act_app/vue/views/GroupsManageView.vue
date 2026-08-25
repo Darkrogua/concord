@@ -57,18 +57,15 @@
     <ConcordPageHeader title="Группы" show-back @back="$emit('back')" />
 
     <main class="concord-notifications">
-      <section class="concord-accordion concord-accordion--static">
-        <h2 class="concord-accordion__title">Группы</h2>
-
-        <div class="concord-accordion__body concord-accordion__body--open">
-          <div class="concord-profile-card">
-            <button
-              v-for="group in filteredGroups"
-              :key="group.id"
-              type="button"
-              class="concord-notifications__group-row concord-notifications__group-row--clickable"
-              @click="$emit('edit-group', group.id)"
-            >
+      <section class="concord-settings-group">
+        <div class="concord-profile-card">
+          <button
+            v-for="group in filteredGroups"
+            :key="group.id"
+            type="button"
+            class="concord-notifications__group-row concord-notifications__group-row--clickable"
+            @click="$emit('edit-group', group.id)"
+          >
               <span class="concord-notifications__group-icon-wrap" aria-hidden="true">
                 <span class="concord-notifications__group-icon">
                   <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
@@ -92,15 +89,14 @@
             </button>
           </div>
 
-          <button
-            type="button"
-            class="concord-settings__edit concord-notifications__group-add"
-            @click="$emit('create-group')"
-          >
-            <span class="concord-settings__edit-plus" aria-hidden="true">+</span>
-            Создать группу
-          </button>
-        </div>
+        <button
+          type="button"
+          class="concord-settings__edit concord-notifications__group-add"
+          @click="$emit('create-group')"
+        >
+          <span class="concord-settings__edit-plus" aria-hidden="true">+</span>
+          Создать группу
+        </button>
       </section>
     </main>
 

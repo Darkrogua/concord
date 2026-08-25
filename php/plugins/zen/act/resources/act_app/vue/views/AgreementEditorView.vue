@@ -171,8 +171,9 @@
       ref="editorMainRef"
       class="concord-agreement-editor"
     >
-      <section v-if="showDraftIntro" class="concord-agreement-editor__panel">
-        <div v-if="agreement.description" class="concord-agreement-editor__description-wrap">
+      <section v-if="showDraftIntro" class="concord-agreement-editor__intro-section">
+        <div class="concord-agreement-editor__panel">
+            <div v-if="agreement.description" class="concord-agreement-editor__description-wrap">
           <p
             ref="descriptionRef"
             class="concord-agreement-editor__description"
@@ -196,17 +197,18 @@
           >
             Скрыть
           </button>
-        </div>
-        <p v-else class="concord-agreement-editor__description concord-agreement-editor__description--muted">
-          {{ editorIntro }}
-        </p>
+            </div>
+            <p v-else class="concord-agreement-editor__description concord-agreement-editor__description--muted">
+              {{ editorIntro }}
+            </p>
 
-        <BlockAddZone
-          :show-block-types="openBlockTypesSectionId === firstSectionId"
-          :block-types="editorBlockTypes"
-          @toggle="toggleBlockTypes(firstSectionId)"
-          @add="(blockType) => addBlock(firstSectionId, blockType)"
-        />
+            <BlockAddZone
+              :show-block-types="openBlockTypesSectionId === firstSectionId"
+              :block-types="editorBlockTypes"
+              @toggle="toggleBlockTypes(firstSectionId)"
+              @add="(blockType) => addBlock(firstSectionId, blockType)"
+            />
+        </div>
       </section>
 
       <div
@@ -334,17 +336,19 @@
           <span aria-hidden="true">+</span>
         </button>
         <p class="concord-agreement-editor__add-section-label">Новый раздел</p>
-        <button
-          v-if="canLaunch"
-          type="button"
-          class="concord-agreement-editor__launch-btn concord-agreement-editor__launch-btn--inline"
-          @click="launchAgreement"
-        >
-          Запустить
-        </button>
-        <p v-if="canLaunch" class="concord-agreement-editor__launch-hint">
-          После запуска согласование отправится участникам
-        </p>
+
+        <div v-if="canLaunch" class="concord-agreement-editor__launch-group">
+          <button
+            type="button"
+            class="concord-agreement-editor__launch-btn concord-agreement-editor__launch-btn--inline"
+            @click="launchAgreement"
+          >
+            Запустить
+          </button>
+          <p class="concord-agreement-editor__launch-hint">
+            После запуска согласование отправится участникам
+          </p>
+        </div>
       </section>
     </main>
   </div>

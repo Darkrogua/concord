@@ -25,13 +25,13 @@
   font-family: inherit;
 }
 
-.concord-page input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-gallery-block__comment):not(.concord-files-block__comment),
-.concord-page textarea,
+.concord-page input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-gallery-block__comment):not(.concord-files-block__comment):not(.concord-links-block__input):not(.concord-agreement-form__input),
+.concord-page textarea:not(.concord-agreement-form__textarea),
 .concord-page select,
-.concord-overlay input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-gallery-block__comment):not(.concord-files-block__comment),
+.concord-overlay input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-gallery-block__comment):not(.concord-files-block__comment):not(.concord-links-block__input),
 .concord-overlay textarea,
 .concord-overlay select,
-.concord-sheet input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-gallery-block__comment):not(.concord-files-block__comment),
+.concord-sheet input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-gallery-block__comment):not(.concord-files-block__comment):not(.concord-links-block__input),
 .concord-sheet textarea,
 .concord-sheet select {
   font-size: var(--concord-text-field);

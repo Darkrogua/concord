@@ -1,6 +1,6 @@
 <template>
   <div class="concord-page concord-page--notifications">
-    <ConcordPageHeader title="Профиль" />
+    <ConcordPageHeader title="Настройки" />
 
     <main class="concord-notifications">
       <ConcordProfileHero
@@ -10,103 +10,106 @@
         :avatar-initial="profile.avatarInitial"
         @avatar-click="openPhotoSheet"
       />
-      <section class="concord-accordion concord-accordion--static">
-        <h2 class="concord-accordion__title">Аккаунт</h2>
-
-        <div class="concord-accordion__body concord-accordion__body--open">
-          <div class="concord-profile-card">
-            <ConcordProfileFieldRow
-              label="Логин"
-              :value="loginLabel"
-              strong
-            />
-            <ConcordProfileFieldRow
-              label="Имя"
-              :value="fullName"
-              interactive
-              @click="openMenu('name')"
-            />
-            <ConcordProfileFieldRow
-              label="Email"
-              :value="profile.email"
-              interactive
-              @click="openMenu('email')"
-            />
-            <ConcordProfileFieldRow
-              label="Телефон"
-              :value="profile.phone"
-              interactive
-              @click="openMenu('phone')"
-            />
-            <ConcordProfileFieldRow
-              label="Пароль"
-              value="••••••"
-              interactive
-              @click="openMenu('password')"
-            />
-            <ConcordProfileFieldRow
-              label="Часовой пояс"
-              :value="timezoneLabel"
-              interactive
-              @click="openMenu('timezone')"
-            />
-          </div>
-
-          <button
-            type="button"
-            class="concord-profile-delete"
-            @click="askDeleteAccount"
-          >
-            Удалить аккаунт
-          </button>
-
-          <input
-            ref="cameraInputRef"
-            type="file"
-            accept="image/*"
-            capture="environment"
-            class="concord-notifications__file-input"
-            @change="onCameraSelected"
+      <section class="concord-settings-group">
+        <h2 class="concord-settings-group__title">Аккаунт</h2>
+        <div class="concord-profile-card">
+          <ConcordProfileFieldRow
+            label="Логин"
+            :value="loginLabel"
+            strong
           />
-          <input
-            ref="galleryInputRef"
-            type="file"
-            accept="image/*"
-            class="concord-notifications__file-input"
-            @change="onGallerySelected"
+          <ConcordProfileFieldRow
+            label="Имя"
+            :value="fullName"
+            interactive
+            @click="openMenu('name')"
+          />
+          <ConcordProfileFieldRow
+            label="Email"
+            :value="profile.email"
+            interactive
+            @click="openMenu('email')"
+          />
+          <ConcordProfileFieldRow
+            label="Телефон"
+            :value="profile.phone"
+            interactive
+            @click="openMenu('phone')"
+          />
+          <ConcordProfileFieldRow
+            label="Пароль"
+            value="••••••"
+            interactive
+            @click="openMenu('password')"
+          />
+          <ConcordProfileFieldRow
+            label="Часовой пояс"
+            :value="timezoneLabel"
+            interactive
+            @click="openMenu('timezone')"
           />
         </div>
-      </section>
 
-      <section class="concord-accordion">
         <button
           type="button"
-          class="concord-accordion__header concord-accordion__header--nav"
-          @click="$emit('open-notification-settings')"
+          class="concord-profile-delete"
+          @click="askDeleteAccount"
         >
-          <span>Уведомления</span>
+          Удалить аккаунт
         </button>
+
+        <input
+          ref="cameraInputRef"
+          type="file"
+          accept="image/*"
+          capture="environment"
+          class="concord-notifications__file-input"
+          @change="onCameraSelected"
+        />
+        <input
+          ref="galleryInputRef"
+          type="file"
+          accept="image/*"
+          class="concord-notifications__file-input"
+          @change="onGallerySelected"
+        />
       </section>
 
-      <section class="concord-accordion">
-        <button
-          type="button"
-          class="concord-accordion__header concord-accordion__header--nav"
-          @click="$emit('open-groups')"
-        >
-          <span>Группы</span>
-        </button>
-      </section>
-
-      <section v-if="canShowInstall" class="concord-accordion">
-        <button
-          type="button"
-          class="concord-accordion__header concord-accordion__header--nav"
-          @click="installApp"
-        >
-          <span>Установить приложение</span>
-        </button>
-      </section>
+      <nav class="concord-settings-group" aria-label="Разделы профиля">
+        <div class="concord-profile-card">
+          <button
+            type="button"
+            class="concord-settings-link"
+            @click="$emit('open-notification-settings')"
+          >
+            <span>Уведомления</span>
+            <svg class="concord-settings-link__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="concord-settings-link"
+            @click="$emit('open-groups')"
+          >
+            <span>Группы</span>
+            <svg class="concord-settings-link__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button
+            v-if="canShowInstall"
+            type="button"
+            class="concord-settings-link"
+            @click="installApp"
+          >
+            <span>Установить приложение</span>
+            <svg class="concord-settings-link__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </nav>
     </main>
 
     <ConcordProfileFieldMenu
