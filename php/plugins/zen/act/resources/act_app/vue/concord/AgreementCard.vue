@@ -10,7 +10,8 @@
         'concord-card__header',
         {
           'concord-card__header--draft': isDraft,
-          'concord-card__header--approved': isApprovedHeader,
+          'concord-card__header--approved': isApprovedHeader || isOwnerRemarksHeader,
+          'concord-card__header--rejected': isParticipantSectionRejected,
           'concord-card__header--has-days': showDaysLabel,
         },
       ]"
@@ -35,6 +36,23 @@
           class="concord-card__status-plate concord-card__status-plate--draft"
         >
           Черновик
+        </span>
+
+        <span
+          v-else-if="isParticipantSectionRejected"
+          class="concord-card__status-plate concord-card__status-plate--rejected"
+        >
+          Отклонено мной
+        </span>
+
+        <span
+          v-else-if="isOwnerRemarksHeader"
+          class="concord-card__status-completed"
+        >
+          <span class="concord-card__status-plate concord-card__status-plate--approved">
+            Согласовано
+          </span>
+          <span class="concord-card__status-remarks">есть замечания</span>
         </span>
 
         <span
@@ -122,6 +140,7 @@
 <script>
 import { onBeforeUnmount, ref, watch } from 'vue'
 import ConcordUrgencyFlame from './ConcordUrgencyFlame.vue'
+import { agreementHasRemarks, isAgreementFullyApproved } from './agreement-results-utils.js'
 import {
   resolveSectionVotersCount,
   sectionHasConfiguredParticipants,
@@ -226,7 +245,18 @@ export default {
       if (!metrics.total) {
         return 0
       }
-      if (agreement.isOwner && agreement.status === 'approved') {
+      const fullyApproved = (
+        agreement.status === 'approved'
+        || agreement.status === 'completed'
+        || isAgreementFullyApproved(agreement, props.groups, props.contacts)
+      )
+      const participantApproved = !agreement.isOwner && Boolean(agreement.mySectionApproved)
+      const participantRejected = !agreement.isOwner && Boolean(agreement.mySectionRejected)
+      const ownerWithRemarks = (
+        agreement.isOwner
+        && agreementHasRemarks(agreement, props.groups, props.contacts)
+      )
+      if (fullyApproved || participantApproved || participantRejected || ownerWithRemarks) {
         return 100
       }
       return Math.min(100, Math.round((metrics.voted / metrics.total) * 100))
@@ -306,20 +336,36 @@ export default {
     showFlame() {
       return Boolean(this.agreement.isUrgent && !this.agreement.urgentAcknowledged)
     },
-    isOwnerApproved() {
-      return this.agreement.isOwner && this.agreement.status === 'approved'
-    },
     isParticipantSectionApproved() {
       return !this.agreement.isOwner && Boolean(this.agreement.mySectionApproved)
     },
+    isParticipantSectionRejected() {
+      return !this.agreement.isOwner && Boolean(this.agreement.mySectionRejected)
+    },
     isApprovedHeader() {
-      return this.isOwnerApproved || this.isParticipantSectionApproved
+      if (this.isParticipantSectionApproved) {
+        return true
+      }
+      if (this.agreement.isOwner && this.isFullyApproved) {
+        return true
+      }
+      return false
+    },
+    isOwnerRemarksHeader() {
+      return (
+        this.agreement.isOwner
+        && !this.isFullyApproved
+        && agreementHasRemarks(this.agreement, this.groups, this.contacts)
+      )
     },
     approvedHeaderText() {
-      if (this.isOwnerApproved) {
-        return `Согласовано: ${this.agreement.approvedAt || this.agreement.deadline}`
+      if (this.isParticipantSectionApproved) {
+        return 'Согласовано мной'
       }
-      return `Согласовано мной: ${this.agreement.mySectionApprovedAt || this.agreement.deadline}`
+      if (this.agreement.isOwner && this.isFullyApproved) {
+        return 'Согласовано'
+      }
+      return ''
     },
     participantsCount() {
       return getAgreementMetrics(this.agreement, this.groups, this.contacts).total
@@ -328,7 +374,13 @@ export default {
       return pluralizeParticipants(this.participantsCount)
     },
     showDaysLabel() {
-      return !this.isDraft && !this.isApprovedHeader && Boolean(this.agreement.deadline)
+      return (
+        !this.isDraft
+        && !this.isApprovedHeader
+        && !this.isOwnerRemarksHeader
+        && !this.isParticipantSectionRejected
+        && Boolean(this.agreement.deadline)
+      )
     },
     daysLabelText() {
       if (this.daysRemaining !== null) {
@@ -345,20 +397,36 @@ export default {
       }
       return 'ok'
     },
+    isCardApproved() {
+      return this.isFullyApproved || this.isParticipantSectionApproved || this.isOwnerRemarksHeader
+    },
+    isPersonalVoteComplete() {
+      return this.isParticipantSectionApproved || this.isParticipantSectionRejected
+    },
     progressPercent() {
       if (!this.agreement.total) {
         return 0
       }
-      if (this.isOwnerApproved || this.agreement.status === 'approved') {
+      if (this.isCardApproved || this.isPersonalVoteComplete) {
         return 100
       }
       return Math.min(100, Math.round((this.agreement.voted / this.agreement.total) * 100))
+    },
+    isFullyApproved() {
+      return (
+        this.agreement.status === 'approved'
+        || this.agreement.status === 'completed'
+        || isAgreementFullyApproved(this.agreement, this.groups, this.contacts)
+      )
     },
     progressTone() {
       if (this.isDraft) {
         return 'draft'
       }
-      if (this.isOwnerApproved || this.agreement.status === 'approved') {
+      if (this.isParticipantSectionRejected) {
+        return 'rejected'
+      }
+      if (this.isCardApproved) {
         return 'done'
       }
       if (this.agreement.isOwner) {

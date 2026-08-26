@@ -64,14 +64,29 @@
                     <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </button>
+                <button
+                  type="button"
+                  class="concord-gallery-block__comment-btn"
+                  :class="{ 'concord-gallery-block__comment-btn--filled': hasPhotoComment(photo) }"
+                  :aria-label="hasPhotoComment(photo) ? 'Изменить подпись' : 'Добавить подпись'"
+                  @click.stop="openCommentSheet(photo)"
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+                    <path d="M7 9h10M7 12.5h6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9.8a1.5 1.5 0 0 1-1.5 1.5H10l-4.2 3.2a.8.8 0 0 1-1.3-.65V6A1.5 1.5 0 0 1 5 4.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                  </svg>
+                </button>
               </div>
-              <input
-                v-model="photo.comment"
-                type="text"
-                class="concord-gallery-block__comment"
-                placeholder="Комментарий"
-                aria-label="Комментарий к фото"
-              />
+              <button
+                type="button"
+                class="concord-gallery-block__caption-chip"
+                :class="{ 'concord-gallery-block__caption-chip--filled': hasPhotoComment(photo) }"
+                @click.stop="openCommentSheet(photo)"
+              >
+                <span class="concord-gallery-block__caption-chip-text">
+                  {{ photoCommentLabel(photo) }}
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -135,13 +150,21 @@
       :open="viewerOpen"
       :photos="photos"
       :index="viewerIndex"
+      caption-editable
       @close="closeViewer"
+    />
+
+    <ConcordGalleryCommentSheet
+      :open="commentSheetOpen"
+      :photo="commentPhoto"
+      @close="closeCommentSheet"
     />
   </article>
 </template>
 
 <script>
 import { computed, nextTick, ref, watch } from 'vue'
+import ConcordGalleryCommentSheet from './ConcordGalleryCommentSheet.vue'
 import ConcordImageViewer from './ConcordImageViewer.vue'
 import { normalizeGalleryBlock } from './mock-agreements.js'
 import {
@@ -154,7 +177,7 @@ const PAGE_SIZE = 6
 
 export default {
   name: 'ConcordGalleryBlockCard',
-  components: { ConcordImageViewer },
+  components: { ConcordGalleryCommentSheet, ConcordImageViewer },
   props: {
     block: {
       type: Object,
@@ -166,6 +189,8 @@ export default {
     const sliderRef = ref(null)
     const viewerOpen = ref(false)
     const viewerIndex = ref(0)
+    const commentSheetOpen = ref(false)
+    const commentPhoto = ref(null)
     const activePage = ref(0)
     const restoringPhotoIds = new Set()
 
@@ -254,6 +279,28 @@ export default {
       viewerOpen.value = false
     }
 
+    function hasPhotoComment(photo) {
+      return Boolean(String(photo?.comment || '').trim())
+    }
+
+    function photoCommentLabel(photo) {
+      const text = String(photo?.comment || '').trim()
+      if (!text) {
+        return 'Добавить подпись'
+      }
+      return text.length > 42 ? `${text.slice(0, 42)}…` : text
+    }
+
+    function openCommentSheet(photo) {
+      commentPhoto.value = photo
+      commentSheetOpen.value = true
+    }
+
+    function closeCommentSheet() {
+      commentSheetOpen.value = false
+      commentPhoto.value = null
+    }
+
     function updateActivePage() {
       const slider = sliderRef.value
       if (!slider || !slider.clientWidth) {
@@ -285,11 +332,17 @@ export default {
       activePage,
       viewerOpen,
       viewerIndex,
+      commentSheetOpen,
+      commentPhoto,
       openPhotoPicker,
       onPhotosSelected,
       removePhoto,
       openViewer,
       closeViewer,
+      hasPhotoComment,
+      photoCommentLabel,
+      openCommentSheet,
+      closeCommentSheet,
       updateActivePage,
       scrollToPage,
     }

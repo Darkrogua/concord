@@ -97,7 +97,7 @@ export function getEditorBlockSummary(block) {
 }
 
 export function getTextBlockPreviewTitle(block) {
-  return getEditorBlockLabel(block)
+  return String(block?.title || '').trim()
 }
 
 export function getTextBlockPreviewExcerpt(block, limit = 120) {

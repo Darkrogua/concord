@@ -421,6 +421,7 @@ export default {
     function onEditorRequestLeave() {
       leaveTarget.value = 'list'
       if (!editorNeedsLeaveConfirmation()) {
+        flushPersist()
         leaveEditorTo('list')
         return
       }
@@ -578,7 +579,7 @@ export default {
       }
       leaveTarget.value = nextView
       if (!editorNeedsLeaveConfirmation()) {
-        leaveTarget.value = 'list'
+        flushPersist()
         return true
       }
       leaveConfirmOpen.value = true

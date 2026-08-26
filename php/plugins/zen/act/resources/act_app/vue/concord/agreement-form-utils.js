@@ -17,7 +17,7 @@ export const EMPTY_AGREEMENT_FORM = {
 }
 
 export function createAgreementFormFromAgreement(agreement) {
-  const start = formatRuDateTimeToFormParts(agreement?.startDate || agreement?.createdAt || '')
+  const start = formatRuDateTimeToFormParts(agreement?.startDate || '')
   const end = formatRuDateTimeToFormParts(agreement?.deadline || '')
 
   return {
@@ -42,15 +42,7 @@ export function getTodayIsoDate(now = new Date()) {
   return `${year}-${month}-${day}`
 }
 
-export function getAgreementFormDateError(form, today = getTodayIsoDate()) {
-  if (form.startDate && form.startDate < today) {
-    return 'Дата начала не может быть раньше сегодняшнего дня'
-  }
-
-  if (form.endDate && form.endDate < today) {
-    return 'Дата окончания не может быть раньше сегодняшнего дня'
-  }
-
+export function getAgreementFormStructuralDateError(form) {
   if (!form.startDate || !form.endDate) {
     return ''
   }
@@ -71,8 +63,48 @@ export function getAgreementFormDateError(form, today = getTodayIsoDate()) {
     : ''
 }
 
-export function agreementFormHasInvalidRange(form) {
-  return Boolean(getAgreementFormDateError(form))
+export function getAgreementFormPastDateError(form, today = getTodayIsoDate()) {
+  if (form.startDate && form.startDate < today) {
+    return 'Дата начала не может быть раньше сегодняшнего дня'
+  }
+
+  if (form.endDate && form.endDate < today) {
+    return 'Дата окончания не может быть раньше сегодняшнего дня'
+  }
+
+  return ''
+}
+
+export function getAgreementFormDateError(form, options = {}) {
+  const {
+    today = getTodayIsoDate(),
+    allowPastDates = false,
+  } = options
+
+  if (!allowPastDates) {
+    const pastDateError = getAgreementFormPastDateError(form, today)
+    if (pastDateError) {
+      return pastDateError
+    }
+  }
+
+  return getAgreementFormStructuralDateError(form)
+}
+
+export function agreementFormHasInvalidRange(form, options = {}) {
+  return Boolean(getAgreementFormDateError(form, options))
+}
+
+export function agreementFormHasBlockingDateError(form, options = {}) {
+  if (getAgreementFormStructuralDateError(form)) {
+    return true
+  }
+
+  if (options.allowPastDates) {
+    return false
+  }
+
+  return Boolean(getAgreementFormPastDateError(form, options.today))
 }
 
 function parseSectionScheduleDateTime(isoDate, time, fallbackTime) {
@@ -125,7 +157,7 @@ export function sectionScheduleHasInvalidRange(form, agreementPeriod) {
 }
 
 export function normalizeAgreementFormRange(form) {
-  if (!agreementFormHasInvalidRange(form)) {
+  if (!getAgreementFormStructuralDateError(form)) {
     return form
   }
 

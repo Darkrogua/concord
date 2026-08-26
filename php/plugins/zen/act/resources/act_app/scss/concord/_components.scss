@@ -633,6 +633,42 @@
   color: var(--concord-card-header-approved-text);
 }
 
+.concord-card__status-completed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.concord-card__status-remarks {
+  flex-shrink: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 18px;
+  color: var(--concord-deadline-overdue);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.concord-card__status-plate--rejected {
+  width: auto;
+  max-width: 100%;
+  white-space: nowrap;
+  background: var(--concord-card-header-overdue-bg);
+  color: var(--concord-card-header-overdue-text);
+}
+
+.concord-card__status-plate--remarks {
+  width: auto;
+  max-width: 100%;
+  white-space: nowrap;
+  background: var(--concord-card-header-overdue-bg);
+  color: var(--concord-card-header-overdue-text);
+}
+
 .concord-card__status-plate--draft {
   background: var(--concord-surface-muted);
   color: var(--concord-text-secondary);
@@ -985,6 +1021,12 @@
   --concord-card-progress-track: var(--concord-card-progress-done-track);
   --concord-card-progress-fill: var(--concord-card-progress-done-fill);
   --concord-card-count-active: var(--concord-card-progress-done-count);
+}
+
+.concord-card--progress-rejected {
+  --concord-card-progress-track: var(--concord-card-header-overdue-bg);
+  --concord-card-progress-fill: var(--concord-deadline-overdue);
+  --concord-card-count-active: var(--concord-deadline-overdue);
 }
 
 .concord-card--progress-draft {
@@ -1724,6 +1766,102 @@
   word-break: break-word;
 }
 
+.concord-gallery-comment-sheet__backdrop {
+  z-index: 210;
+}
+
+.concord-gallery-comment-sheet {
+  z-index: 220;
+  max-height: min(78dvh, 560px);
+}
+
+.concord-gallery-comment-sheet__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.concord-gallery-comment-sheet__thumb {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--concord-border);
+  background: var(--concord-surface-muted);
+}
+
+.concord-gallery-comment-sheet__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.concord-gallery-comment-sheet__thumb-doc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--concord-text-secondary);
+  background: var(--concord-surface-muted);
+}
+
+.concord-gallery-comment-sheet__meta {
+  min-width: 0;
+}
+
+.concord-gallery-comment-sheet__title {
+  margin: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-gallery-comment-sheet__filename {
+  margin: 4px 0 0;
+  overflow: hidden;
+  font-size: var(--concord-text-caption);
+  line-height: 1.3;
+  color: var(--concord-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.concord-gallery-comment-sheet__input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 112px;
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--concord-border);
+  border-radius: 12px;
+  background: var(--concord-surface-muted);
+  font: inherit;
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  resize: vertical;
+}
+
+.concord-gallery-comment-sheet__input:focus {
+  outline: none;
+  border-color: var(--concord-primary);
+  background: var(--concord-surface);
+  box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.14);
+}
+
+.concord-gallery-comment-sheet__hint {
+  margin: 0 0 16px;
+  font-size: var(--concord-text-caption);
+  line-height: 1.4;
+  color: var(--concord-text-secondary);
+}
+
 .concord-overlay {
   position: fixed;
   inset: 0;
@@ -1946,7 +2084,8 @@
   z-index: 280;
 }
 
-.concord-sheet.concord-confirm-sheet--top {
+.concord-sheet.concord-confirm-sheet--top,
+.concord-sheet.concord-reason-sheet--top {
   z-index: 290;
 }
 
@@ -2266,6 +2405,54 @@
   color: var(--concord-text-secondary);
 }
 
+.concord-section-participants-sheet__empty {
+  margin: 0 0 12px;
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-editor-muted);
+}
+
+.concord-section-participants-sheet__add-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.concord-section-participants-sheet__add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--concord-primary);
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-primary);
+  cursor: pointer;
+}
+
+.concord-section-participants-sheet__add-btn--primary {
+  background: var(--concord-primary);
+  color: #fff;
+}
+
+.concord-section-participants-sheet__add-btn:active {
+  opacity: 0.92;
+}
+
+.concord-sheet-backdrop--nested {
+  z-index: 170;
+}
+
+.concord-section-participants-sheet .concord-section-settings__participant-list {
+  margin: 0 0 12px;
+}
+
 .concord-section-participants-sheet__settings-link {
   display: block;
   width: 100%;
@@ -2386,6 +2573,16 @@
 
 .concord-page--editor .concord-container--editor .concord-container__vote-track {
   height: 5px;
+}
+
+.concord-page--editor .concord-container--editor .concord-container__footer-result {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+}
+
+.concord-page--editor .concord-container--editor .concord-container__footer-result-stats,
+.concord-page--editor .concord-container--editor .concord-container__footer-result-badge {
+  font-size: var(--concord-editor-caption-size);
 }
 
 .concord-page--editor .concord-container--editor .concord-container__title {
@@ -2613,9 +2810,10 @@
   justify-content: center;
   gap: 6px;
   flex-shrink: 0;
-  align-self: center;
+  width: 28px;
+  height: 28px;
   margin: 0;
-  padding: 4px;
+  padding: 0;
   border: none;
   background: none;
   color: inherit;
@@ -2624,16 +2822,12 @@
 
 .concord-editor-block__head-actions {
   display: inline-flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 2px;
   flex-shrink: 0;
-  align-self: flex-start;
 }
 
-.concord-editor-block__head-actions .concord-editor-block__delete svg,
-.concord-editor-block__head-actions .concord-editor-block__toggle svg {
-  position: relative;
-  top: -9px;
+.concord-editor-block__head-actions .concord-editor-block__delete svg {
   width: 18px;
   height: 18px;
 }
@@ -2642,14 +2836,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--concord-radius-xs);
   background: transparent;
   color: var(--concord-text-secondary);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .concord-editor-block__delete:hover:not(:disabled) {
@@ -3594,6 +3789,10 @@
   color: var(--concord-deadline-overdue);
 }
 
+.concord-agreement-form__hint--warning {
+  color: var(--concord-text-secondary);
+}
+
 .concord-agreement-form__urgency-row {
   cursor: pointer;
 }
@@ -3961,6 +4160,476 @@
   color: var(--concord-editor-muted);
 }
 
+.concord-agreement-editor__results {
+  margin-bottom: 16px;
+}
+
+.concord-agreement-results__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+}
+
+.concord-agreement-results__hero--success {
+  border-color: color-mix(in srgb, var(--concord-primary) 24%, var(--concord-border));
+  background: color-mix(in srgb, var(--concord-primary-subtle) 55%, var(--concord-surface));
+}
+
+.concord-agreement-results__hero--warning {
+  border-color: color-mix(in srgb, var(--concord-deadline-overdue) 28%, var(--concord-border));
+  background: color-mix(in srgb, var(--concord-deadline-overdue-bg) 70%, var(--concord-surface));
+}
+
+.concord-agreement-results__hero--progress {
+  background: var(--concord-surface-muted);
+}
+
+.concord-agreement-results__eyebrow {
+  margin: 0 0 4px;
+  font-size: var(--concord-editor-caption-size);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-editor-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.concord-agreement-results__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-agreement-results__subtitle {
+  margin: 6px 0 0;
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-results__sections-summary {
+  margin: 8px 0 0;
+  font-size: var(--concord-editor-caption-size);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-agreement-results__block-title {
+  margin: 0 0 10px;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-agreement-results__overview {
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+}
+
+.concord-agreement-results__overview-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.concord-agreement-results__overview-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-surface-muted);
+}
+
+.concord-agreement-results__overview-section--approved {
+  background: color-mix(in srgb, var(--concord-primary-subtle) 55%, var(--concord-surface));
+}
+
+.concord-agreement-results__overview-section--rejected {
+  background: color-mix(in srgb, var(--concord-deadline-overdue-bg) 75%, var(--concord-surface));
+}
+
+.concord-agreement-results__overview-section-title {
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-agreement-results__overview-section-badge {
+  justify-self: end;
+  font-size: 11px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.2;
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-results__overview-section-stats {
+  grid-column: 1 / -1;
+  font-size: var(--concord-editor-caption-size);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-editor-muted);
+}
+
+.concord-agreement-results__overview-rejections-title {
+  margin: 0 0 8px;
+  font-size: var(--concord-editor-caption-size);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.concord-agreement-results__overview-rejections-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.concord-agreement-results__overview-rejection {
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-deadline-overdue-bg);
+}
+
+.concord-agreement-results__overview-rejection + .concord-agreement-results__overview-rejection {
+  margin-top: 8px;
+}
+
+.concord-agreement-results__overview-rejection-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+}
+
+.concord-agreement-results__overview-rejection-section {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.2;
+  color: var(--concord-deadline-overdue);
+}
+
+.concord-agreement-results__overview-rejection-name {
+  font-size: var(--concord-editor-caption-size);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-agreement-results__overview-rejection-text {
+  margin: 0;
+  font-size: var(--concord-editor-caption-size);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.concord-agreement-results__overview-empty {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: color-mix(in srgb, var(--concord-primary-subtle) 55%, var(--concord-surface));
+  font-size: var(--concord-editor-caption-size);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-results__sections-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.concord-agreement-results__totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.concord-agreement-results__total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border-radius: var(--concord-radius-xs);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.concord-agreement-results__total-value {
+  font-size: 20px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1;
+  color: var(--concord-primary);
+}
+
+.concord-agreement-results__total--rejected .concord-agreement-results__total-value {
+  color: var(--concord-deadline-overdue);
+}
+
+.concord-agreement-results__total--pending .concord-agreement-results__total-value {
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-results__total-label {
+  font-size: var(--concord-editor-caption-size);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-results__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.concord-agreement-results__section {
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius-sm);
+  background: var(--concord-surface);
+  overflow: hidden;
+}
+
+.concord-agreement-results__section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 14px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.concord-agreement-results__section-title-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.concord-agreement-results__section-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--concord-surface-muted);
+  font-size: 12px;
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-results__section-meta {
+  min-width: 0;
+}
+
+.concord-agreement-results__section-title {
+  margin: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-agreement-results__section-stats {
+  margin: 4px 0 0;
+  font-size: var(--concord-editor-caption-size);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-editor-muted);
+}
+
+.concord-agreement-results__section-badge {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.2;
+}
+
+.concord-agreement-results__section-badge--approved {
+  color: var(--concord-primary);
+  background: var(--concord-primary-subtle);
+}
+
+.concord-agreement-results__section-badge--rejected {
+  color: var(--concord-deadline-overdue);
+  background: var(--concord-deadline-overdue-bg);
+}
+
+.concord-agreement-results__section-badge--progress,
+.concord-agreement-results__section-badge--pending {
+  color: var(--concord-text-secondary);
+  background: var(--concord-surface-muted);
+}
+
+.concord-agreement-results__section-body {
+  padding: 0 14px 14px;
+}
+
+.concord-agreement-results__rejections + .concord-agreement-results__roster {
+  margin-top: 14px;
+}
+
+.concord-agreement-results__rejections-title,
+.concord-agreement-results__roster-title {
+  margin: 0 0 10px;
+  font-size: var(--concord-editor-caption-size);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.concord-agreement-results__rejections-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.concord-agreement-results__rejections-empty {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: color-mix(in srgb, var(--concord-primary-subtle) 65%, var(--concord-surface));
+  font-size: var(--concord-editor-caption-size);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-results__roster-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.concord-agreement-results__rejection,
+.concord-agreement-results__roster-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.concord-agreement-results__rejection {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-deadline-overdue-bg);
+}
+
+.concord-agreement-results__rejection + .concord-agreement-results__rejection {
+  margin-top: 8px;
+}
+
+.concord-agreement-results__rejection-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.concord-agreement-results__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--concord-surface-muted);
+  font-size: 11px;
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text-secondary);
+}
+
+.concord-agreement-results__rejection-name,
+.concord-agreement-results__roster-name {
+  min-width: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-agreement-results__rejection-text {
+  margin: 0;
+  font-size: var(--concord-editor-caption-size);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+.concord-agreement-results__rejection-more {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--concord-editor-caption-size);
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-deadline-overdue);
+  cursor: pointer;
+}
+
+.concord-agreement-results__roster-item + .concord-agreement-results__roster-item {
+  margin-top: 8px;
+}
+
+.concord-agreement-results__roster-status {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: var(--concord-editor-caption-size);
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.2;
+}
+
+.concord-agreement-results__roster-status--approved {
+  color: var(--concord-primary);
+}
+
+.concord-agreement-results__roster-status--rejected {
+  color: var(--concord-deadline-overdue);
+}
+
+.concord-agreement-results__roster-status--pending {
+  color: var(--concord-text-secondary);
+}
+
 .concord-page--agreement-settings {
   padding-bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom) + 88px);
 }
@@ -4273,6 +4942,65 @@
   gap: 12px;
 }
 
+.concord-container__footer-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: color-mix(in srgb, var(--concord-surface) 82%, var(--concord-border));
+}
+
+.concord-container__footer--section-approved .concord-container__footer-result {
+  background: var(--concord-role-approved-bg);
+}
+
+.concord-container__footer-result-stats {
+  font-size: var(--concord-editor-caption-size);
+  font-weight: var(--concord-weight-medium);
+  line-height: var(--concord-leading-tight);
+  color: var(--concord-text);
+}
+
+.concord-container__footer-result-badge {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: var(--concord-weight-semibold);
+  line-height: 1.2;
+}
+
+.concord-container__footer-result-badge--approved {
+  background: #fff;
+  color: var(--concord-role-approved-accent);
+}
+
+.concord-container__footer-result-badge--rejected {
+  background: var(--concord-deadline-overdue-bg);
+  color: var(--concord-deadline-overdue);
+}
+
+.concord-container__footer-result-badge--progress,
+.concord-container__footer-result-badge--pending {
+  background: #fff;
+  color: var(--concord-text-secondary);
+}
+
+.concord-container__footer--has-results .concord-container__vote-row--approved .concord-container__vote-fill {
+  background: var(--concord-role-approved-accent);
+}
+
+.concord-container__footer--has-results .concord-container__vote-row--rejected .concord-container__vote-fill {
+  background: var(--concord-deadline-overdue);
+}
+
+.concord-container__footer--has-results .concord-container__vote-row--pending .concord-container__vote-fill {
+  background: var(--concord-neutral-400);
+}
+
 .concord-container__vote-row {
   display: flex;
   flex-direction: column;
@@ -4562,8 +5290,10 @@
 
 .concord-files-block__preview:hover .concord-files-block__delete,
 .concord-files-block__preview:hover .concord-files-block__view,
+.concord-files-block__preview:hover .concord-files-block__comment-btn,
 .concord-files-block__preview:focus-within .concord-files-block__delete,
-.concord-files-block__preview:focus-within .concord-files-block__view {
+.concord-files-block__preview:focus-within .concord-files-block__view,
+.concord-files-block__preview:focus-within .concord-files-block__comment-btn {
   opacity: 1;
 }
 
@@ -4573,13 +5303,39 @@
 }
 
 .concord-files-block__delete:hover,
-.concord-files-block__view:hover {
+.concord-files-block__view:hover,
+.concord-files-block__comment-btn:hover {
   background: rgba(24, 24, 28, 0.86);
+}
+
+.concord-files-block__comment-btn {
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(24, 24, 28, 0.68);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  z-index: 2;
+}
+
+.concord-files-block__comment-btn--filled {
+  background: rgba(88, 101, 242, 0.92);
 }
 
 @media (hover: none) {
   .concord-files-block__delete,
-  .concord-files-block__view {
+  .concord-files-block__view,
+  .concord-files-block__comment-btn {
     opacity: 1;
   }
 
@@ -4599,8 +5355,44 @@
   color: var(--concord-editor-muted);
 }
 
-.concord-page .concord-files-block input.concord-files-block__comment,
-.concord-page .concord-gallery-block input.concord-gallery-block__comment {
+.concord-files-block__caption-chip {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px dashed var(--concord-border);
+  border-radius: 8px;
+  background: var(--concord-surface-muted);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--concord-editor-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.concord-files-block__caption-chip--filled {
+  border-style: solid;
+  background: var(--concord-surface);
+  color: var(--concord-text);
+}
+
+.concord-files-block__caption-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--concord-primary);
+}
+
+.concord-files-block__caption-chip-text {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.concord-page .concord-links-block input.concord-links-block__input {
   width: 100%;
   margin: 0;
   border: 1px solid var(--concord-border);
@@ -4613,39 +5405,6 @@
   font-size: var(--concord-form-input-size);
   font-weight: var(--concord-form-input-weight);
   line-height: var(--concord-leading-tight);
-  color: var(--concord-form-input-color);
-  text-align: left;
-}
-
-.concord-page .concord-files-block input.concord-files-block__comment::placeholder,
-.concord-page .concord-gallery-block input.concord-gallery-block__comment::placeholder {
-  font-size: var(--concord-form-placeholder-size);
-  font-weight: var(--concord-weight-regular);
-  color: var(--concord-form-placeholder-color);
-  opacity: 1;
-}
-
-.concord-page .concord-files-block input.concord-files-block__comment:focus,
-.concord-page .concord-gallery-block input.concord-gallery-block__comment:focus {
-  outline: none;
-  border-color: var(--concord-primary);
-  box-shadow: 0 0 0 2px var(--concord-primary-focus);
-  background: var(--concord-surface);
-}
-
-.concord-page .concord-links-block input.concord-links-block__input {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 36px;
-  height: auto;
-  margin: 0;
-  padding: 8px 10px;
-  border: 1px solid var(--concord-border);
-  border-radius: var(--concord-radius-xs);
-  background: var(--concord-surface-muted);
-  font-size: var(--concord-form-input-size);
-  font-weight: var(--concord-form-input-weight);
-  line-height: var(--concord-leading-body);
   color: var(--concord-form-input-color);
   text-align: left;
 }
@@ -4836,8 +5595,10 @@
 
 .concord-gallery-block__preview:hover .concord-gallery-block__delete,
 .concord-gallery-block__preview:hover .concord-gallery-block__view,
+.concord-gallery-block__preview:hover .concord-gallery-block__comment-btn,
 .concord-gallery-block__preview:focus-within .concord-gallery-block__delete,
-.concord-gallery-block__preview:focus-within .concord-gallery-block__view {
+.concord-gallery-block__preview:focus-within .concord-gallery-block__view,
+.concord-gallery-block__preview:focus-within .concord-gallery-block__comment-btn {
   opacity: 1;
 }
 
@@ -4847,8 +5608,70 @@
 }
 
 .concord-gallery-block__delete:hover,
-.concord-gallery-block__view:hover {
+.concord-gallery-block__view:hover,
+.concord-gallery-block__comment-btn:hover {
   background: rgba(24, 24, 28, 0.86);
+}
+
+.concord-gallery-block__comment-btn {
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(24, 24, 28, 0.68);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  z-index: 2;
+}
+
+.concord-gallery-block__comment-btn--filled {
+  background: rgba(88, 101, 242, 0.92);
+}
+
+.concord-gallery-block__caption-chip {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px dashed var(--concord-border);
+  border-radius: 8px;
+  background: var(--concord-surface-muted);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--concord-editor-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.concord-gallery-block__caption-chip--filled {
+  border-style: solid;
+  background: var(--concord-surface);
+  color: var(--concord-text);
+}
+
+.concord-gallery-block__caption-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--concord-primary);
+}
+
+.concord-gallery-block__caption-chip-text {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .concord-gallery-block__input {
@@ -4857,7 +5680,8 @@
 
 @media (hover: none) {
   .concord-gallery-block__delete,
-  .concord-gallery-block__view {
+  .concord-gallery-block__view,
+  .concord-gallery-block__comment-btn {
     opacity: 1;
   }
 
@@ -8611,6 +9435,62 @@
   opacity: 0.85;
 }
 
+.concord-image-viewer--caption-editable {
+  padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+}
+
+.concord-image-viewer--caption-editable .concord-image-viewer__counter {
+  bottom: calc(118px + env(safe-area-inset-bottom, 0px));
+}
+
+.concord-image-viewer__caption-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.72) 28%, rgba(0, 0, 0, 0.9) 100%);
+}
+
+.concord-image-viewer__caption-label {
+  display: block;
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: var(--concord-weight-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.concord-image-viewer__caption-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 56px;
+  max-height: 120px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #fff;
+  resize: none;
+}
+
+.concord-image-viewer__caption-input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.concord-image-viewer__caption-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.14);
+}
+
 /* Vote per section */
 .concord-vote-section {
   display: flex;
@@ -8844,7 +9724,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 10px 36px 10px 10px;
+  padding: 8px 32px 8px 8px;
   border: 1px solid var(--concord-border);
   border-radius: var(--concord-radius-xs);
   background: var(--concord-surface);
@@ -9042,6 +9922,15 @@
 .concord-reject-sheet,
 .concord-reason-sheet {
   text-align: center;
+}
+
+.concord-reason-sheet--top {
+  max-height: min(78dvh, 560px);
+  text-align: left;
+}
+
+.concord-reason-sheet__backdrop {
+  z-index: 280;
 }
 
 .concord-confirm-sheet__text {

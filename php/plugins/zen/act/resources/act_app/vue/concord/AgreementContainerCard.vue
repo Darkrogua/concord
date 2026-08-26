@@ -53,7 +53,13 @@
       <slot :expanded="expanded" />
     </div>
 
-    <footer class="concord-container__footer">
+    <footer
+      class="concord-container__footer"
+      :class="{
+        'concord-container__footer--has-results': hasVoteActivity,
+        'concord-container__footer--section-approved': isSectionApproved,
+      }"
+    >
       <div v-if="expanded" class="concord-container__footer-section-head">
         <div class="concord-container__footer-section-main">
           <h2 class="concord-container__title">{{ sectionTitle }}</h2>
@@ -102,11 +108,25 @@
         </button>
       </div>
 
+      <div
+        v-if="hasVoteActivity"
+        class="concord-container__footer-result"
+      >
+        <span class="concord-container__footer-result-stats">{{ sectionVoteSummary }}</span>
+        <span
+          class="concord-container__footer-result-badge"
+          :class="`concord-container__footer-result-badge--${sectionStatusTone}`"
+        >
+          {{ sectionStatusLabel }}
+        </span>
+      </div>
+
       <div class="concord-container__voting">
         <div
           v-for="row in votingRows"
           :key="row.key"
           class="concord-container__vote-row"
+          :class="`concord-container__vote-row--${row.key}`"
         >
           <span class="concord-container__vote-label">
             {{ row.label }}
@@ -160,6 +180,10 @@ import {
   resolveSectionParticipants,
   resolveSectionVotersCount,
 } from './mock-groups.js'
+import {
+  getSectionVoteCounts,
+  isSectionFullyApproved,
+} from './agreement-results-utils.js'
 
 function pluralizeRu(value, forms) {
   const mod10 = value % 10
@@ -279,33 +303,72 @@ export default {
       const count = this.votersCount
       return count ? `${count} ${pluralizeRu(count, ['человек', 'человека', 'человек'])}` : 'не назначены'
     },
+    voteCounts() {
+      return getSectionVoteCounts(this.section, this.groups, this.contacts)
+    },
+    hasVoteActivity() {
+      return (this.section?.votes || []).some((vote) => vote?.participantId)
+    },
+    isSectionApproved() {
+      return isSectionFullyApproved(this.section, this.groups, this.contacts)
+    },
+    sectionVoteSummary() {
+      const { approved, rejected, pending } = this.voteCounts
+      return `${approved} за · ${rejected} против · ${pending} ожидают`
+    },
+    sectionStatusTone() {
+      if (this.isSectionApproved) {
+        return 'approved'
+      }
+      const { rejected, pending, approved, total } = this.voteCounts
+      if (pending === 0 && rejected > 0) {
+        return 'rejected'
+      }
+      if (approved + rejected > 0 && total) {
+        return 'progress'
+      }
+      return 'pending'
+    },
+    sectionStatusLabel() {
+      if (this.isSectionApproved) {
+        return 'Согласован'
+      }
+      const { rejected, pending, approved, total } = this.voteCounts
+      if (pending === 0 && rejected > 0) {
+        return 'Не согласован'
+      }
+      if (approved + rejected > 0 && total) {
+        return `${approved + rejected} из ${total}`
+      }
+      return 'Ждёт голосов'
+    },
     participants() {
       return this.sectionParticipants
     },
-    votingStats() {
-      return this.section.votingStats || { approved: 0, rejected: 0, pending: 100 }
-    },
     votingRows() {
-      const stats = this.votingStats
-      const total = this.votersCount
+      const counts = this.voteCounts
+      const labels = this.hasVoteActivity
+        ? { approved: 'За', rejected: 'Против', pending: 'Ожидают' }
+        : { approved: 'Согласовано', rejected: 'Не согласовано', pending: 'Не голосовали' }
+
       return [
         {
           key: 'approved',
-          label: 'Согласовано',
-          percent: stats.approved || 0,
-          count: Math.round((stats.approved || 0) * total / 100),
+          label: labels.approved,
+          percent: counts.approvedPercent,
+          count: counts.approved,
         },
         {
           key: 'rejected',
-          label: 'Не согласовано',
-          percent: stats.rejected || 0,
-          count: Math.round((stats.rejected || 0) * total / 100),
+          label: labels.rejected,
+          percent: counts.rejectedPercent,
+          count: counts.rejected,
         },
         {
           key: 'pending',
-          label: 'Не голосовали',
-          percent: stats.pending || 0,
-          count: Math.round((stats.pending || 0) * total / 100),
+          label: labels.pending,
+          percent: counts.pendingPercent,
+          count: counts.pending,
         },
       ]
     },

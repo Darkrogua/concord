@@ -4,14 +4,14 @@
       <template #right>
         <ConcordGroupHeaderActions
           :show-count="false"
-          :disabled="hasInvalidDateRange"
+          :disabled="hasBlockingDateError"
           @save="save"
         />
       </template>
     </ConcordPageHeader>
 
     <main class="concord-notifications">
-      <AgreementFormFields :form="form" />
+      <AgreementFormFields :form="form" :allow-past-dates="isDraft" />
 
       <button
         v-if="canDelete"
@@ -27,7 +27,7 @@
       <button
         type="button"
         class="concord-section-settings__done"
-        :disabled="hasInvalidDateRange"
+        :disabled="hasBlockingDateError"
         @click="save"
       >
         Готово
@@ -48,17 +48,20 @@
 </template>
 
 <script>
-import { computed, ref, watch, defineExpose } from 'vue'
+import { computed, onBeforeUnmount, ref, watch, defineExpose } from 'vue'
 import AgreementFormFields from '../concord/AgreementFormFields.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
 import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import {
-  agreementFormHasInvalidRange,
+  agreementFormHasBlockingDateError,
   agreementFormToPayload,
   createAgreementFormFromAgreement,
   normalizeAgreementFormRange,
 } from '../concord/agreement-form-utils.js'
+import { isLaunchedAgreement } from '../concord/mock-agreements.js'
+
+const AUTOSAVE_MS = 350
 
 export default {
   name: 'AgreementSettingsView',
@@ -78,8 +81,13 @@ export default {
   setup(props, { emit }) {
     const form = ref(createAgreementFormFromAgreement(props.agreement))
     const deleteConfirmOpen = ref(false)
+    let syncingFromAgreement = false
+    let autosaveTimer = null
 
-    const hasInvalidDateRange = computed(() => agreementFormHasInvalidRange(form.value))
+    const isDraft = computed(() => !isLaunchedAgreement(props.agreement))
+    const hasBlockingDateError = computed(() =>
+      agreementFormHasBlockingDateError(form.value, { allowPastDates: isDraft.value })
+    )
 
     const canDelete = computed(() =>
       props.agreement?.status === 'draft' || !props.agreement?.createdAt
@@ -96,7 +104,9 @@ export default {
         if (!agreement) {
           return
         }
+        syncingFromAgreement = true
         form.value = createAgreementFormFromAgreement(agreement)
+        syncingFromAgreement = false
       },
       { immediate: true }
     )
@@ -115,6 +125,33 @@ export default {
       }
     )
 
+    function applyChanges() {
+      const payload = agreementFormToPayload(form.value)
+      if (!payload.title || hasBlockingDateError.value) {
+        return false
+      }
+      emit('save', payload)
+      return true
+    }
+
+    function scheduleAutosave() {
+      if (syncingFromAgreement) {
+        return
+      }
+      clearTimeout(autosaveTimer)
+      autosaveTimer = setTimeout(() => {
+        autosaveTimer = null
+        applyChanges()
+      }, AUTOSAVE_MS)
+    }
+
+    watch(form, scheduleAutosave, { deep: true })
+
+    onBeforeUnmount(() => {
+      clearTimeout(autosaveTimer)
+      applyChanges()
+    })
+
     function hasUnsavedChanges() {
       const payload = agreementFormToPayload(form.value)
       const baseline = agreementFormToPayload(createAgreementFormFromAgreement(props.agreement))
@@ -122,12 +159,11 @@ export default {
     }
 
     function save() {
-      const payload = agreementFormToPayload(form.value)
-      if (!payload.title || hasInvalidDateRange.value) {
+      clearTimeout(autosaveTimer)
+      autosaveTimer = null
+      if (!applyChanges()) {
         return
       }
-
-      emit('save', payload)
       emit('back')
     }
 
@@ -140,7 +176,8 @@ export default {
 
     return {
       form,
-      hasInvalidDateRange,
+      isDraft,
+      hasBlockingDateError,
       canDelete,
       deleteConfirmOpen,
       deleteConfirmMessage,

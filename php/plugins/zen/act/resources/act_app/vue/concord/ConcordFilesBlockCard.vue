@@ -57,15 +57,30 @@
           >
             <ConcordGroupDeleteIcon />
           </button>
+          <button
+            type="button"
+            class="concord-files-block__comment-btn"
+            :class="{ 'concord-files-block__comment-btn--filled': hasFileComment(file) }"
+            :aria-label="hasFileComment(file) ? 'Изменить комментарий' : 'Добавить комментарий'"
+            @click.stop="openCommentSheet(file)"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+              <path d="M7 9h10M7 12.5h6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M5 4.5h14a1.5 1.5 0 0 1 1.5 1.5v9.8a1.5 1.5 0 0 1-1.5 1.5H10l-4.2 3.2a.8.8 0 0 1-1.3-.65V6A1.5 1.5 0 0 1 5 4.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
         <p class="concord-files-block__name">{{ file.name }}</p>
-        <input
-          v-model="file.comment"
-          type="text"
-          class="concord-files-block__comment"
-          placeholder="Комментарий"
-          aria-label="Комментарий к файлу"
+        <button
+          type="button"
+          class="concord-files-block__caption-chip"
+          :class="{ 'concord-files-block__caption-chip--filled': hasFileComment(file) }"
+          @click.stop="openCommentSheet(file)"
         >
+          <span class="concord-files-block__caption-chip-text">
+            {{ fileCommentLabel(file) }}
+          </span>
+        </button>
       </div>
     </div>
 
@@ -83,9 +98,10 @@
 
     <ConcordImageViewer
       :open="imageViewerOpen"
-      :src="imageViewerSrc"
-      :alt="imageViewerAlt"
-      @close="imageViewerOpen = false"
+      :photos="imageViewerPhotos"
+      :index="0"
+      caption-editable
+      @close="closeImageViewer"
     />
 
     <ConcordTextFilePreviewSheet
@@ -95,18 +111,27 @@
       @close="textPreviewOpen = false"
       @download="downloadTextPreview"
     />
+
+    <ConcordGalleryCommentSheet
+      :open="commentSheetOpen"
+      :item="commentFile"
+      title="Комментарий к файлу"
+      hint="Пояснение видно согласователям при просмотре документа."
+      placeholder="Что важно знать об этом файле для согласования…"
+      @close="closeCommentSheet"
+    />
   </article>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import ConcordGalleryCommentSheet from './ConcordGalleryCommentSheet.vue'
 import ConcordGroupDeleteIcon from './ConcordGroupDeleteIcon.vue'
 import ConcordImageViewer from './ConcordImageViewer.vue'
 import ConcordTextFilePreviewSheet from './ConcordTextFilePreviewSheet.vue'
 import { cacheAgreementFileContent } from './agreement-file-content.js'
 import {
   downloadAgreementFile,
-  getAgreementFileSource,
   getAgreementFileTextContent,
   isImageAgreementFile,
   isTextLikeAgreementFile,
@@ -118,6 +143,7 @@ import { normalizeFilesBlock } from './mock-agreements.js'
 export default {
   name: 'ConcordFilesBlockCard',
   components: {
+    ConcordGalleryCommentSheet,
     ConcordGroupDeleteIcon,
     ConcordImageViewer,
     ConcordTextFilePreviewSheet,
@@ -131,14 +157,22 @@ export default {
   setup(props) {
     const fileInput = ref(null)
     const imageViewerOpen = ref(false)
-    const imageViewerSrc = ref('')
-    const imageViewerAlt = ref('')
+    const imageViewerFile = ref(null)
+    const commentSheetOpen = ref(false)
+    const commentFile = ref(null)
     const textPreviewOpen = ref(false)
     const textPreviewName = ref('')
     const textPreviewContent = ref('')
     const textPreviewFile = ref(null)
 
     normalizeFilesBlock(props.block)
+
+    const imageViewerPhotos = computed(() => {
+      if (!imageViewerFile.value?.previewUrl) {
+        return []
+      }
+      return [imageViewerFile.value]
+    })
 
     function openFilePicker() {
       fileInput.value?.click()
@@ -197,9 +231,35 @@ export default {
     }
 
     function openImagePreview(file) {
-      imageViewerSrc.value = file.previewUrl || getAgreementFileSource(file)
-      imageViewerAlt.value = file.name || 'Файл'
+      imageViewerFile.value = file
       imageViewerOpen.value = true
+    }
+
+    function closeImageViewer() {
+      imageViewerOpen.value = false
+      imageViewerFile.value = null
+    }
+
+    function hasFileComment(file) {
+      return Boolean(String(file?.comment || '').trim())
+    }
+
+    function fileCommentLabel(file) {
+      const text = String(file?.comment || '').trim()
+      if (!text) {
+        return 'Добавить комментарий'
+      }
+      return text.length > 42 ? `${text.slice(0, 42)}…` : text
+    }
+
+    function openCommentSheet(file) {
+      commentFile.value = file
+      commentSheetOpen.value = true
+    }
+
+    function closeCommentSheet() {
+      commentSheetOpen.value = false
+      commentFile.value = null
     }
 
     function openTextPreview(file) {
@@ -236,8 +296,9 @@ export default {
     return {
       fileInput,
       imageViewerOpen,
-      imageViewerSrc,
-      imageViewerAlt,
+      imageViewerPhotos,
+      commentSheetOpen,
+      commentFile,
       textPreviewOpen,
       textPreviewName,
       textPreviewContent,
@@ -245,6 +306,11 @@ export default {
       onFilesSelected,
       removeFile,
       openFilePreview,
+      closeImageViewer,
+      hasFileComment,
+      fileCommentLabel,
+      openCommentSheet,
+      closeCommentSheet,
       downloadTextPreview,
     }
   },

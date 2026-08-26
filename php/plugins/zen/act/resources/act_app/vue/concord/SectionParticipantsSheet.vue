@@ -1,20 +1,20 @@
 <template>
-  <template v-if="open">
-    <div class="concord-sheet-backdrop" @click="$emit('close')" />
-    <section
-      class="concord-sheet concord-section-participants-sheet"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="section-participants-title"
-    >
-      <div class="concord-sheet__handle" aria-hidden="true" />
-      <h2 id="section-participants-title" class="concord-sheet__title">Участники раздела</h2>
-      <p v-if="participantsCount" class="concord-section-participants-sheet__hint">
-        {{ participantsCountLabel }}
-      </p>
+  <Teleport to="body">
+    <template v-if="open">
+      <div class="concord-sheet-backdrop" @click="onMainBackdropClick" />
+      <section
+        class="concord-sheet concord-section-participants-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="section-participants-title"
+      >
+        <div class="concord-sheet__handle" aria-hidden="true" />
+        <h2 id="section-participants-title" class="concord-sheet__title">Участники раздела</h2>
+        <p v-if="participantsCount" class="concord-section-participants-sheet__hint">
+          {{ participantsCountLabel }}
+        </p>
 
-      <div class="concord-section-settings__participants">
-        <ul class="concord-section-settings__participant-list">
+        <ul v-if="selectedGroups.length || selectedContacts.length" class="concord-section-settings__participant-list">
           <li
             v-for="group in selectedGroups"
             :key="`group-${group.id}`"
@@ -66,86 +66,80 @@
           </li>
         </ul>
 
-        <div v-if="participantMenuOpen" class="concord-section-settings__participant-menu">
-          <button type="button" class="concord-section-settings__menu-btn concord-section-settings__menu-btn--primary" @click="openContactPicker">
-            + Добавить
+        <p v-else class="concord-section-participants-sheet__empty">
+          Пока никого не добавлено
+        </p>
+
+        <div class="concord-section-participants-sheet__add-actions">
+          <button
+            type="button"
+            class="concord-section-participants-sheet__add-btn concord-section-participants-sheet__add-btn--primary"
+            @click="openContactPicker"
+          >
+            Добавить участника
           </button>
-          <button type="button" class="concord-section-settings__menu-btn" @click="openGroupPicker">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
-              <circle cx="8" cy="9" r="2.5" stroke="currentColor" stroke-width="1.4"/>
-              <circle cx="16" cy="9" r="2.5" stroke="currentColor" stroke-width="1.4"/>
-              <path d="M4.5 18c.4-2.2 1.8-3.5 3.5-3.5S11.1 15.8 11.5 18M12.5 18c.4-2.2 1.8-3.5 3.5-3.5S19.1 15.8 19.5 18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-            </svg>
-            Выбрать группу
+          <button
+            type="button"
+            class="concord-section-participants-sheet__add-btn"
+            @click="openGroupPicker"
+          >
+            Добавить группу
           </button>
         </div>
 
         <button
-          v-else
           type="button"
-          class="concord-section-settings__participant-add"
-          aria-label="Добавить участника"
-          @click="participantMenuOpen = true"
+          class="concord-section-participants-sheet__settings-link"
+          @click="$emit('open-settings')"
         >
-          <span aria-hidden="true">+</span>
+          Подробные настройки раздела
         </button>
-      </div>
 
-      <button
-        type="button"
-        class="concord-section-participants-sheet__settings-link"
-        @click="$emit('open-settings')"
-      >
-        Подробные настройки раздела
-      </button>
-
-      <div class="concord-create-sheet__actions">
-        <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--cancel" @click="$emit('close')">
-          Отмена
-        </button>
-        <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--save" @click="save">
-          Сохранить
-        </button>
-      </div>
-    </section>
-
-    <template v-if="contactPickerOpen">
-      <div class="concord-sheet-backdrop" @click="closeContactPicker" />
-      <div class="concord-sheet concord-section-settings__picker" role="dialog" aria-label="Добавить участников">
-        <div class="concord-sheet__handle" aria-hidden="true" />
-        <div class="concord-section-settings__picker-head">
-          <h2 class="concord-sheet__title concord-section-settings__picker-title">Участники</h2>
-          <button
-            type="button"
-            class="concord-section-settings__select-all"
-            :disabled="!filteredContacts.length"
-            @click="toggleSelectAllContacts"
-          >
-            {{ allFilteredContactsSelected ? 'Снять выделение' : 'Выделить всех' }}
-          </button>
-        </div>
-        <ContactCheckboxList
-          :contacts="filteredContacts"
-          :selected-ids="pickerParticipantIds"
-          :search-query="contactSearchQuery"
-          @update:selected-ids="pickerParticipantIds = $event"
-          @update:search-query="contactSearchQuery = $event"
-        />
         <div class="concord-create-sheet__actions">
-          <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--cancel" @click="closeContactPicker">
-            Отмена
-          </button>
-          <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--save" @click="applyContactPicker">
-            Добавить
+          <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--save" @click="closeSheet">
+            Готово
           </button>
         </div>
-      </div>
+      </section>
+
+      <template v-if="contactPickerOpen">
+        <div class="concord-sheet-backdrop concord-sheet-backdrop--nested" @click="closeContactPicker" />
+        <div class="concord-sheet concord-section-settings__picker" role="dialog" aria-label="Добавить участников">
+          <div class="concord-sheet__handle" aria-hidden="true" />
+          <div class="concord-section-settings__picker-head">
+            <h2 class="concord-sheet__title concord-section-settings__picker-title">Выберите участников</h2>
+            <button
+              type="button"
+              class="concord-section-settings__select-all"
+              :disabled="!filteredContacts.length"
+              @click="toggleSelectAllContacts"
+            >
+              {{ allFilteredContactsSelected ? 'Снять выделение' : 'Выделить всех' }}
+            </button>
+          </div>
+          <ContactCheckboxList
+            :contacts="filteredContacts"
+            :selected-ids="pickerParticipantIds"
+            :search-query="contactSearchQuery"
+            @update:selected-ids="pickerParticipantIds = $event"
+            @update:search-query="contactSearchQuery = $event"
+          />
+          <div class="concord-create-sheet__actions">
+            <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--cancel" @click="closeContactPicker">
+              Отмена
+            </button>
+            <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--save" @click="applyContactPicker">
+              Добавить
+            </button>
+          </div>
+        </div>
+      </template>
     </template>
-  </template>
+  </Teleport>
 </template>
 
 <script>
-import { computed, defineExpose, ref, watch } from 'vue'
+import { computed, defineExpose, onBeforeUnmount, ref, watch } from 'vue'
 import ContactCheckboxList from './ContactCheckboxList.vue'
 import {
   collectSelectedGroupMemberIds,
@@ -175,6 +169,8 @@ function createFormFromSection(section, groups) {
   }
 }
 
+const AUTOSAVE_MS = 350
+
 export default {
   name: 'SectionParticipantsSheet',
   components: { ContactCheckboxList },
@@ -187,14 +183,16 @@ export default {
   emits: ['close', 'save', 'pick-groups', 'open-settings'],
   setup(props, { emit }) {
     const form = ref({ participantIds: [], groupIds: [] })
-    const participantMenuOpen = ref(false)
     const contactPickerOpen = ref(false)
     const contactSearchQuery = ref('')
     const pickerParticipantIds = ref([])
+    let syncingFromSection = false
+    let autosaveTimer = null
 
     function resetForm() {
+      syncingFromSection = true
       form.value = createFormFromSection(props.section, props.groups)
-      participantMenuOpen.value = false
+      syncingFromSection = false
       contactPickerOpen.value = false
       contactSearchQuery.value = ''
     }
@@ -256,7 +254,6 @@ export default {
     }
 
     function openContactPicker() {
-      participantMenuOpen.value = false
       pickerParticipantIds.value = [...form.value.participantIds]
       contactSearchQuery.value = ''
       contactPickerOpen.value = true
@@ -264,6 +261,14 @@ export default {
 
     function closeContactPicker() {
       contactPickerOpen.value = false
+    }
+
+    function onMainBackdropClick() {
+      if (contactPickerOpen.value) {
+        closeContactPicker()
+        return
+      }
+      closeSheet()
     }
 
     function applyContactPicker() {
@@ -289,26 +294,50 @@ export default {
         form.value.participantIds,
         form.value.groupIds
       )
-      participantMenuOpen.value = false
     }
 
     function openGroupPicker() {
-      participantMenuOpen.value = false
       emit('pick-groups', [...form.value.groupIds])
     }
 
-    function save() {
+    function applyChanges() {
       emit('save', {
         participantIds: pruneParticipantsCoveredByGroups(form.value.participantIds),
         groupIds: [...form.value.groupIds],
       })
     }
 
+    function scheduleAutosave() {
+      if (syncingFromSection || !props.open) {
+        return
+      }
+      clearTimeout(autosaveTimer)
+      autosaveTimer = setTimeout(() => {
+        autosaveTimer = null
+        applyChanges()
+      }, AUTOSAVE_MS)
+    }
+
+    watch(form, scheduleAutosave, { deep: true })
+
+    onBeforeUnmount(() => {
+      clearTimeout(autosaveTimer)
+      if (props.open) {
+        applyChanges()
+      }
+    })
+
+    function closeSheet() {
+      clearTimeout(autosaveTimer)
+      autosaveTimer = null
+      applyChanges()
+      emit('close')
+    }
+
     defineExpose({ applyGroupSelection })
 
     return {
       form,
-      participantMenuOpen,
       contactPickerOpen,
       contactSearchQuery,
       pickerParticipantIds,
@@ -323,10 +352,11 @@ export default {
       removeGroup,
       openContactPicker,
       closeContactPicker,
+      onMainBackdropClick,
       applyContactPicker,
       toggleSelectAllContacts,
       openGroupPicker,
-      save,
+      closeSheet,
     }
   },
 }

@@ -1,6 +1,6 @@
 <template>
   <template v-if="open">
-    <div class="concord-sheet-backdrop" @click="$emit('close')" />
+    <div class="concord-sheet-backdrop" @click="closeSheet" />
     <section class="concord-sheet concord-section-schedule-sheet" role="dialog" aria-modal="true" aria-labelledby="section-schedule-title">
       <div class="concord-sheet__handle" aria-hidden="true" />
       <h2 id="section-schedule-title" class="concord-sheet__title">Сроки раздела</h2>
@@ -28,16 +28,8 @@
       </p>
 
       <div class="concord-create-sheet__actions">
-        <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--cancel" @click="$emit('close')">
-          Отмена
-        </button>
-        <button
-          type="button"
-          class="concord-create-sheet__btn concord-create-sheet__btn--save"
-          :disabled="hasInvalidRange"
-          @click="save"
-        >
-          Сохранить
+        <button type="button" class="concord-create-sheet__btn concord-create-sheet__btn--save" @click="closeSheet">
+          Готово
         </button>
       </div>
     </section>
@@ -45,13 +37,15 @@
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import {
   combineRuDateTime,
   formatIsoDateToRu,
   formatRuDateTimeToFormParts,
 } from './mock-agreements.js'
 import { sectionScheduleHasInvalidRange } from './agreement-form-utils.js'
+
+const AUTOSAVE_MS = 350
 
 function toRuDateTime(date, time) {
   return date ? combineRuDateTime(formatIsoDateToRu(date), time) : ''
@@ -67,8 +61,11 @@ export default {
   emits: ['close', 'save'],
   setup(props, { emit }) {
     const form = ref({})
+    let syncingFromSection = false
+    let autosaveTimer = null
 
     function resetForm() {
+      syncingFromSection = true
       const start = formatRuDateTimeToFormParts(props.section?.startDate || '')
       const end = formatRuDateTimeToFormParts(props.section?.deadline || '')
       form.value = {
@@ -77,9 +74,15 @@ export default {
         endDate: end.date,
         endTime: end.time,
       }
+      syncingFromSection = false
     }
 
-    watch(() => [props.open, props.section], resetForm, { immediate: true })
+    watch(() => [props.open, props.section?.id, props.section?.startDate, props.section?.deadline], () => {
+      if (!props.open) {
+        return
+      }
+      resetForm()
+    }, { immediate: true })
 
     const agreementPeriod = computed(() => ({
       start: formatRuDateTimeToFormParts(props.agreement?.startDate || ''),
@@ -106,13 +109,44 @@ export default {
       sectionScheduleHasInvalidRange(form.value, agreementPeriod.value)
     )
 
-    function save() {
-      if (hasInvalidRange.value) return
-      emit('save', {
+    function buildPayload() {
+      return {
         startDate: toRuDateTime(form.value.startDate, form.value.startTime),
         deadline: toRuDateTime(form.value.endDate, form.value.endTime),
-      })
+      }
     }
+
+    function applyChanges() {
+      if (hasInvalidRange.value) {
+        return false
+      }
+      emit('save', buildPayload())
+      return true
+    }
+
+    function scheduleAutosave() {
+      if (syncingFromSection || !props.open) {
+        return
+      }
+      clearTimeout(autosaveTimer)
+      autosaveTimer = setTimeout(() => {
+        autosaveTimer = null
+        applyChanges()
+      }, AUTOSAVE_MS)
+    }
+
+    watch(form, scheduleAutosave, { deep: true })
+
+    function closeSheet() {
+      clearTimeout(autosaveTimer)
+      autosaveTimer = null
+      applyChanges()
+      emit('close')
+    }
+
+    onBeforeUnmount(() => {
+      clearTimeout(autosaveTimer)
+    })
 
     return {
       form,
@@ -126,7 +160,7 @@ export default {
       endTimeMin,
       endTimeMax,
       hasInvalidRange,
-      save,
+      closeSheet,
     }
   },
 }

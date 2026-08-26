@@ -48,6 +48,7 @@ import {
   resolveSectionVotersCount,
   sectionHasConfiguredParticipants,
 } from './mock-groups.js'
+import { agreementHasRemarks, isAgreementFullyApproved } from './agreement-results-utils.js'
 
 function highlightParts(value, query) {
   const text = String(value || '')
@@ -123,10 +124,14 @@ function progressFor(agreement, groups, contacts) {
   if (!metrics.total) {
     return 0
   }
-  if (agreement.isOwner && agreement.status === 'approved') {
-    return 100
-  }
-  if (agreement.status === 'approved' || agreement.status === 'completed') {
+  if (
+    agreement.status === 'approved'
+    || agreement.status === 'completed'
+    || isAgreementFullyApproved(agreement, groups, contacts)
+    || (!agreement.isOwner && agreement.mySectionApproved)
+    || (!agreement.isOwner && agreement.mySectionRejected)
+    || (agreement.isOwner && agreementHasRemarks(agreement, groups, contacts))
+  ) {
     return 100
   }
   return Math.min(100, Math.round((metrics.voted / metrics.total) * 100))
@@ -164,7 +169,20 @@ export default {
       if (this.agreement.status === 'draft') {
         return 'Черновик'
       }
-      if (this.agreement.status === 'approved' || this.agreement.status === 'completed') {
+      if (!this.agreement.isOwner && this.agreement.mySectionApproved) {
+        return 'Согласовано мной'
+      }
+      if (!this.agreement.isOwner && this.agreement.mySectionRejected) {
+        return 'Отклонено мной'
+      }
+      if (
+        this.agreement.status === 'approved'
+        || this.agreement.status === 'completed'
+        || isAgreementFullyApproved(this.agreement, this.groups, this.contacts)
+      ) {
+        return 'Согласовано'
+      }
+      if (this.agreement.isOwner && agreementHasRemarks(this.agreement, this.groups, this.contacts)) {
         return 'Согласовано'
       }
       return this.agreement.isOwner ? 'Создано мной' : 'Ждёт решения'
@@ -188,10 +206,15 @@ export default {
       if (this.agreement.status === 'draft' || !this.agreement.createdAt) {
         return 'draft'
       }
+      if (!this.agreement.isOwner && this.agreement.mySectionRejected) {
+        return 'rejected'
+      }
       if (
-        (this.agreement.isOwner && this.agreement.status === 'approved')
-        || this.agreement.status === 'approved'
+        this.agreement.status === 'approved'
         || this.agreement.status === 'completed'
+        || isAgreementFullyApproved(this.agreement, this.groups, this.contacts)
+        || (!this.agreement.isOwner && this.agreement.mySectionApproved)
+        || (this.agreement.isOwner && agreementHasRemarks(this.agreement, this.groups, this.contacts))
       ) {
         return 'done'
       }

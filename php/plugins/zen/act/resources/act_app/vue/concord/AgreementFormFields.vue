@@ -38,7 +38,7 @@
                 v-model="form.startDate"
                 class="concord-agreement-form__input"
                 type="date"
-                :min="today"
+                :min="enforceMinDate ? today : undefined"
                 :max="startDateMax"
               >
               <input
@@ -56,7 +56,7 @@
                 v-model="form.endDate"
                 class="concord-agreement-form__input"
                 type="date"
-                :min="endDateMin"
+                :min="enforceMinDate ? endDateMin : undefined"
               >
               <input
                 v-model="form.endTime"
@@ -68,6 +68,9 @@
 
           <p v-if="dateError" class="concord-agreement-form__hint concord-agreement-form__hint--error">
             {{ dateError }}
+          </p>
+          <p v-else-if="dateWarning" class="concord-agreement-form__hint concord-agreement-form__hint--warning">
+            {{ dateWarning }}
           </p>
         </div>
       </div>
@@ -90,7 +93,8 @@
 <script>
 import { computed } from 'vue'
 import {
-  getAgreementFormDateError,
+  getAgreementFormPastDateError,
+  getAgreementFormStructuralDateError,
   getTodayIsoDate,
 } from './agreement-form-utils.js'
 
@@ -101,10 +105,30 @@ export default {
       type: Object,
       required: true,
     },
+    allowPastDates: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props) {
     const today = getTodayIsoDate()
-    const dateError = computed(() => getAgreementFormDateError(props.form, today))
+    const enforceMinDate = computed(() => !props.allowPastDates)
+    const dateError = computed(() => {
+      const structuralError = getAgreementFormStructuralDateError(props.form)
+      if (structuralError) {
+        return structuralError
+      }
+      if (!props.allowPastDates) {
+        return getAgreementFormPastDateError(props.form, today)
+      }
+      return ''
+    })
+    const dateWarning = computed(() => {
+      if (!props.allowPastDates) {
+        return ''
+      }
+      return getAgreementFormPastDateError(props.form, today)
+    })
     const startDateMax = computed(() => (
       props.form.endDate >= today ? props.form.endDate : undefined
     ))
@@ -114,7 +138,9 @@ export default {
 
     return {
       today,
+      enforceMinDate,
       dateError,
+      dateWarning,
       startDateMax,
       endDateMin,
     }

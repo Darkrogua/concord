@@ -443,7 +443,7 @@
 </template>
 
 <script>
-import { computed, defineExpose, onMounted, reactive, ref, watch } from 'vue'
+import { computed, defineExpose, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import ContactCheckboxList from '../concord/ContactCheckboxList.vue'
 import ConcordConfirmSheet from '../concord/ConcordConfirmSheet.vue'
 import ConcordGroupHeaderActions from '../concord/ConcordGroupHeaderActions.vue'
@@ -463,6 +463,8 @@ import {
 } from '../concord/mock-groups.js'
 import { resetConcordScrollPosition } from '../concord/scroll-top.js'
 import { sectionScheduleHasInvalidRange } from '../concord/agreement-form-utils.js'
+
+const AUTOSAVE_MS = 350
 
 function cloneSettings(settings = DEFAULT_SECTION_SETTINGS) {
   return {
@@ -520,6 +522,8 @@ export default {
     const contactSearchQuery = ref('')
     const pickerParticipantIds = ref([])
     const deleteConfirmOpen = ref(false)
+    let syncingFromSection = false
+    let autosaveTimer = null
 
     onMounted(() => {
       resetConcordScrollPosition()
@@ -529,7 +533,9 @@ export default {
     watch(
       () => props.section,
       (section) => {
+        syncingFromSection = true
         form.value = createFormFromSection(section)
+        syncingFromSection = false
       }
     )
 
@@ -763,10 +769,10 @@ export default {
       return JSON.stringify(next) !== JSON.stringify(getSectionPayload(props.section))
     }
 
-    function save() {
+    function applyChanges() {
       const payload = getSavePayload()
       if (!payload) {
-        return
+        return false
       }
       form.value.participantIds = payload.participantIds
       emit('save', {
@@ -778,6 +784,33 @@ export default {
         deadline: payload.deadline,
         settings: payload.settings,
       })
+      return true
+    }
+
+    function scheduleAutosave() {
+      if (syncingFromSection) {
+        return
+      }
+      clearTimeout(autosaveTimer)
+      autosaveTimer = setTimeout(() => {
+        autosaveTimer = null
+        applyChanges()
+      }, AUTOSAVE_MS)
+    }
+
+    watch(form, scheduleAutosave, { deep: true })
+
+    onBeforeUnmount(() => {
+      clearTimeout(autosaveTimer)
+      applyChanges()
+    })
+
+    function save() {
+      clearTimeout(autosaveTimer)
+      autosaveTimer = null
+      if (!applyChanges()) {
+        return
+      }
       emit('back')
     }
 

@@ -62,7 +62,7 @@
   <SectionParticipantsSheet
     v-if="sectionParticipantsOpen && participantsSection"
     ref="sectionParticipantsRef"
-    :open="sectionParticipantsOpen"
+    :open="sectionParticipantsOpen && !sectionGroupPickerOpen && !sectionGroupCreateOpen && !sectionGroupMembersOpen"
     :section="participantsSection"
     :contacts="contacts"
     :groups="groups"
@@ -172,6 +172,15 @@
       ref="editorMainRef"
       class="concord-agreement-editor"
     >
+      <AgreementResultsSummary
+        v-if="showResultsSummary"
+        class="concord-agreement-editor__results"
+        :agreement="agreement"
+        :groups="groups"
+        :contacts="contacts"
+        @view-reason="openResultsReason"
+      />
+
       <section v-if="showDraftIntro" class="concord-agreement-editor__intro-section">
         <div class="concord-agreement-editor__panel">
             <div v-if="agreement.description" class="concord-agreement-editor__description-wrap">
@@ -240,7 +249,9 @@
             >
               <template #preview="{ block }">
                 <template v-if="block.type === 'text'">
-                  <p class="concord-editor-block__text-title">{{ getTextBlockPreviewTitle(block) }}</p>
+                  <p v-if="getTextBlockPreviewTitle(block)" class="concord-editor-block__text-title">
+                    {{ getTextBlockPreviewTitle(block) }}
+                  </p>
                   <p v-if="getTextBlockPreviewExcerpt(block)" class="concord-editor-block__text-excerpt">
                     {{ getTextBlockPreviewExcerpt(block) }}
                   </p>
@@ -384,6 +395,12 @@
       @dismiss="dismissSectionSetupConfirm"
     />
   </Teleport>
+
+  <ConcordReasonViewModal
+    :open="resultsReasonOpen"
+    :reason="resultsReasonText"
+    @close="closeResultsReason"
+  />
   </div>
 </template>
 
@@ -398,6 +415,8 @@ import {
   isLaunchedAgreement,
   setAgreementEditBaseline,
 } from '../concord/mock-agreements.js'
+import { isAgreementVotingComplete } from '../concord/agreement-results-utils.js'
+import AgreementResultsSummary from '../concord/AgreementResultsSummary.vue'
 import AgreementContainerCard from '../concord/AgreementContainerCard.vue'
 import BlockAddZone from '../concord/BlockAddZone.vue'
 import ConcordGalleryBlockCard from '../concord/ConcordGalleryBlockCard.vue'
@@ -423,6 +442,7 @@ import ConcordPageHeader from '../concord/ConcordPageHeader.vue'
 import ConcordPlusIcon from '../concord/ConcordPlusIcon.vue'
 import SectionScheduleSheet from '../concord/SectionScheduleSheet.vue'
 import SectionParticipantsSheet from '../concord/SectionParticipantsSheet.vue'
+import ConcordReasonViewModal from '../concord/ConcordReasonViewModal.vue'
 import { resetConcordScrollPosition } from '../concord/scroll-top.js'
 
 export default {
@@ -430,6 +450,7 @@ export default {
   components: {
     AgreementContainerCard,
     AgreementApproverView,
+    AgreementResultsSummary,
     AgreementSettingsView,
     BlockAddZone,
     ConcordLinksBlockCard,
@@ -447,6 +468,7 @@ export default {
     ConcordConfirmSheet,
     ConcordPageHeader,
     ConcordPlusIcon,
+    ConcordReasonViewModal,
   },
   props: {
     agreement: {
@@ -514,6 +536,8 @@ export default {
     const blockDeleteConfirmOpen = ref(false)
     const pendingBlockDelete = ref(null)
     const sectionSetupConfirmOpen = ref(false)
+    const resultsReasonOpen = ref(false)
+    const resultsReasonText = ref('')
     const previousSectionForSetup = ref(null)
     const editorReady = ref(false)
     const editsTrackingEnabled = ref(false)
@@ -567,6 +591,16 @@ export default {
 
     const isDraft = computed(() => props.agreement?.status === 'draft')
 
+    const showResultsSummary = computed(() => {
+      if (!props.agreement?.isOwner) {
+        return false
+      }
+      if (['approved', 'completed'].includes(props.agreement?.status)) {
+        return true
+      }
+      return isAgreementVotingComplete(props.agreement, props.groups, props.contacts)
+    })
+
     const firstSectionId = computed(() => props.agreement?.sections?.[0]?.id || null)
 
     const activeSection = computed(() =>
@@ -593,7 +627,12 @@ export default {
 
     const showSectionTabs = computed(() => sectionCount.value > 1)
 
-    const showNewContainer = computed(() => hasAnySectionWithBlocks.value || sectionCount.value !== 1)
+    const showNewContainer = computed(() => {
+      if (isLaunchedAgreement(props.agreement)) {
+        return false
+      }
+      return hasAnySectionWithBlocks.value || sectionCount.value !== 1
+    })
 
     const canLaunch = computed(() => {
       const status = props.agreement?.status
@@ -990,6 +1029,19 @@ export default {
       emit('request-leave')
     }
 
+    function openResultsReason(reason) {
+      resultsReasonText.value = String(reason || '').trim()
+      if (!resultsReasonText.value) {
+        return
+      }
+      resultsReasonOpen.value = true
+    }
+
+    function closeResultsReason() {
+      resultsReasonOpen.value = false
+      resultsReasonText.value = ''
+    }
+
     function launchAgreement() {
       emit('launch')
     }
@@ -1139,10 +1191,16 @@ export default {
       if (!scheduleSection.value) {
         return
       }
-      scheduleSection.value.startDate = payload.startDate
-      scheduleSection.value.deadline = payload.deadline
-      emit('update-agreement')
-      closeSectionSchedule()
+      emit('update-section', {
+        sectionId: scheduleSection.value.id,
+        title: scheduleSection.value.title,
+        participantIds: scheduleSection.value.participantIds || [],
+        groupIds: scheduleSection.value.groupIds || [],
+        leaderId: scheduleSection.value.leaderId,
+        startDate: payload.startDate,
+        deadline: payload.deadline,
+        settings: scheduleSection.value.settings,
+      })
       notifyEdited()
     }
 
@@ -1170,7 +1228,6 @@ export default {
         deadline: participantsSection.value.deadline,
         settings: participantsSection.value.settings,
       })
-      closeSectionParticipants()
       notifyEdited()
     }
 
@@ -1407,6 +1464,7 @@ export default {
       editorHeaderVisible,
       editorPageStyle,
       isDraft,
+      showResultsSummary,
       showDraftIntro,
       showSectionTabs,
       showNewContainer,
@@ -1438,6 +1496,10 @@ export default {
       textEditorOpen,
       editingTextBlock,
       goBack,
+      openResultsReason,
+      closeResultsReason,
+      resultsReasonOpen,
+      resultsReasonText,
       openAgreementSettings,
       closeAgreementSettings,
       onAgreementSettingsSave,

@@ -25,6 +25,19 @@ export const MOCK_CONTACTS = [
   { id: 'sergey-gordienko', shortName: 'С. Гордиенко', name: 'Сергей Гордиенко', initial: 'С', email: 'sergey.g@example.ru' },
   { id: 'ivan-petrov', shortName: 'И. Петров', name: 'Иван Петров', initial: 'И', email: 'ivan.petrov@example.ru' },
   { id: 'elena-smirnova', shortName: 'Е. Смирнова', name: 'Елена Смирнова', initial: 'Е', email: 'elena.s@example.ru' },
+  { id: 'anna-kuznetsova', shortName: 'А. Кузнецова', name: 'Анна Кузнецова', initial: 'А', email: 'anna.k@example.ru' },
+  { id: 'dmitry-orlov', shortName: 'Д. Орлов', name: 'Дмитрий Орлов', initial: 'Д', email: 'dmitry.o@example.ru' },
+  { id: 'olga-novikova', shortName: 'О. Новикова', name: 'Ольга Новикова', initial: 'О', email: 'olga.n@example.ru' },
+  { id: 'pavel-sokolov', shortName: 'П. Соколов', name: 'Павел Соколов', initial: 'П', email: 'pavel.s@example.ru' },
+  { id: 'natalya-fedorova', shortName: 'Н. Фёдорова', name: 'Наталья Фёдорова', initial: 'Н', email: 'natalya.f@example.ru' },
+  { id: 'andrey-volkov', shortName: 'А. Волков', name: 'Андрей Волков', initial: 'А', email: 'andrey.v@example.ru' },
+  { id: 'kristina-lebedeva', shortName: 'К. Лебедева', name: 'Кристина Лебедева', initial: 'К', email: 'kristina.l@example.ru' },
+  { id: 'mikhail-popov', shortName: 'М. Попов', name: 'Михаил Попов', initial: 'М', email: 'mikhail.p@example.ru' },
+  { id: 'yulia-kozlova', shortName: 'Ю. Козлова', name: 'Юлия Козлова', initial: 'Ю', email: 'yulia.k@example.ru' },
+  { id: 'viktor-egorov', shortName: 'В. Егоров', name: 'Виктор Егоров', initial: 'В', email: 'viktor.e@example.ru' },
+  { id: 'tatyana-morozova', shortName: 'Т. Морозова', name: 'Татьяна Морозова', initial: 'Т', email: 'tatyana.m@example.ru' },
+  { id: 'denis-shevchenko', shortName: 'Д. Шевченко', name: 'Денис Шевченко', initial: 'Д', email: 'denis.sh@example.ru' },
+  { id: 'konstantin-belov', shortName: 'К. Белов', name: 'Константин Белов', initial: 'К', email: 'konstantin.b@example.ru' },
 ]
 
 const DEV_MEMBER_IDS = [

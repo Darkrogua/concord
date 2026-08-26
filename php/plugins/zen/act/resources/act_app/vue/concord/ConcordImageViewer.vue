@@ -2,7 +2,8 @@
   <template v-if="open">
     <div
       class="concord-image-viewer"
-      @click="$emit('close')"
+      :class="{ 'concord-image-viewer--caption-editable': captionEditable }"
+      @click="onBackdropClick"
       @touchstart.passive="onTouchStart"
       @touchend.passive="onTouchEnd"
     >
@@ -46,7 +47,26 @@
       <p v-if="hasMultiple" class="concord-image-viewer__counter">
         {{ currentIndex + 1 }} / {{ galleryPhotos.length }}
       </p>
-      <p v-if="currentCaption" class="concord-image-viewer__caption">{{ currentCaption }}</p>
+
+      <div
+        v-if="captionEditable && currentPhoto"
+        class="concord-image-viewer__caption-panel"
+        @click.stop
+      >
+        <label class="concord-image-viewer__caption-label" :for="captionInputId">Подпись</label>
+        <textarea
+          :id="captionInputId"
+          v-model="currentPhoto.comment"
+          class="concord-image-viewer__caption-input"
+          rows="2"
+          maxlength="500"
+          placeholder="Добавьте подпись к фото…"
+          @click.stop
+          @focus="captionFocused = true"
+          @blur="captionFocused = false"
+        />
+      </div>
+      <p v-else-if="currentCaption" class="concord-image-viewer__caption">{{ currentCaption }}</p>
     </div>
   </template>
 </template>
@@ -77,11 +97,17 @@ export default {
       type: Number,
       default: 0,
     },
+    captionEditable: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['close'],
-  setup(props) {
+  setup(props, { emit }) {
     const currentIndex = ref(0)
     const touchStartX = ref(0)
+    const captionFocused = ref(false)
+    const captionInputId = `concord-image-caption-${Math.random().toString(36).slice(2, 8)}`
 
     const galleryPhotos = computed(() =>
       props.photos.filter((photo) => photo?.previewUrl)
@@ -93,7 +119,7 @@ export default {
       if (galleryPhotos.value.length) {
         return galleryPhotos.value[currentIndex.value] || galleryPhotos.value[0]
       }
-      return { previewUrl: props.src, name: props.alt }
+      return null
     })
 
     const currentSrc = computed(() => currentPhoto.value?.previewUrl || props.src)
@@ -134,7 +160,7 @@ export default {
     }
 
     function onTouchEnd(event) {
-      if (!hasMultiple.value) {
+      if (!hasMultiple.value || captionFocused.value) {
         return
       }
       const endX = event.changedTouches?.[0]?.clientX || 0
@@ -149,17 +175,28 @@ export default {
       showNext()
     }
 
+    function onBackdropClick() {
+      if (captionFocused.value) {
+        return
+      }
+      emit('close')
+    }
+
     return {
       galleryPhotos,
       hasMultiple,
       currentIndex,
+      currentPhoto,
       currentSrc,
       currentAlt,
       currentCaption,
+      captionFocused,
+      captionInputId,
       showPrev,
       showNext,
       onTouchStart,
       onTouchEnd,
+      onBackdropClick,
     }
   },
 }

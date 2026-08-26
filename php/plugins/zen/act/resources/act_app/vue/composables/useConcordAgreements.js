@@ -1,7 +1,9 @@
 import { ref, watch } from 'vue'
 import { MOCK_AGREEMENTS, ensureAgreementSections } from '../concord/mock-agreements.js'
+import { syncSectionVotingStatsFromVotes } from '../concord/agreement-results-utils.js'
 
-const STORAGE_KEY = 'concord_agreements_v14'
+const STORAGE_KEY = 'concord_agreements_v16'
+const PERSIST_DEBOUNCE_MS = 350
 
 const bundledPhotoPreviews = new Map()
 for (const agreement of MOCK_AGREEMENTS) {
@@ -58,12 +60,25 @@ function stripHeavyBlockContent(block) {
   }
 }
 
-function serializeAgreementsForStorage(agreements) {
+function serializeBlockForStorage(block, { omitBodies = false } = {}) {
+  if (omitBodies) {
+    return {
+      id: block.id,
+      type: block.type,
+      label: block.label,
+      title: block.title,
+    }
+  }
+  return stripHeavyBlockContent(block)
+}
+
+function serializeAgreementsForStorage(agreements, options = {}) {
+  const omitBodies = options.omitBodies === true
   return agreements.map((agreement) => ({
     ...agreement,
     sections: (agreement.sections || []).map((section) => ({
       ...section,
-      blocks: (section.blocks || []).map(stripHeavyBlockContent),
+      blocks: (section.blocks || []).map((block) => serializeBlockForStorage(block, { omitBodies })),
     })),
   }))
 }
@@ -84,6 +99,11 @@ function normalizeLoadedAgreements(items) {
   return items.map((item) => {
     const agreement = cloneAgreement(item)
     ensureAgreementSections(agreement)
+    for (const section of agreement.sections || []) {
+      if ((section.votes || []).some((vote) => vote?.participantId)) {
+        syncSectionVotingStatsFromVotes(section)
+      }
+    }
     restoreBundledPhotoPreviews(agreement)
     return agreement
   })
@@ -115,10 +135,28 @@ function scheduleLeanStorageRewrite(agreements) {
 }
 
 function persistAgreements(agreements) {
+  if (typeof localStorage === 'undefined') {
+    return true
+  }
+
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeAgreementsForStorage(agreements)))
-  } catch {
-    // ignore quota / private mode errors in preview
+    return true
+  } catch (error) {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(serializeAgreementsForStorage(agreements, { omitBodies: true }))
+      )
+      console.warn(
+        '[concord] Черновик сохранён без содержимого блоков: localStorage переполнен.',
+        error
+      )
+      return true
+    } catch (fallbackError) {
+      console.warn('[concord] Не удалось сохранить черновик в localStorage.', fallbackError)
+      return false
+    }
   }
 }
 
@@ -142,14 +180,14 @@ export function useConcordAgreements() {
   function flushPersist() {
     clearTimeout(persistTimer)
     persistTimer = null
-    persistAgreements(agreements.value)
+    return persistAgreements(agreements.value)
   }
 
   function persist() {
-    flushPersist()
+    return flushPersist()
   }
 
-  function schedulePersist(delay = 400) {
+  function schedulePersist(delay = PERSIST_DEBOUNCE_MS) {
     clearTimeout(persistTimer)
     persistTimer = setTimeout(() => {
       persistTimer = null
@@ -158,9 +196,9 @@ export function useConcordAgreements() {
   }
 
   watch(
-    () => agreements.value,
+    agreements,
     () => {
-      schedulePersist(1200)
+      schedulePersist(PERSIST_DEBOUNCE_MS)
     },
     { deep: true }
   )
@@ -168,6 +206,11 @@ export function useConcordAgreements() {
   if (typeof window !== 'undefined') {
     window.addEventListener('beforeunload', flushPersist)
     window.addEventListener('pagehide', flushPersist)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        flushPersist()
+      }
+    })
   }
 
   return { agreements, loading, persist, flushPersist, schedulePersist }

@@ -465,6 +465,8 @@ export function formatStatusFilterLabel(status, match = 'is') {
  * @property {string} [approvedAt]
  * @property {boolean} [mySectionApproved]
  * @property {string} [mySectionApprovedAt]
+ * @property {boolean} [mySectionRejected]
+ * @property {string} [mySectionRejectedAt]
  */
 
 export const AGREEMENT_BLOCK_TYPES = [
@@ -1008,11 +1010,344 @@ const DEMO_DIAGRAM_PHOTOS = [
 ]
 
 function cloneDemoPhotos(photos) {
-  return photos.map((photo) => ({ ...photo }))
+  return photos.map((photo) => ({ ...photo, comment: photo.comment || '' }))
+}
+
+const RESULTS_DEMO_SECTION_1_IDS = [
+  'artem-dmitrenko',
+  'elena-vasilyeva',
+  'maria-gorbunova',
+  'roman-gorbachev',
+  'sergey-gordienko',
+  'ivan-petrov',
+  'elena-smirnova',
+  'anna-kuznetsova',
+  'dmitry-orlov',
+  'olga-novikova',
+]
+
+const RESULTS_DEMO_SECTION_2_IDS = [
+  'pavel-sokolov',
+  'natalya-fedorova',
+  'andrey-volkov',
+  'kristina-lebedeva',
+  'mikhail-popov',
+  'yulia-kozlova',
+  'viktor-egorov',
+  'tatyana-morozova',
+  'denis-shevchenko',
+  'konstantin-belov',
+]
+
+function buildDemoVotes(participantIds, decisionsById = {}, baseDate = '2026-08-20') {
+  return participantIds.map((participantId, index) => {
+    const decision = decisionsById[participantId] || 'approved'
+    const hour = 9 + Math.floor(index / 4)
+    const minute = (index * 11) % 60
+    return {
+      participantId,
+      decision,
+      reason: decision === 'rejected'
+        ? (decisionsById[`${participantId}__reason`] || 'Требуется доработка.')
+        : '',
+      votedAt: new Date(`${baseDate}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00.000Z`).toISOString(),
+    }
+  })
+}
+
+function syncDemoSectionVotes(section, participantIds, votes) {
+  section.participantIds = [...participantIds]
+  section.voterIds = [...participantIds]
+  section.votes = votes
+  section.total = participantIds.length
+  section.voted = votes.length
+  const approved = votes.filter((vote) => vote.decision === 'approved').length
+  const rejected = votes.filter((vote) => vote.decision === 'rejected').length
+  const pending = Math.max(participantIds.length - approved - rejected, 0)
+  section.votingStats = {
+    approved: participantIds.length ? Math.round((approved / participantIds.length) * 100) : 0,
+    rejected: participantIds.length ? Math.round((rejected / participantIds.length) * 100) : 0,
+    pending: participantIds.length ? Math.round((pending / participantIds.length) * 100) : 0,
+  }
+  return section
+}
+
+function createResultsDemoSection({
+  id,
+  title,
+  participantIds,
+  votes,
+  blocks,
+  deadline = '31.12.2026',
+}) {
+  const section = createDemoSection({
+    title,
+    isActive: false,
+    participantIds,
+    stats: { approved: 0, rejected: 0, pending: 100 },
+    settings: { showResultsBefore: true, showResultsAfter: true },
+    votes,
+    blocks,
+  })
+  section.id = id
+  section.deadline = deadline
+  syncDemoSectionVotes(section, participantIds, votes)
+  return section
+}
+
+function createCompletedResultsDemoAgreement() {
+  const designVotes = buildDemoVotes(RESULTS_DEMO_SECTION_1_IDS)
+  const devRejections = {
+    'pavel-sokolov': 'rejected',
+    'pavel-sokolov__reason': 'В спецификации API не описаны сценарии повторной отправки webhook при сбое. Без idempotency-ключей интеграция с 1С будет нестабильной.',
+    'konstantin-belov': 'rejected',
+    'konstantin-belov__reason': 'Нет требований к логированию и мониторингу: непонятно, как отслеживать ошибки синхронизации заказов в проде.',
+  }
+  const devVotes = buildDemoVotes(RESULTS_DEMO_SECTION_2_IDS, devRejections, '2026-08-21')
+
+  const designSection = createResultsDemoSection({
+    id: 'section-results-design',
+    title: 'Дизайн и UX',
+    participantIds: RESULTS_DEMO_SECTION_1_IDS,
+    votes: designVotes,
+    blocks: [
+      {
+        id: 'block-results-design-text',
+        type: 'text',
+        label: 'Текстовый блок',
+        title: 'Концепция интерфейса',
+        description: 'Цели релиза и ключевые пользовательские сценарии.',
+        content: 'Обновляем витрину и личный кабинет партнёра: единая сетка, контрастные CTA, адаптив от 360px. Согласовать визуальную концепцию, тексты на главной и сценарий оформления заказа.',
+      },
+      {
+        id: 'block-results-design-gallery',
+        type: 'gallery',
+        label: 'Галерея',
+        title: 'Макеты Figma',
+        photos: cloneDemoPhotos(DEMO_GALLERY_PHOTOS).map((photo, index) => ({
+          ...photo,
+          comment: index === 0
+            ? 'Главная — финальный вариант после ревью бренда'
+            : (index === 4 ? 'Мобильная версия каталога, проверить отступы' : ''),
+        })),
+      },
+      {
+        id: 'block-results-design-links',
+        type: 'link',
+        label: 'Ссылки',
+        title: 'Материалы',
+        links: [
+          { id: 'link-results-1', title: 'Figma — макеты релиза', url: 'https://figma.com/file/demo', description: 'Все экраны релиза 2, включая мобильные состояния.' },
+          { id: 'link-results-2', title: 'Брендбук VC app', url: 'https://example.com/brandbook', description: 'Цвета, типографика, компоненты.' },
+        ],
+      },
+    ],
+  })
+
+  const devSection = createResultsDemoSection({
+    id: 'section-results-dev',
+    title: 'Разработка и интеграции',
+    participantIds: RESULTS_DEMO_SECTION_2_IDS,
+    votes: devVotes,
+    blocks: [
+      {
+        id: 'block-results-dev-text',
+        type: 'text',
+        label: 'Текстовый блок',
+        title: 'Техническое задание',
+        description: 'Backend, API и интеграции.',
+        content: 'Реализовать REST API v2, очередь событий для 1С, миграцию истории заказов. SLA ответа API — 300 мс на p95, поддержка PostgreSQL 15+.',
+      },
+      {
+        id: 'block-results-dev-files',
+        type: 'files',
+        label: 'Файлы',
+        title: 'Документация',
+        files: [
+          { id: 'file-results-1', name: 'API-v2-openapi.yaml', mime: 'text/yaml', previewUrl: '', comment: 'Черновик контракта, ждём правки по webhook' },
+          { id: 'file-results-2', name: 'Схема-интеграции-1С.pdf', mime: 'application/pdf', previewUrl: '', comment: '' },
+          { id: 'file-results-3', name: 'План-миграции.xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', previewUrl: '', comment: 'Этапы выката на прод' },
+        ],
+      },
+      {
+        id: 'block-results-dev-gallery',
+        type: 'gallery',
+        label: 'Галерея',
+        title: 'Архитектура и диаграммы',
+        photos: cloneDemoPhotos(DEMO_DIAGRAM_PHOTOS.slice(0, 4)),
+      },
+      {
+        id: 'block-results-dev-checkbox',
+        type: 'checkbox',
+        label: 'Чеклист',
+        title: 'Критерии приёмки',
+        prompt: 'Отметьте, что проверили перед согласованием:',
+        items: [
+          { id: 'chk-1', label: 'OpenAPI покрывает все эндпоинты MVP', checked: true },
+          { id: 'chk-2', label: 'Описаны сценарии отказа интеграции', checked: false },
+          { id: 'chk-3', label: 'Есть план отката релиза', checked: true },
+        ],
+      },
+    ],
+  })
+
+  return {
+    id: 'results-demo-310',
+    number: 310,
+    title: 'Азимут тур — Релиз 2: дизайн и разработка',
+    createdAt: '15.08.2026',
+    startDate: '15.08.2026 10:00',
+    deadline: '31.12.2026 18:00',
+    daysLabel: '25 дней',
+    isUrgent: false,
+    author: { name: 'Александр Аблизин' },
+    participants: [
+      { label: 'А' }, { label: 'Е' }, { label: 'М' }, { label: 'Р' },
+      { label: 'С' }, { label: 'И' }, { label: 'П' }, { label: 'Н' },
+    ],
+    status: 'awaiting',
+    voted: 20,
+    total: 20,
+    isFavorite: true,
+    isOwner: true,
+    description: 'Полноценное демо: 2 раздела, 20 согласователей, все проголосовали. Раздел «Дизайн» согласован единогласно, в «Разработке» — 2 замечания.',
+    sections: [designSection, devSection],
+  }
+}
+
+function createApproverCardDemoAgreement({
+  id,
+  number,
+  title,
+  description,
+  approverDecision,
+  approverReason = '',
+  extraVotes = [],
+  isFavorite = false,
+}) {
+  const participantIds = [
+    CURRENT_APPROVER_ID,
+    'elena-vasilyeva',
+    'maria-gorbunova',
+    'roman-gorbachev',
+  ]
+
+  const votes = [
+    {
+      participantId: CURRENT_APPROVER_ID,
+      decision: approverDecision,
+      reason: approverReason,
+      votedAt: '2026-08-22T09:00:00.000Z',
+    },
+    ...extraVotes,
+  ]
+
+  const section = createDemoSection({
+    title: 'Маркетинг и контент',
+    isActive: true,
+    participantIds,
+    votes,
+    settings: { showResultsBefore: true, showResultsAfter: true },
+    blocks: [
+      {
+        id: `block-${id}-text`,
+        type: 'text',
+        label: 'Текстовый блок',
+        title: 'Материалы для проверки',
+        description: 'Демо-карточка для режима согласователя.',
+        content: 'Раздел для проверки превью в списке: заголовок, статус и прогресс голосования с точки зрения участника.',
+      },
+    ],
+  })
+  section.id = `section-${id}`
+  syncDemoSectionVotes(section, participantIds, votes)
+
+  const voted = votes.length
+  const total = participantIds.length
+
+  return {
+    id,
+    number,
+    title,
+    createdAt: '20.08.2026',
+    deadline: '31.12.2026 18:00',
+    daysLabel: '25 дней',
+    isUrgent: false,
+    author: { name: 'Александр Аблизин' },
+    participants: [
+      { label: 'А' },
+      { label: 'Е' },
+      { label: 'М' },
+      { label: 'Р' },
+    ],
+    status: 'awaiting',
+    voted,
+    total,
+    isFavorite,
+    isOwner: false,
+    description,
+    ...(approverDecision === 'approved'
+      ? {
+          mySectionApproved: true,
+          mySectionApprovedAt: '22.08.2026',
+        }
+      : {
+          mySectionRejected: true,
+          mySectionRejectedAt: '22.08.2026',
+        }),
+    sections: [section],
+  }
+}
+
+function createApproverApprovedCardDemoAgreement() {
+  return createApproverCardDemoAgreement({
+    id: 'approver-demo-311',
+    number: 311,
+    title: 'Демо согласователя — проголосовал «За»',
+    description: 'Вы уже проголосовали «За» по своему разделу. Карточка в списке зелёная.',
+    approverDecision: 'approved',
+    isFavorite: true,
+    extraVotes: [
+      {
+        participantId: 'elena-vasilyeva',
+        decision: 'approved',
+        reason: '',
+        votedAt: '2026-08-22T10:00:00.000Z',
+      },
+      {
+        participantId: 'maria-gorbunova',
+        decision: 'approved',
+        reason: '',
+        votedAt: '2026-08-22T11:00:00.000Z',
+      },
+    ],
+  })
+}
+
+function createApproverRejectedCardDemoAgreement() {
+  return createApproverCardDemoAgreement({
+    id: 'approver-demo-312',
+    number: 312,
+    title: 'Демо согласователя — проголосовал «Против»',
+    description: 'Вы оставили отказ с комментарием. Карточка в списке с красным статусом.',
+    approverDecision: 'rejected',
+    approverReason: 'В текстах не хватает юридических формулировок для акций и скидок. Нужно согласовать с юристами до публикации.',
+    extraVotes: [
+      {
+        participantId: 'elena-vasilyeva',
+        decision: 'approved',
+        reason: '',
+        votedAt: '2026-08-22T10:30:00.000Z',
+      },
+    ],
+  })
 }
 
 /** @type {AgreementItem[]} */
 export const MOCK_AGREEMENTS = [
+  createCompletedResultsDemoAgreement(),
+  createApproverApprovedCardDemoAgreement(),
+  createApproverRejectedCardDemoAgreement(),
   {
     id: '308',
     number: 308,
