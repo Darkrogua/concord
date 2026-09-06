@@ -1,43 +1,31 @@
 <template>
-  <div class="page">
-    <div class="page-head">
-      <div>
-        <h1>Профиль</h1>
-        <p>Имя, тема и подпись, которой вы голосуете.</p>
-      </div>
-    </div>
-    <div class="sheet">
-      <form class="form-stack" @submit.prevent="save">
-        <div class="field">
-          <label for="profile-name">Имя</label>
-          <InputText id="profile-name" v-model="name" name="name" autocomplete="name" class="w-full" />
-        </div>
-        <label class="field" style="flex-direction: row; align-items: center; gap: 0.6rem">
-          <ToggleSwitch v-model="dark" />
-          Тёмная тема
-        </label>
-        <Button type="submit" label="Сохранить профиль" />
-      </form>
-    </div>
-    <div class="sheet">
-      <h2>Подписи</h2>
-      <ul class="sig-list">
-        <li v-for="s in auth.user?.signatures || []" :key="s.id">
-          <span>{{ s.name }}</span>
-          <span v-if="s.is_active" class="status-pill">активна</span>
-          <Button v-else size="small" text label="Сделать активной" @click="auth.activateSignature(s.id)" />
-        </li>
-      </ul>
-      <form class="toolbar" @submit.prevent="addSignature">
-        <div class="field" style="flex: 1">
-          <label for="new-sig">Новая подпись</label>
-          <InputText id="new-sig" v-model="newSignature" name="signature" autocomplete="off" />
-        </div>
-        <Button type="submit" label="Добавить" style="align-self: end" />
-      </form>
-    </div>
-    <Button label="Выйти" severity="secondary" @click="logout" />
-  </div>
+  <ConcordPageShell title="Профиль">
+    <form class="concord-form" @submit.prevent="save">
+      <label class="concord-field">
+        <span>Имя</span>
+        <InputText v-model="name" name="name" class="w-full" />
+      </label>
+      <label class="concord-field concord-field--row">
+        <ToggleSwitch v-model="dark" />
+        <span>Тёмная тема</span>
+      </label>
+      <Button type="submit" label="Сохранить" />
+    </form>
+
+    <h2 class="concord-section-title">Подписи</h2>
+    <ul class="concord-settings-list">
+      <li v-for="s in auth.user?.signatures || []" :key="s.id">
+        {{ s.name }}
+        <Tag v-if="s.is_active" value="активна" />
+        <Button v-else size="small" text label="Сделать активной" @click="auth.activateSignature(s.id)" />
+      </li>
+    </ul>
+    <form class="concord-form" @submit.prevent="addSignature">
+      <InputText v-model="newSignature" placeholder="Новая подпись" class="w-full" />
+      <Button type="submit" label="Добавить" />
+    </form>
+    <Button label="Выйти" severity="secondary" class="mt-3" @click="logout" />
+  </ConcordPageShell>
 </template>
 
 <script setup>
@@ -46,6 +34,8 @@ import { useRouter } from 'vue-router'
 import InputText from 'primevue/inputtext'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Button from 'primevue/button'
+import Tag from 'primevue/tag'
+import ConcordPageShell from '../components/ConcordPageShell.vue'
 import { useAuthStore } from '../stores/auth'
 import api from '../services/api'
 
@@ -77,3 +67,14 @@ async function logout() {
   router.push('/login')
 }
 </script>
+
+<style scoped>
+.concord-form { display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem; }
+.concord-field { display: flex; flex-direction: column; gap: 0.35rem; color: var(--concord-settings-field-label-color); }
+.concord-field--row { flex-direction: row; align-items: center; gap: 0.6rem; }
+.concord-section-title { font-size: var(--concord-settings-section-title-size); margin: 1rem 0 0.5rem; }
+.concord-settings-list { list-style: none; padding: 0; margin: 0 0 1rem; }
+.concord-settings-list li { padding: 0.55rem 0; border-bottom: 1px solid var(--concord-divider); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.w-full { width: 100%; }
+.mt-3 { margin-top: 1rem; }
+</style>

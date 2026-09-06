@@ -12,3 +12,5 @@ Traefik уже стоит на хосте (сеть `proxy`, сертифика�
 ```
 
 Скрипт копирует код, собирает PHP-образ и SPA, ставит Composer, гоняет миграции.
+
+Перед деплоем добавьте в `.env` на сервере (и локально в `frontend/.env`) ключ `VITE_PRIMEUI_LICENSE` — бесплатный Community: [primeui.dev/licenses/community](https://primeui.dev/licenses/community). Ключ вшивается в SPA при `npm run build`.

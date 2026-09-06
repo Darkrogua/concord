@@ -1,46 +1,13 @@
 <template>
-  <AuthShell title="Новый пароль">
-    <form class="form-stack" @submit.prevent="submit">
-      <div class="field">
-        <label for="email">Email</label>
-        <InputText
-          id="email"
-          v-model="email"
-          type="email"
-          name="email"
-          autocomplete="username"
-          spellcheck="false"
-          class="w-full"
-        />
-      </div>
-      <div class="field">
-        <label for="password">Пароль</label>
-        <Password
-          inputId="password"
-          v-model="password"
-          :feedback="false"
-          toggleMask
-          class="w-full"
-          inputClass="w-full"
-          autocomplete="new-password"
-        />
-      </div>
-      <div class="field">
-        <label for="password_confirmation">Повтор пароля</label>
-        <Password
-          inputId="password_confirmation"
-          v-model="password_confirmation"
-          :feedback="false"
-          toggleMask
-          class="w-full"
-          inputClass="w-full"
-          autocomplete="new-password"
-        />
-      </div>
+  <ConcordPageShell title="Новый пароль">
+    <form class="concord-form" @submit.prevent="submit">
+      <label class="concord-field"><span>Email</span><InputText v-model="email" type="email" class="w-full" /></label>
+      <label class="concord-field"><span>Пароль</span><Password v-model="password" :feedback="false" toggleMask class="w-full" inputClass="w-full" /></label>
+      <label class="concord-field"><span>Повтор</span><Password v-model="password_confirmation" :feedback="false" toggleMask class="w-full" inputClass="w-full" /></label>
       <Message v-if="error" severity="error">{{ error }}</Message>
-      <Button type="submit" label="Сохранить пароль" :loading="loading" :disabled="loading" />
+      <Button type="submit" label="Сохранить" :loading="loading" class="w-full" />
     </form>
-  </AuthShell>
+  </ConcordPageShell>
 </template>
 
 <script setup>
@@ -50,7 +17,7 @@ import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
-import AuthShell from '../components/AuthShell.vue'
+import ConcordPageShell from '../components/ConcordPageShell.vue'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -74,9 +41,15 @@ async function submit() {
     })
     router.push('/login')
   } catch (e) {
-    error.value = e.response?.data?.message || 'Не удалось сбросить пароль. Запросите ссылку ещё раз.'
+    error.value = e.response?.data?.message || 'Не удалось сбросить пароль.'
   } finally {
     loading.value = false
   }
 }
 </script>
+
+<style scoped>
+.concord-form { display: flex; flex-direction: column; gap: 1rem; }
+.concord-field { display: flex; flex-direction: column; gap: 0.35rem; color: var(--concord-text-muted); }
+.w-full { width: 100%; }
+</style>

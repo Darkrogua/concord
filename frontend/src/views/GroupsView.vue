@@ -1,25 +1,16 @@
 <template>
-  <div class="page">
-    <div class="page-head">
-      <div>
-        <h1>Группы</h1>
-        <p>Наборы людей, которых удобно добавлять в раздел разом.</p>
-      </div>
-    </div>
-    <form class="toolbar" @submit.prevent="create">
-      <div class="field" style="flex: 1; min-width: 12rem">
-        <label for="group-name">Название группы</label>
-        <InputText id="group-name" v-model="name" name="group_name" autocomplete="off" />
-      </div>
-      <Button type="submit" label="Создать группу" style="align-self: end" />
+  <ConcordPageShell title="Группы" show-back>
+    <form class="concord-form" @submit.prevent="create">
+      <InputText v-model="name" placeholder="Название группы" class="w-full" />
+      <Button type="submit" label="Создать" />
     </form>
-    <article v-for="group in groups" :key="group.id" class="sheet">
-      <h2>{{ group.name }}</h2>
-      <p>{{ (group.users || []).map((u) => u.name).join(', ') || 'Пока никого нет.' }}</p>
-      <Button size="small" severity="danger" text label="Удалить группу" @click="remove(group)" />
+    <article v-for="group in groups" :key="group.id" class="concord-card concord-card--flat">
+      <h2 class="concord-card__title">{{ group.name }}</h2>
+      <p>{{ (group.users || []).map((u) => u.name).join(', ') || 'Пусто' }}</p>
+      <Button size="small" severity="danger" text label="Удалить" @click="remove(group)" />
     </article>
-    <p v-if="!groups.length" class="empty">Групп ещё нет. Задайте название и создайте первую.</p>
-  </div>
+    <p v-if="!groups.length" class="concord-list__empty">Групп пока нет.</p>
+  </ConcordPageShell>
 </template>
 
 <script setup>
@@ -27,6 +18,7 @@ import { onMounted, ref } from 'vue'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import { useConfirm } from 'primevue/useconfirm'
+import ConcordPageShell from '../components/ConcordPageShell.vue'
 import api from '../services/api'
 
 const groups = ref([])
@@ -48,9 +40,9 @@ async function create() {
 function remove(group) {
   confirm.require({
     message: `Удалить группу «${group.name}»?`,
-    header: 'Удаление группы',
-    rejectLabel: 'Отмена',
+    header: 'Удаление',
     acceptLabel: 'Удалить',
+    rejectLabel: 'Отмена',
     accept: async () => {
       await api.delete(`/api/user-groups/${group.id}`)
       await load()
@@ -60,3 +52,10 @@ function remove(group) {
 
 onMounted(load)
 </script>
+
+<style scoped>
+.concord-form { display: flex; gap: 0.65rem; margin-bottom: 1rem; }
+.concord-card--flat { margin-bottom: 0.75rem; padding: 1rem; }
+.concord-list__empty { color: var(--concord-text-muted); text-align: center; margin-top: 2rem; }
+.w-full { flex: 1; }
+</style>

@@ -160,6 +160,8 @@ services:
     working_dir: /app
     volumes:
       - ./frontend:/app
+    environment:
+      VITE_PRIMEUI_LICENSE: ${VITE_PRIMEUI_LICENSE:-}
     command: sh -c "npm ci && npm run build"
     profiles:
       - build

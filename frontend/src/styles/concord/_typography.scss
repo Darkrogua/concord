@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.concord-page,
+.concord-overlay,
+.concord-sheet {
+  font-family: var(--concord-font-family);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-regular);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.concord-page button,
+.concord-page input,
+.concord-page select,
+.concord-page textarea,
+.concord-overlay input,
+.concord-overlay select,
+.concord-overlay textarea,
+.concord-sheet input,
+.concord-sheet select,
+.concord-sheet textarea {
+  font-family: inherit;
+}
+
+.concord-page input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-links-block__input):not(.concord-agreement-form__input),
+.concord-page textarea:not(.concord-agreement-form__textarea),
+.concord-page select,
+.concord-overlay input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-links-block__input),
+.concord-overlay textarea,
+.concord-overlay select,
+.concord-sheet input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='hidden']):not([type='button']):not([type='submit']):not([type='reset']):not([type='image']):not([type='range']):not(.concord-links-block__input),
+.concord-sheet textarea,
+.concord-sheet select {
+  font-size: var(--concord-text-field);
+}
+
+.concord-sort__select,
+.concord-group-title__input {
+  font-size: inherit;
+}
+
+/* List card body type scale (header strip on `.concord-card__header` is not part of this scale). */

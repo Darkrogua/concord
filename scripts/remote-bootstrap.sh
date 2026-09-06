@@ -68,6 +68,14 @@ FRONTEND_URL=https://${DOMAIN}
 EOF
 fi
 
+if [ ! -f frontend/.env ]; then
+  cat > frontend/.env <<EOF
+VITE_PRIMEUI_LICENSE=${VITE_PRIMEUI_LICENSE:-}
+EOF
+elif [ -n "${VITE_PRIMEUI_LICENSE:-}" ] && ! grep -q '^VITE_PRIMEUI_LICENSE=' frontend/.env; then
+  printf '\nVITE_PRIMEUI_LICENSE=%s\n' "$VITE_PRIMEUI_LICENSE" >> frontend/.env
+fi
+
 mkdir -p backend/storage/logs backend/bootstrap/cache frontend/dist
 chmod -R ug+rwx backend/storage backend/bootstrap/cache || true
 

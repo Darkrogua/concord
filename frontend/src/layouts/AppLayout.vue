@@ -1,48 +1,42 @@
 <template>
-  <div class="layout-shell">
-    <a class="skip-link" href="#content">К содержанию</a>
-    <header class="topbar">
-      <router-link class="brand" to="/agreements" translate="no">Concord</router-link>
-      <nav class="desktop-nav" aria-label="Основное">
-        <router-link class="nav-link" to="/agreements">Согласования</router-link>
-        <router-link class="nav-link" to="/agreements/create">Создать</router-link>
-        <router-link class="nav-link" to="/groups">Группы</router-link>
-        <router-link class="nav-link" to="/notifications">Уведомления</router-link>
-      </nav>
-      <div class="topbar-end">
-        <Select
-          v-if="auth.user?.signatures?.length"
-          :options="auth.user.signatures"
-          optionLabel="name"
-          optionValue="id"
-          :modelValue="auth.activeSignature?.id"
-          aria-label="Активная подпись"
-          @update:modelValue="auth.activateSignature"
-        />
-        <router-link class="nav-link user-name" to="/profile">{{ auth.user?.name }}</router-link>
-      </div>
-    </header>
-
-    <div id="content" class="layout-body">
-      <router-view />
-    </div>
-
-    <nav class="mobile-nav" aria-label="Мобильное">
-      <router-link to="/agreements" aria-label="Согласования"><i class="pi pi-inbox" aria-hidden="true" /></router-link>
-      <router-link to="/groups" aria-label="Группы"><i class="pi pi-users" aria-hidden="true" /></router-link>
-      <router-link to="/agreements/create" aria-label="Создать"><i class="pi pi-plus" aria-hidden="true" /></router-link>
-      <router-link to="/notifications" aria-label="Уведомления"><i class="pi pi-bell" aria-hidden="true" /></router-link>
-      <router-link to="/profile" aria-label="Профиль"><i class="pi pi-user" aria-hidden="true" /></router-link>
-    </nav>
+  <div class="concord-app">
+    <router-view />
+    <ConcordBottomNav
+      :active="navActive"
+      :avatar-initial="avatarInitial"
+      :profile-label="auth.user?.name || 'Профиль'"
+      :agreements-badge="undefined"
+      :notifications-badge="undefined"
+      @navigate="onNavigate"
+      @create="router.push('/agreements/create')"
+      @notifications="router.push('/notifications')"
+      @switch-account="router.push('/profile')"
+    />
   </div>
 </template>
 
 <script setup>
-import { watch } from 'vue'
-import Select from 'primevue/select'
+import { computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import ConcordBottomNav from '../components/concord/ConcordBottomNav.vue'
 import { useAuthStore } from '../stores/auth'
+import { getPersonInitials } from '../components/concord/agreement-card-utils.js'
 
 const auth = useAuthStore()
+const route = useRoute()
+const router = useRouter()
+
+const navActive = computed(() => {
+  if (route.path.startsWith('/profile') || route.path.startsWith('/groups')) return 'settings'
+  return 'list'
+})
+
+const avatarInitial = computed(() => getPersonInitials(auth.user?.name || 'П'))
+
+function onNavigate(view) {
+  if (view === 'list') router.push('/agreements')
+  if (view === 'settings') router.push('/profile')
+}
 
 watch(
   () => auth.user?.theme,

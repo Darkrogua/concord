@@ -1,25 +1,12 @@
 <template>
-  <AuthShell title="Сброс пароля" lead="Пришлём ссылку, если такой адрес есть в системе.">
-    <form class="form-stack" @submit.prevent="submit">
-      <div class="field">
-        <label for="email">Email</label>
-        <InputText
-          id="email"
-          v-model="email"
-          type="email"
-          name="email"
-          autocomplete="username"
-          spellcheck="false"
-          class="w-full"
-        />
-      </div>
-      <Message v-if="done" severity="success">Если этот email есть в системе, письмо уже отправлено.</Message>
-      <Button type="submit" label="Отправить ссылку" :loading="loading" :disabled="loading" />
-    </form>
-    <div class="auth-links">
+  <ConcordPageShell title="Сброс пароля">
+    <form class="concord-form" @submit.prevent="submit">
+      <label class="concord-field"><span>Email</span><InputText v-model="email" type="email" class="w-full" /></label>
+      <Message v-if="done" severity="success">Если email есть в системе, письмо отправлено.</Message>
+      <Button type="submit" label="Отправить ссылку" :loading="loading" class="w-full" />
       <router-link to="/login">Назад ко входу</router-link>
-    </div>
-  </AuthShell>
+    </form>
+  </ConcordPageShell>
 </template>
 
 <script setup>
@@ -27,7 +14,7 @@ import { ref } from 'vue'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
-import AuthShell from '../components/AuthShell.vue'
+import ConcordPageShell from '../components/ConcordPageShell.vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
@@ -45,3 +32,9 @@ async function submit() {
   }
 }
 </script>
+
+<style scoped>
+.concord-form { display: flex; flex-direction: column; gap: 1rem; }
+.concord-field { display: flex; flex-direction: column; gap: 0.35rem; color: var(--concord-text-muted); }
+.w-full { width: 100%; }
+</style>

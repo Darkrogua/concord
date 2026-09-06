@@ -4,17 +4,17 @@ import Aura from '@primeuix/themes/aura'
 const Concord = definePreset(Aura, {
   semantic: {
     primary: {
-      50: '#e8f5f1',
-      100: '#c5e6dc',
-      200: '#9dd4c4',
-      300: '#6bbba6',
-      400: '#3d9a86',
-      500: '#0b6b5a',
-      600: '#0a5c4e',
-      700: '#084a3f',
-      800: '#063830',
-      900: '#042620',
-      950: '#021411',
+      50: '#eaf2ff',
+      100: '#d6e6ff',
+      200: '#adc8ff',
+      300: '#84a9ff',
+      400: '#5b8bf8',
+      500: '#2563eb',
+      600: '#1d4ed8',
+      700: '#1e40af',
+      800: '#1e3a8a',
+      900: '#172554',
+      950: '#0f172a',
     },
     colorScheme: {
       light: {

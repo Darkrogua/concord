@@ -1,0 +1,33 @@
+@mixin concord-count-badge {
+  display: inline-block;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: var(--concord-count-badge-size);
+  height: var(--concord-count-badge-size);
+  min-width: var(--concord-count-badge-size);
+  min-height: var(--concord-count-badge-size);
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--concord-count-badge-bg);
+  box-shadow: 0 0 0 var(--concord-count-badge-ring-width) var(--concord-count-badge-ring-color);
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@mixin concord-count-badge-anchor {
+  position: absolute;
+  top: var(--concord-count-badge-offset-y);
+  right: var(--concord-count-badge-offset-x);
+}
+
+.concord-count-badge {
+  @include concord-count-badge;
+}
+
+.concord-count-badge--anchor {
+  @include concord-count-badge-anchor;
+}

@@ -1,27 +1,19 @@
 <template>
-  <div class="page">
-    <div class="page-head">
-      <div>
-        <h1>Уведомления</h1>
-        <p>Голоса, отказы и запуски по вашим документам.</p>
-      </div>
-      <Button v-if="items.length" label="Прочитать все" text @click="readAll" />
-    </div>
-    <article v-for="item in items" :key="item.id" class="notice" :class="{ 'is-unread': !item.read_at }">
+  <ConcordPageShell title="Уведомления">
+    <div v-for="item in items" :key="item.id" class="concord-alert" :class="{ 'concord-alert--unread': !item.read_at }">
       <strong>{{ item.title }}</strong>
       <p>{{ item.message }}</p>
       <time>{{ formatDateTime(item.created_at) }}</time>
-      <div v-if="!item.read_at">
-        <Button size="small" text label="Отметить прочитанным" @click="read(item)" />
-      </div>
-    </article>
-    <p v-if="!items.length" class="empty">Новых уведомлений нет.</p>
-  </div>
+      <Button v-if="!item.read_at" size="small" text label="Прочитано" @click="read(item)" />
+    </div>
+    <p v-if="!items.length" class="concord-list__empty">Нет уведомлений</p>
+  </ConcordPageShell>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
 import Button from 'primevue/button'
+import ConcordPageShell from '../components/ConcordPageShell.vue'
 import api from '../services/api'
 import { formatDateTime } from '../utils/format'
 
@@ -37,10 +29,11 @@ async function read(item) {
   await load()
 }
 
-async function readAll() {
-  await api.put('/api/notifications/read-all')
-  await load()
-}
-
 onMounted(load)
 </script>
+
+<style scoped>
+.concord-alert { padding: 0.9rem; border: 1px solid var(--concord-border); border-radius: var(--concord-radius-sm); margin-bottom: 0.65rem; background: var(--concord-alert-read-bg); }
+.concord-alert--unread { background: var(--concord-alert-unread-bg); box-shadow: var(--concord-card-shadow); }
+.concord-list__empty { color: var(--concord-text-muted); text-align: center; margin-top: 2rem; }
+</style>

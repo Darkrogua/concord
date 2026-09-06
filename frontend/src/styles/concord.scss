@@ -1,0 +1,26 @@
+@import './concord/tokens';
+@import './concord/typography';
+@import './concord/badges';
+@import './concord/components';
+
+.concord-app {
+  min-height: 100vh;
+  background: var(--concord-shell-muted);
+  color: var(--concord-text);
+}
+
+.concord-app .concord-page {
+  padding-bottom: calc(var(--concord-nav-height) + 12px);
+}
+
+@media (min-width: 960px) {
+  .concord-app .concord-page {
+    padding-bottom: 24px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .concord-nav {
+    display: none;
+  }
+}

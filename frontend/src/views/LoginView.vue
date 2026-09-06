@@ -1,38 +1,22 @@
 <template>
-  <AuthShell title="Вход" lead="Почта и пароль, которыми вы регистрировались.">
-    <form class="form-stack" @submit.prevent="submit">
-      <div class="field">
-        <label for="email">Email</label>
-        <InputText
-          id="email"
-          v-model="email"
-          type="email"
-          name="email"
-          autocomplete="username"
-          spellcheck="false"
-          class="w-full"
-        />
-      </div>
-      <div class="field">
-        <label for="password">Пароль</label>
-        <Password
-          inputId="password"
-          v-model="password"
-          :feedback="false"
-          toggleMask
-          class="w-full"
-          inputClass="w-full"
-          autocomplete="current-password"
-        />
-      </div>
+  <ConcordPageShell title="Вход">
+    <form class="concord-form" @submit.prevent="submit">
+      <label class="concord-field">
+        <span>Email</span>
+        <InputText v-model="email" type="email" name="email" autocomplete="username" class="w-full" />
+      </label>
+      <label class="concord-field">
+        <span>Пароль</span>
+        <Password v-model="password" :feedback="false" toggleMask class="w-full" inputClass="w-full" autocomplete="current-password" />
+      </label>
       <Message v-if="error" severity="error">{{ error }}</Message>
-      <Button type="submit" label="Войти" :loading="loading" :disabled="loading" />
+      <Button type="submit" label="Войти" :loading="loading" class="w-full" />
+      <div class="concord-form-links">
+        <router-link to="/register">Регистрация</router-link>
+        <router-link to="/forgot-password">Забыли пароль?</router-link>
+      </div>
     </form>
-    <div class="auth-links">
-      <router-link to="/register">Регистрация</router-link>
-      <router-link to="/forgot-password">Забыли пароль?</router-link>
-    </div>
-  </AuthShell>
+  </ConcordPageShell>
 </template>
 
 <script setup>
@@ -42,7 +26,7 @@ import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
-import AuthShell from '../components/AuthShell.vue'
+import ConcordPageShell from '../components/ConcordPageShell.vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
@@ -60,9 +44,16 @@ async function submit() {
     await auth.login({ email: email.value, password: password.value })
     router.push(route.query.redirect || '/agreements')
   } catch (e) {
-    error.value = e.response?.data?.message || 'Не удалось войти. Проверьте почту и пароль.'
+    error.value = e.response?.data?.message || 'Не удалось войти.'
   } finally {
     loading.value = false
   }
 }
 </script>
+
+<style scoped>
+.concord-form { display: flex; flex-direction: column; gap: 1rem; }
+.concord-field { display: flex; flex-direction: column; gap: 0.35rem; color: var(--concord-text-muted); }
+.concord-form-links { display: flex; justify-content: space-between; font-size: var(--concord-text-body); }
+.w-full { width: 100%; }
+</style>

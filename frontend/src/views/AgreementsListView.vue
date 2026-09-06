@@ -1,101 +1,107 @@
 <template>
-  <div class="page">
-    <div class="page-head">
-      <div>
-        <h1>Согласования</h1>
-        <p>Входящие ждут вашего голоса. Исходящие — те, что вы запустили.</p>
+  <div class="concord-page">
+    <ConcordPageHeader>
+      <template #left>
+        <h1 class="concord-page-header__brand">
+          <ConcordLogoMark size="sm" />
+          <span class="concord-page-header__brand-name">Concord</span>
+        </h1>
+      </template>
+      <template #right>
+        <div class="concord-page-header__actions">
+          <button type="button" class="concord-icon-btn" aria-label="Создать" @click="router.push('/agreements/create')">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+      </template>
+    </ConcordPageHeader>
+
+    <div class="concord-tabs-wrap">
+      <div class="concord-tabs" role="tablist" aria-label="Фильтры списка">
+        <button
+          v-for="tab in tabs"
+          :key="tab.value"
+          type="button"
+          role="tab"
+          :class="['concord-tabs__item', { 'concord-tabs__item--active': group === tab.value }]"
+          :aria-selected="group === tab.value"
+          @click="selectTab(tab.value)"
+        >
+          {{ tab.label }}
+        </button>
       </div>
-      <router-link class="btn btn-primary" to="/agreements/create">Создать</router-link>
     </div>
 
-    <div class="toolbar">
-      <SelectButton v-model="group" :options="groups" optionLabel="label" optionValue="value" @change="load" />
-      <div class="field" style="min-width: 12rem">
-        <label for="q" class="sr-only">Поиск</label>
-        <InputText id="q" v-model="q" placeholder="Название…" @keyup.enter="load" />
-      </div>
-      <Select v-model="sort" :options="sorts" optionLabel="label" optionValue="value" aria-label="Сортировка" @change="load" />
-    </div>
-
-    <div class="dossier">
-      <article v-for="item in items" :key="item.id" class="dossier-item" :class="`is-${item.status}`">
-        <i />
-        <div class="dossier-body">
-          <h2>
-            <router-link :to="`/agreements/${item.id}`">{{ item.title }}</router-link>
-          </h2>
-          <p class="dossier-desc">{{ item.description }}</p>
-          <p class="dossier-meta">
-            {{ item.status_label }}, дедлайн {{ formatDateTime(item.deadline) }}, {{ item.author?.name }}
-          </p>
-          <div v-for="section in item.sections || []" :key="section.id" class="section-progress">
-            <span>{{ section.name }}</span>
-            <span>{{ section.progress?.yes || 0 }} / {{ section.progress?.total || 0 }}</span>
-            <ProgressBar :value="progressValue(section)" />
-          </div>
+    <main v-if="loading" class="concord-list concord-card-skeleton" aria-label="Загрузка…">
+      <article v-for="n in 3" :key="n" class="concord-card concord-card-skeleton__card" aria-hidden="true">
+        <div class="concord-card-skeleton__header">
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--number" />
+          <span class="concord-card-skeleton__bone concord-card-skeleton__bone--status" />
         </div>
-        <div class="dossier-actions">
-          <Button
-            v-if="item.is_author && item.status === 'draft'"
-            size="small"
-            outlined
-            label="Редактировать"
-            @click="$router.push(`/agreements/${item.id}/edit`)"
-          />
-          <Button size="small" text :aria-label="item.is_favorite ? 'Убрать из избранного' : 'В избранное'" icon="pi pi-star" @click="favorite(item)" />
-          <Button size="small" text aria-label="Дублировать" icon="pi pi-copy" @click="duplicate(item)" />
-        </div>
+        <span class="concord-card-skeleton__bone concord-card-skeleton__bone--title" />
       </article>
-      <p v-if="!items.length" class="empty">Пока нет согласований в этом списке. Создайте документ или смените фильтр.</p>
-    </div>
+    </main>
+
+    <main v-else class="concord-list">
+      <AgreementCard
+        v-for="item in cards"
+        :key="item.id"
+        :agreement="item"
+        @open="openAgreement"
+        @toggle-favorite="favorite"
+      />
+      <p v-if="!cards.length" class="concord-list__empty">Пока нет согласований в этом списке.</p>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import Button from 'primevue/button'
-import SelectButton from 'primevue/selectbutton'
-import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
-import ProgressBar from 'primevue/progressbar'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import ConcordPageHeader from '../components/concord/ConcordPageHeader.vue'
+import ConcordLogoMark from '../components/concord/ConcordLogoMark.vue'
+import AgreementCard from '../components/concord/AgreementCard.vue'
+import { normalizeAgreement } from '../components/concord/agreement-card-utils.js'
 import api from '../services/api'
-import { formatDateTime } from '../utils/format'
 
+const router = useRouter()
 const items = ref([])
-const q = ref('')
+const loading = ref(false)
 const group = ref('incoming')
-const sort = ref('newest')
-const groups = [
+
+const tabs = [
   { label: 'Входящие', value: 'incoming' },
   { label: 'Исходящие', value: 'outgoing' },
   { label: 'Избранное', value: 'favorites' },
   { label: 'Архив', value: 'archive' },
   { label: 'Все', value: 'all' },
 ]
-const sorts = [
-  { label: 'Сначала новые', value: 'newest' },
-  { label: 'По дедлайну', value: 'deadline' },
-  { label: 'По активности', value: 'activity' },
-]
+
+const cards = computed(() => items.value.map(normalizeAgreement))
 
 async function load() {
-  const { data } = await api.get('/api/agreements', { params: { group: group.value, q: q.value, sort: sort.value } })
-  items.value = data.data
+  loading.value = true
+  try {
+    const { data } = await api.get('/api/agreements', { params: { group: group.value, sort: 'newest' } })
+    items.value = data.data
+  } finally {
+    loading.value = false
+  }
 }
 
-function progressValue(section) {
-  const total = section.progress?.total || 0
-  const yes = section.progress?.yes || 0
-  return total ? Math.round((yes / total) * 100) : 0
+function selectTab(value) {
+  group.value = value
+  load()
 }
 
-async function favorite(item) {
-  await api.post(`/api/agreements/${item.id}/favorite`)
-  await load()
+function openAgreement(id) {
+  router.push(`/agreements/${id}`)
 }
 
-async function duplicate(item) {
-  await api.post(`/api/agreements/${item.id}/duplicate`)
+async function favorite(id) {
+  await api.post(`/api/agreements/${id}/favorite`)
   await load()
 }
 
@@ -103,11 +109,9 @@ onMounted(load)
 </script>
 
 <style scoped>
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
+.concord-list__empty {
+  margin: 2rem 0;
+  text-align: center;
+  color: var(--concord-text-muted);
 }
 </style>

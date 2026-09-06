@@ -1,59 +1,88 @@
 <template>
-  <div class="landing">
-    <a class="skip-link" href="#main">К содержанию</a>
-    <header class="landing-top">
-      <span class="brand" translate="no">Concord</span>
-      <a v-if="auth.isAuthenticated" class="btn btn-ghost" href="/agreements">К согласованиям</a>
-      <a v-else class="btn btn-ghost" href="/login">Войти</a>
-    </header>
+  <div class="concord-page concord-landing">
+    <ConcordPageHeader chrome>
+      <template #left>
+        <h1 class="concord-page-header__brand">
+          <ConcordLogoMark size="sm" />
+          <span class="concord-page-header__brand-name">Concord</span>
+        </h1>
+      </template>
+      <template #right>
+        <a v-if="auth.isAuthenticated" class="concord-btn concord-btn--ghost" href="/agreements">К согласованиям</a>
+        <a v-else class="concord-btn concord-btn--primary" href="/login">Войти</a>
+      </template>
+    </ConcordPageHeader>
 
-    <main id="main" class="landing-hero">
-      <div class="landing-copy">
-        <h1>Документ не готов, пока не сказали все.</h1>
-        <p class="landing-lead">
-          Concord собирает разделы, голоса и подписи в одном месте. Согласование проходит, только если каждый участник ответил «да».
-        </p>
-        <div class="landing-actions">
-          <a v-if="auth.isAuthenticated" class="btn btn-primary" href="/agreements">Открыть согласования</a>
-          <a v-else class="btn btn-primary" href="/login">Войти</a>
-          <a class="btn btn-ghost" href="#how">Как это устроено</a>
-        </div>
-      </div>
-
-      <div class="doc-stack" aria-hidden="true">
-        <article class="doc-sheet">
-          <h2>Регламент поставки</h2>
-          <div class="doc-row"><span>Сроки и ответственность</span><strong>3 / 3</strong></div>
-          <div class="doc-row"><span>Финансовые условия</span><strong>2 / 3</strong></div>
-          <div class="doc-row"><span>Приложения</span><strong>ожидает</strong></div>
-        </article>
-      </div>
-    </main>
-
-    <section id="how" class="landing-process">
-      <div>
-        <span>01</span>
-        <h2>Разделы</h2>
-        <p>Документ режется на независимые части. Каждую согласовывают свои люди.</p>
-      </div>
-      <div>
-        <span>02</span>
-        <h2>Голос</h2>
-        <p>Только «да» или «нет» с комментарием. Один отказ возвращает раздел автору.</p>
-      </div>
-      <div>
-        <span>03</span>
-        <h2>Подпись</h2>
-        <p>Голос привязан к активной подписи. История остаётся вместе с документом.</p>
+    <section class="concord-landing-hero">
+      <h2 class="concord-landing-hero__title">Документ не готов, пока не сказали все.</h2>
+      <p class="concord-landing-hero__lead">
+        Разделы, голоса и подписи в одном месте. Согласование проходит, только если каждый участник ответил «да».
+      </p>
+      <div class="concord-landing-hero__actions">
+        <a v-if="auth.isAuthenticated" class="concord-btn concord-btn--primary" href="/agreements">Открыть согласования</a>
+        <a v-else class="concord-btn concord-btn--primary" href="/login">Войти</a>
       </div>
     </section>
-
-    <footer class="landing-foot">Concord — единогласное согласование документов</footer>
   </div>
 </template>
 
 <script setup>
+import ConcordPageHeader from '../components/concord/ConcordPageHeader.vue'
+import ConcordLogoMark from '../components/concord/ConcordLogoMark.vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
 </script>
+
+<style scoped>
+.concord-landing {
+  min-height: 100vh;
+  background: var(--concord-shell-muted);
+}
+
+.concord-landing-hero {
+  padding: 2rem var(--concord-page-gutter) 4rem;
+  max-width: 640px;
+}
+
+.concord-landing-hero__title {
+  margin: 0 0 1rem;
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-weight: var(--concord-weight-semibold);
+  letter-spacing: var(--concord-tracking-title);
+  line-height: var(--concord-leading-tight);
+}
+
+.concord-landing-hero__lead {
+  margin: 0 0 1.5rem;
+  color: var(--concord-text-muted);
+  line-height: var(--concord-leading-relaxed);
+}
+
+.concord-landing-hero__actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.concord-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border-radius: var(--concord-radius-sm);
+  font-weight: var(--concord-weight-semibold);
+  text-decoration: none;
+}
+
+.concord-btn--primary {
+  background: var(--concord-primary);
+  color: #fff;
+}
+
+.concord-btn--ghost {
+  background: transparent;
+  color: var(--concord-text);
+  border: 1px solid var(--concord-border);
+}
+</style>

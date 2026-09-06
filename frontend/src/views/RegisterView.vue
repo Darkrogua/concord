@@ -1,53 +1,15 @@
 <template>
-  <AuthShell title="Регистрация" lead="После этого можно создавать согласования и голосовать.">
-    <form class="form-stack" @submit.prevent="submit">
-      <div class="field">
-        <label for="name">Имя</label>
-        <InputText id="name" v-model="name" name="name" autocomplete="name" class="w-full" />
-      </div>
-      <div class="field">
-        <label for="email">Email</label>
-        <InputText
-          id="email"
-          v-model="email"
-          type="email"
-          name="email"
-          autocomplete="username"
-          spellcheck="false"
-          class="w-full"
-        />
-      </div>
-      <div class="field">
-        <label for="password">Пароль</label>
-        <Password
-          inputId="password"
-          v-model="password"
-          :feedback="false"
-          toggleMask
-          class="w-full"
-          inputClass="w-full"
-          autocomplete="new-password"
-        />
-      </div>
-      <div class="field">
-        <label for="password_confirmation">Повтор пароля</label>
-        <Password
-          inputId="password_confirmation"
-          v-model="password_confirmation"
-          :feedback="false"
-          toggleMask
-          class="w-full"
-          inputClass="w-full"
-          autocomplete="new-password"
-        />
-      </div>
+  <ConcordPageShell title="Регистрация">
+    <form class="concord-form" @submit.prevent="submit">
+      <label class="concord-field"><span>Имя</span><InputText v-model="name" class="w-full" /></label>
+      <label class="concord-field"><span>Email</span><InputText v-model="email" type="email" class="w-full" /></label>
+      <label class="concord-field"><span>Пароль</span><Password v-model="password" :feedback="false" toggleMask class="w-full" inputClass="w-full" /></label>
+      <label class="concord-field"><span>Повтор пароля</span><Password v-model="password_confirmation" :feedback="false" toggleMask class="w-full" inputClass="w-full" /></label>
       <Message v-if="error" severity="error">{{ error }}</Message>
-      <Button type="submit" label="Создать аккаунт" :loading="loading" :disabled="loading" />
-    </form>
-    <div class="auth-links">
+      <Button type="submit" label="Создать аккаунт" :loading="loading" class="w-full" />
       <router-link to="/login">Уже есть аккаунт</router-link>
-    </div>
-  </AuthShell>
+    </form>
+  </ConcordPageShell>
 </template>
 
 <script setup>
@@ -57,7 +19,7 @@ import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
-import AuthShell from '../components/AuthShell.vue'
+import ConcordPageShell from '../components/ConcordPageShell.vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
@@ -73,12 +35,7 @@ async function submit() {
   loading.value = true
   error.value = ''
   try {
-    await auth.register({
-      name: name.value,
-      email: email.value,
-      password: password.value,
-      password_confirmation: password_confirmation.value,
-    })
+    await auth.register({ name: name.value, email: email.value, password: password.value, password_confirmation: password_confirmation.value })
     router.push('/agreements')
   } catch (e) {
     error.value = Object.values(e.response?.data?.errors || {}).flat().join(' ') || 'Не удалось зарегистрироваться.'
@@ -87,3 +44,9 @@ async function submit() {
   }
 }
 </script>
+
+<style scoped>
+.concord-form { display: flex; flex-direction: column; gap: 1rem; }
+.concord-field { display: flex; flex-direction: column; gap: 0.35rem; color: var(--concord-text-muted); }
+.w-full { width: 100%; }
+</style>

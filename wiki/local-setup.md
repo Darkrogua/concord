@@ -17,6 +17,8 @@ SPA поднимается контейнером `frontend` вместе с о�
 - `author@concord.local`
 - `approver@concord.local`
 
+PrimeVue 5 требует ключ PrimeUI. Для небольших команд он бесплатный: зарегистрируйтесь на [primeui.dev/licenses/community](https://primeui.dev/licenses/community) и вставьте ключ в `frontend/.env` как `VITE_PRIMEUI_LICENSE=...`. Без ключа в углу будет тост «Invalid PrimeUI License».
+
 Адреса:
 
 - SPA: http://localhost:5173
