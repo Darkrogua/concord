@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import LandingView from '../views/LandingView.vue'
 
 const AppLayout = () => import('../layouts/AppLayout.vue')
 
@@ -13,7 +14,7 @@ function appPage(path, name, loader) {
 }
 
 const routes = [
-  { path: '/', name: 'landing', component: () => import('../views/LandingView.vue'), meta: { public: true } },
+  { path: '/', name: 'landing', component: LandingView, meta: { public: true } },
   { path: '/login', component: () => import('../views/LoginView.vue'), meta: { guest: true } },
   { path: '/register', component: () => import('../views/RegisterView.vue'), meta: { guest: true } },
   { path: '/forgot-password', component: () => import('../views/ForgotPasswordView.vue'), meta: { guest: true } },

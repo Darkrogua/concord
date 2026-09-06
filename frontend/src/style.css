@@ -119,3 +119,19 @@ body {
   display: flex;
   gap: 0.75rem;
 }
+
+.landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.4rem;
+  border-radius: 999px;
+  background: var(--p-primary-color, #6366f1);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.landing-btn:hover {
+  filter: brightness(1.08);
+}
