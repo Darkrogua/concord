@@ -1,5 +1,9 @@
 <template>
   <nav class="concord-nav" aria-label="Навигация">
+    <router-link to="/agreements" class="concord-nav__brand">
+      <ConcordLogoMark size="sm" />
+      <span>Concord</span>
+    </router-link>
     <div class="concord-nav__divider" aria-hidden="true" />
     <button
       type="button"
@@ -86,10 +90,11 @@
 
 <script>
 import ConcordGearIcon from './ConcordGearIcon.vue'
+import ConcordLogoMark from './ConcordLogoMark.vue'
 
 export default {
   name: 'ConcordBottomNav',
-  components: { ConcordGearIcon },
+  components: { ConcordGearIcon, ConcordLogoMark },
   props: {
     active: {
       type: String,

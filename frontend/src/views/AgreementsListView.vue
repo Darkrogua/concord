@@ -2,7 +2,7 @@
   <div class="concord-page">
     <ConcordPageHeader>
       <template #left>
-        <h1 class="concord-page-header__brand">
+        <h1 class="concord-page-header__brand concord-page-header__brand--mobile">
           <ConcordLogoMark size="sm" />
           <span class="concord-page-header__brand-name">Concord</span>
         </h1>
@@ -18,19 +18,21 @@
       </template>
     </ConcordPageHeader>
 
-    <div class="concord-tabs-wrap">
-      <div class="concord-tabs" role="tablist" aria-label="Фильтры списка">
-        <button
-          v-for="tab in tabs"
-          :key="tab.value"
-          type="button"
-          role="tab"
-          :class="['concord-tabs__item', { 'concord-tabs__item--active': group === tab.value }]"
-          :aria-selected="group === tab.value"
-          @click="selectTab(tab.value)"
-        >
-          {{ tab.label }}
-        </button>
+    <div class="concord-list-tabs-sticky">
+      <div class="concord-tabs-wrap">
+        <div class="concord-tabs" role="tablist" aria-label="Фильтры списка">
+          <button
+            v-for="tab in tabs"
+            :key="tab.value"
+            type="button"
+            role="tab"
+            :class="['concord-tabs__item', { 'concord-tabs__item--active': group === tab.value }]"
+            :aria-selected="group === tab.value"
+            @click="selectTab(tab.value)"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -52,7 +54,25 @@
         @open="openAgreement"
         @toggle-favorite="favorite"
       />
-      <p v-if="!cards.length" class="concord-list__empty">Пока нет согласований в этом списке.</p>
+
+      <div v-if="!cards.length" class="concord-empty-state">
+        <div class="concord-empty-state__icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M4 6.5h16M4 12h16M4 17.5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </div>
+        <h2 class="concord-empty-state__title">Список пуст</h2>
+        <p class="concord-empty-state__text">
+          {{ emptyText }}
+        </p>
+        <button
+          type="button"
+          class="concord-agreement-form__submit concord-empty-state__action"
+          @click="router.push('/agreements/create')"
+        >
+          Создать согласование
+        </button>
+      </div>
     </main>
   </div>
 </template>
@@ -80,6 +100,17 @@ const tabs = [
 ]
 
 const cards = computed(() => items.value.map(normalizeAgreement))
+
+const emptyText = computed(() => {
+  const messages = {
+    incoming: 'Во входящих пока нет согласований, которые ждут вашего решения.',
+    outgoing: 'Вы ещё не создавали согласований — начните с первого.',
+    favorites: 'Добавляйте согласования в избранное, чтобы быстро находить их здесь.',
+    archive: 'В архиве пока пусто.',
+    all: 'Создайте первое согласование, чтобы собрать голоса участников.',
+  }
+  return messages[group.value] || 'Пока нет согласований в этом списке.'
+})
 
 async function load() {
   loading.value = true
@@ -109,9 +140,13 @@ onMounted(load)
 </script>
 
 <style scoped>
-.concord-list__empty {
-  margin: 2rem 0;
-  text-align: center;
-  color: var(--concord-text-muted);
+.concord-page-header__brand--mobile {
+  display: flex;
+}
+
+@media (min-width: 960px) {
+  .concord-page-header__brand--mobile {
+    display: none;
+  }
 }
 </style>

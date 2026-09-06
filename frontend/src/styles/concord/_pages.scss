@@ -1,0 +1,228 @@
+.concord-page-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--concord-nav-height) + var(--concord-safe-bottom));
+  z-index: 20;
+  padding: 8px var(--concord-page-gutter) 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--concord-bg) 36%);
+  pointer-events: none;
+}
+
+.concord-page-footer > * {
+  pointer-events: auto;
+}
+
+.concord-page--editor .concord-agreement-create__actions {
+  width: 100%;
+  max-width: 420px;
+}
+
+.concord-page--editor .concord-form-error {
+  width: 100%;
+  max-width: 420px;
+}
+
+.concord-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 20px;
+  border: none;
+  border-radius: var(--concord-radius-pill);
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+  cursor: pointer;
+}
+
+.concord-page-btn--primary {
+  background: var(--concord-primary);
+  color: #fff;
+}
+
+.concord-page-btn--primary:hover:not(:disabled) {
+  background: var(--concord-primary-hover);
+}
+
+.concord-page-btn--secondary {
+  background: var(--concord-surface-muted);
+  color: var(--concord-text);
+  border: 1px solid var(--concord-border);
+}
+
+.concord-page-btn--danger {
+  background: transparent;
+  color: var(--concord-deadline-overdue);
+  border: 1px solid var(--concord-status-red-border);
+}
+
+.concord-page-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.concord-form-error {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-deadline-overdue-bg);
+  color: var(--concord-deadline-overdue);
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+}
+
+.concord-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.concord-detail-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--concord-radius-pill);
+  font-size: var(--concord-text-caption);
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-detail-badge--draft {
+  background: var(--concord-status-grey-bg);
+  color: var(--concord-text-muted);
+}
+
+.concord-detail-badge--active {
+  background: var(--concord-status-blue-bg);
+  color: var(--concord-primary);
+}
+
+.concord-detail-badge--done {
+  background: var(--concord-status-green-bg);
+  color: var(--concord-status-green);
+}
+
+.concord-detail-description {
+  margin: 0 0 20px;
+  color: var(--concord-text-muted);
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-relaxed);
+  white-space: pre-wrap;
+}
+
+.concord-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.concord-section-card {
+  margin-bottom: 16px;
+}
+
+.concord-section-card__title {
+  margin: 0;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--concord-border);
+  font-size: var(--concord-text-header);
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-section-card__body {
+  padding: 14px 16px;
+}
+
+.concord-block {
+  margin-bottom: 16px;
+}
+
+.concord-block:last-child {
+  margin-bottom: 0;
+}
+
+.concord-block__title {
+  margin: 0 0 6px;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-block__text {
+  margin: 0;
+  color: var(--concord-text);
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-relaxed);
+  white-space: pre-wrap;
+}
+
+.concord-block__code {
+  margin: 0;
+  padding: 12px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-surface-muted);
+  font-size: var(--concord-text-caption);
+  line-height: var(--concord-leading-relaxed);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.concord-vote-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--concord-divider);
+}
+
+.concord-vote-panel__title {
+  margin: 0;
+  font-size: var(--concord-text-body);
+  font-weight: var(--concord-weight-semibold);
+}
+
+.concord-vote-panel__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.concord-vote-panel__status {
+  margin: 0;
+  color: var(--concord-text-muted);
+  font-size: var(--concord-text-body);
+}
+
+.concord-editor-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--concord-divider);
+}
+
+.concord-editor-block:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.concord-inline-form {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.concord-inline-form .concord-agreement-form__input {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .concord-page-footer {
+    left: 240px;
+    bottom: 0;
+    max-width: calc(100% - 240px);
+  }
+}

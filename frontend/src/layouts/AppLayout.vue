@@ -1,6 +1,8 @@
 <template>
   <div class="concord-app">
-    <router-view />
+    <div class="concord-app__main">
+      <router-view />
+    </div>
     <ConcordBottomNav
       :active="navActive"
       :avatar-initial="avatarInitial"

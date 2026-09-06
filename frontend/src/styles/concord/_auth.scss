@@ -1,0 +1,158 @@
+.concord-page--auth {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  background: var(--concord-shell-muted);
+}
+
+.concord-auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) var(--concord-page-gutter) 8px;
+}
+
+.concord-auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--concord-text);
+  text-decoration: none;
+  font-size: var(--concord-text-header);
+  font-weight: var(--concord-weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.concord-auth-main {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8px var(--concord-page-gutter) 32px;
+}
+
+.concord-auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 24px 20px;
+  border: 1px solid var(--concord-border);
+  border-radius: var(--concord-radius);
+  background: var(--concord-surface);
+  box-sizing: border-box;
+}
+
+.concord-auth-title {
+  margin: 0 0 4px;
+  font-size: var(--concord-text-title);
+  font-weight: var(--concord-weight-semibold);
+  line-height: var(--concord-leading-tight);
+  letter-spacing: var(--concord-tracking-title);
+  color: var(--concord-text);
+}
+
+.concord-auth-subtitle {
+  margin: 0 0 20px;
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+  color: var(--concord-text-muted);
+}
+
+.concord-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.concord-auth-form .concord-agreement-form__field {
+  margin: 0;
+}
+
+.concord-auth-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-deadline-overdue-bg);
+  color: var(--concord-deadline-overdue);
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+}
+
+.concord-auth-success {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--concord-radius-xs);
+  background: var(--concord-primary-subtle);
+  color: var(--concord-primary-hover);
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-body);
+}
+
+.concord-auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 4px;
+  font-size: var(--concord-text-body);
+}
+
+.concord-auth-links a {
+  color: var(--concord-primary);
+  text-decoration: none;
+}
+
+.concord-auth-links a:hover {
+  color: var(--concord-primary-hover);
+  text-decoration: underline;
+}
+
+.concord-auth-links a:focus-visible {
+  outline: 2px solid var(--concord-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.concord-auth-password {
+  position: relative;
+}
+
+.concord-auth-password .concord-agreement-form__input {
+  padding-right: 44px;
+}
+
+.concord-auth-password__toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--concord-radius-xs);
+  background: transparent;
+  color: var(--concord-text-muted);
+  cursor: pointer;
+}
+
+.concord-auth-password__toggle:hover {
+  color: var(--concord-text);
+  background: var(--concord-surface-muted);
+}
+
+.concord-auth-password__toggle:focus-visible {
+  outline: 2px solid var(--concord-primary);
+  outline-offset: 1px;
+}
+
+@media (min-width: 960px) {
+  .concord-auth-main {
+    align-items: center;
+    padding-top: 24px;
+    padding-bottom: 48px;
+  }
+}

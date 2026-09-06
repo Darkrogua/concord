@@ -2,25 +2,24 @@
 @import './concord/typography';
 @import './concord/badges';
 @import './concord/components';
+@import './concord/auth';
+@import './concord/shell';
+@import './concord/landing';
+@import './concord/pages';
 
 .concord-app {
   min-height: 100vh;
   background: var(--concord-shell-muted);
   color: var(--concord-text);
+  font-family: var(--concord-font-family);
 }
 
 .concord-app .concord-page {
   padding-bottom: calc(var(--concord-nav-height) + 12px);
 }
 
-@media (min-width: 960px) {
-  .concord-app .concord-page {
-    padding-bottom: 24px;
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  .concord-nav {
+@media (max-width: 959px) {
+  .concord-app .concord-nav__brand {
     display: none;
   }
 }

@@ -1,23 +1,52 @@
 <template>
-  <ConcordPageShell title="Новый пароль">
-    <form class="concord-form" @submit.prevent="submit">
-      <label class="concord-field"><span>Email</span><InputText v-model="email" type="email" class="w-full" /></label>
-      <label class="concord-field"><span>Пароль</span><Password v-model="password" :feedback="false" toggleMask class="w-full" inputClass="w-full" /></label>
-      <label class="concord-field"><span>Повтор</span><Password v-model="password_confirmation" :feedback="false" toggleMask class="w-full" inputClass="w-full" /></label>
-      <Message v-if="error" severity="error">{{ error }}</Message>
-      <Button type="submit" label="Сохранить" :loading="loading" class="w-full" />
+  <ConcordAuthShell title="Новый пароль" subtitle="Задайте новый пароль для входа">
+    <form class="concord-auth-form concord-agreement-form" @submit.prevent="submit">
+      <label class="concord-agreement-form__field">
+        <span class="concord-agreement-form__label">Email</span>
+        <input
+          v-model="email"
+          class="concord-agreement-form__input"
+          type="email"
+          name="email"
+          autocomplete="email"
+          required
+        >
+      </label>
+
+      <ConcordPasswordField
+        v-model="password"
+        label="Пароль"
+        name="password"
+        autocomplete="new-password"
+        required
+      />
+
+      <ConcordPasswordField
+        v-model="password_confirmation"
+        label="Повтор пароля"
+        name="password_confirmation"
+        autocomplete="new-password"
+        required
+      />
+
+      <p v-if="error" class="concord-auth-error" role="alert">{{ error }}</p>
+
+      <button class="concord-agreement-form__submit" type="submit" :disabled="loading">
+        {{ loading ? 'Сохраняем…' : 'Сохранить' }}
+      </button>
+
+      <div class="concord-auth-links">
+        <router-link to="/login">Назад ко входу</router-link>
+      </div>
     </form>
-  </ConcordPageShell>
+  </ConcordAuthShell>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import InputText from 'primevue/inputtext'
-import Password from 'primevue/password'
-import Button from 'primevue/button'
-import Message from 'primevue/message'
-import ConcordPageShell from '../components/ConcordPageShell.vue'
+import ConcordAuthShell from '../components/concord/ConcordAuthShell.vue'
+import ConcordPasswordField from '../components/concord/ConcordPasswordField.vue'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
@@ -47,9 +76,3 @@ async function submit() {
   }
 }
 </script>
-
-<style scoped>
-.concord-form { display: flex; flex-direction: column; gap: 1rem; }
-.concord-field { display: flex; flex-direction: column; gap: 0.35rem; color: var(--concord-text-muted); }
-.w-full { width: 100%; }
-</style>

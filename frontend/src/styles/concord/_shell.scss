@@ -1,0 +1,138 @@
+.concord-app__main {
+  min-width: 0;
+}
+
+.concord-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 48px auto;
+  padding: 0 var(--concord-page-gutter);
+  max-width: 320px;
+  text-align: center;
+}
+
+.concord-empty-state__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--concord-primary-subtle);
+  color: var(--concord-primary);
+}
+
+.concord-empty-state__title {
+  margin: 0;
+  font-size: var(--concord-text-header);
+  font-weight: var(--concord-weight-semibold);
+  color: var(--concord-text);
+}
+
+.concord-empty-state__text {
+  margin: 0;
+  color: var(--concord-text-muted);
+  font-size: var(--concord-text-body);
+  line-height: var(--concord-leading-relaxed);
+}
+
+.concord-empty-state__action {
+  width: 100%;
+  margin-top: 4px;
+}
+
+@media (min-width: 960px) {
+  .concord-app {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-areas: 'nav main';
+    min-height: 100dvh;
+  }
+
+  .concord-app__main {
+    grid-area: main;
+    min-height: 100dvh;
+    overflow: auto;
+  }
+
+  .concord-app .concord-nav {
+    grid-area: nav;
+    position: sticky;
+    top: 0;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    width: 240px;
+    height: 100dvh;
+    padding: 20px 12px;
+    border-top: none;
+    border-right: 1px solid var(--concord-nav-border);
+    border-radius: 0;
+    box-sizing: border-box;
+  }
+
+  .concord-app .concord-nav__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 4px 16px;
+    padding: 4px 8px;
+    color: var(--concord-text);
+    text-decoration: none;
+    font-size: var(--concord-text-header);
+    font-weight: var(--concord-weight-semibold);
+    letter-spacing: -0.01em;
+  }
+
+  .concord-app .concord-nav__item {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--concord-radius-xs);
+    text-align: left;
+  }
+
+  .concord-app .concord-nav__item--active {
+    background: var(--concord-primary-subtle);
+  }
+
+  .concord-app .concord-nav__item:hover:not(.concord-nav__item--active) {
+    background: var(--concord-surface-muted);
+  }
+
+  .concord-app .concord-nav__label {
+    justify-content: flex-start;
+    width: auto;
+    min-height: auto;
+    font-size: var(--concord-text-body);
+    white-space: nowrap;
+  }
+
+  .concord-app .concord-nav__label--profile {
+    max-width: 140px;
+  }
+
+  .concord-app .concord-nav__icon-wrap {
+    flex-shrink: 0;
+  }
+
+  .concord-app .concord-page {
+    max-width: 840px;
+    margin: 0 auto;
+    padding-bottom: 24px;
+  }
+
+  .concord-list-tabs-sticky {
+    top: 0;
+  }
+}
