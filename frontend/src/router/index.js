@@ -1,6 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
+const AppLayout = () => import('../layouts/AppLayout.vue')
+
+function appPage(path, name, loader) {
+  return {
+    path,
+    component: AppLayout,
+    meta: { auth: true },
+    children: [{ path: '', name, component: loader }],
+  }
+}
+
 const routes = [
   { path: '/', name: 'landing', component: () => import('../views/LandingView.vue'), meta: { public: true } },
   { path: '/login', component: () => import('../views/LoginView.vue'), meta: { guest: true } },
@@ -9,18 +20,19 @@ const routes = [
   { path: '/reset-password', component: () => import('../views/ResetPasswordView.vue'), meta: { guest: true } },
   { path: '/share/:token', component: () => import('../views/PublicAgreementView.vue'), meta: { public: true } },
   {
-    component: () => import('../layouts/AppLayout.vue'),
+    path: '/agreements',
+    component: AppLayout,
     meta: { auth: true },
     children: [
-      { path: '/agreements', name: 'home', component: () => import('../views/AgreementsListView.vue') },
-      { path: '/agreements/create', name: 'create', component: () => import('../views/AgreementFormView.vue') },
-      { path: '/agreements/:id/edit', name: 'edit', component: () => import('../views/AgreementFormView.vue') },
-      { path: '/agreements/:id', name: 'show', component: () => import('../views/AgreementDetailView.vue') },
-      { path: '/notifications', name: 'notifications', component: () => import('../views/NotificationsView.vue') },
-      { path: '/profile', name: 'profile', component: () => import('../views/ProfileView.vue') },
-      { path: '/groups', name: 'groups', component: () => import('../views/GroupsView.vue') },
+      { path: '', name: 'home', component: () => import('../views/AgreementsListView.vue') },
+      { path: 'create', name: 'create', component: () => import('../views/AgreementFormView.vue') },
+      { path: ':id/edit', name: 'edit', component: () => import('../views/AgreementFormView.vue') },
+      { path: ':id', name: 'show', component: () => import('../views/AgreementDetailView.vue') },
     ],
   },
+  appPage('/notifications', 'notifications', () => import('../views/NotificationsView.vue')),
+  appPage('/profile', 'profile', () => import('../views/ProfileView.vue')),
+  appPage('/groups', 'groups', () => import('../views/GroupsView.vue')),
 ]
 
 const router = createRouter({
@@ -33,7 +45,11 @@ router.beforeEach(async (to) => {
   if (!auth.ready) {
     await auth.fetchUser()
   }
-  if (to.meta.auth && !auth.isAuthenticated) {
+
+  const isPublic = to.matched.some((record) => record.meta.public)
+  const needsAuth = to.matched.some((record) => record.meta.auth)
+
+  if (needsAuth && !isPublic && !auth.isAuthenticated) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
   if (to.meta.guest && auth.isAuthenticated) {
