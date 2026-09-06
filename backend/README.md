@@ -1,28 +1,24 @@
-# Concord Backend (Laravel 11)
+# Concord Backend (Laravel 13 + Filament 4)
 
-API для системы согласования документов.
+API и админка системы согласования.
 
-## Установка
+## Docker
 
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan db:seed
-```
-
-## Запуск
+Из корня репозитория:
 
 ```bash
-php artisan serve
-php artisan queue:work
+cp backend/.env.example backend/.env
+docker compose up -d --build
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+docker compose exec app php artisan filament:assets
 ```
 
-## Структура
+- API / Filament: http://localhost:8080 (`/admin`)
+- Mailpit: http://localhost:8025
 
-- `app/` - приложение
-- `database/` - миграции, модели, сидеры
-- `routes/api.php` - API маршруты
-- `config/` - конфигурация
+Демо:
 
+- admin@concord.local / password (Filament)
+- author@concord.local / password
+- approver@concord.local / password

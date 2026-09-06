@@ -1,11 +1,12 @@
-# Concord Frontend (Vue.js 3)
+# Concord Frontend (Vue 3 + PrimeVue)
 
-SPA приложение для системы согласования документов.
+SPA для системы согласования документов.
 
 ## Установка
 
 ```bash
 npm install
+cp .env.example .env
 ```
 
 ## Запуск
@@ -14,17 +15,12 @@ npm install
 npm run dev
 ```
 
-## Сборка
+Приложение: http://localhost:5173  
+API (Docker Nginx): http://localhost:8080  
+Админка Filament: http://localhost:8080/admin  
 
-```bash
-npm run build
-```
+Демо-пользователи (после `php artisan db:seed`):
 
-## Структура
-
-- `src/components/` - компоненты
-- `src/views/` - страницы
-- `src/stores/` - Pinia stores
-- `src/services/` - API сервисы
-- `src/router/` - роутинг
-
+- `admin@concord.local` / `password` — Filament
+- `author@concord.local` / `password`
+- `approver@concord.local` / `password`
