@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
-import Aura from '@primeuix/themes/aura'
+import ConcordTheme from './theme'
 import ToastService from 'primevue/toastservice'
 import ConfirmationService from 'primevue/confirmationservice'
 import App from './App.vue'
@@ -15,7 +15,7 @@ app.use(createPinia())
 app.use(router)
 app.use(PrimeVue, {
   theme: {
-    preset: Aura,
+    preset: ConcordTheme,
     options: {
       darkModeSelector: '.app-dark',
       cssLayer: false,

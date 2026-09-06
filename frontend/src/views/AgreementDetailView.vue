@@ -1,76 +1,99 @@
 <template>
-  <div class="page" v-if="item">
-    <div class="flex justify-content-between align-items-start gap-2 flex-wrap">
+  <div v-if="item" class="page">
+    <div class="page-head">
       <div>
-        <h1 class="mt-0">{{ item.title }}</h1>
-        <Tag :value="item.status_label" />
-        <p>{{ item.description }}</p>
-        <p class="text-sm">Дедлайн: {{ formatDate(item.deadline) }}</p>
+        <h1>{{ item.title }}</h1>
+        <p>
+          <span class="status-pill">{{ item.status_label }}</span>
+          &nbsp;Дедлайн {{ formatDateTime(item.deadline) }}
+        </p>
+        <p class="dossier-desc">{{ item.description }}</p>
       </div>
-      <div class="flex gap-2">
-        <Button v-if="item.is_author && item.status === 'draft'" label="Редактировать" @click="$router.push(`/agreements/${item.id}/edit`)" />
+      <div class="vote-row">
+        <router-link
+          v-if="item.is_author && item.status === 'draft'"
+          class="btn btn-ghost"
+          :to="`/agreements/${item.id}/edit`"
+        >
+          Редактировать
+        </router-link>
         <Button v-if="item.is_author && item.public_token" outlined label="Копировать ссылку" @click="copyShare" />
-        <Button v-if="item.is_author && ['completed','expired','archived'].includes(item.status)" outlined label="Перезапустить" @click="restart" />
+        <Button
+          v-if="item.is_author && ['completed', 'expired', 'archived'].includes(item.status)"
+          outlined
+          label="Перезапустить"
+          @click="restart"
+        />
       </div>
     </div>
 
-    <Panel v-for="section in item.sections" :key="section.id" :header="section.name" class="mb-3">
+    <section v-for="section in item.sections" :key="section.id" class="sheet">
+      <h2>{{ section.name }}</h2>
       <div v-for="block in section.blocks" :key="block.id" class="mb-3">
         <h3 v-if="block.title">{{ block.title }}</h3>
-        <pre v-if="block.type === 'code'">{{ block.content?.body }}</pre>
-        <div v-else-if="block.type === 'links'">
-          <a v-for="(link, i) in block.content?.items || []" :key="i" :href="link.url" target="_blank">{{ link.title || link.url }}</a>
+        <pre v-if="block.type === 'code'" class="document-code">{{ block.content?.body }}</pre>
+        <div v-else-if="block.type === 'links'" class="form-stack">
+          <a v-for="(link, i) in block.content?.items || []" :key="i" :href="link.url" target="_blank" rel="noreferrer">
+            {{ link.title || link.url }}
+          </a>
         </div>
-        <div v-else-if="block.type === 'files'">
-          <div v-for="file in block.files" :key="file.id">
-            <a :href="`/api/files/${file.id}`" target="_blank">{{ file.name }}</a>
-          </div>
-          <FileUpload v-if="item.is_author" mode="basic" auto customUpload @uploader="(e) => upload(block, e)" chooseLabel="Файл" />
+        <div v-else-if="block.type === 'files'" class="form-stack">
+          <a v-for="file in block.files" :key="file.id" :href="`/api/files/${file.id}`" target="_blank" rel="noreferrer">
+            {{ file.name }}
+          </a>
+          <FileUpload v-if="item.is_author" mode="basic" auto customUpload chooseLabel="Загрузить файл" @uploader="(e) => upload(block, e)" />
         </div>
-        <div v-else-if="block.type === 'gallery'" class="flex gap-2 flex-wrap">
-          <img v-for="(img, i) in block.content?.items || []" :key="i" :src="img.url" alt="" style="max-width:160px" />
+        <div v-else-if="block.type === 'gallery'" class="vote-row">
+          <img
+            v-for="(img, i) in block.content?.items || []"
+            :key="i"
+            :src="img.url"
+            :alt="img.alt || ''"
+            width="160"
+            height="120"
+            loading="lazy"
+            style="object-fit: cover; max-width: 160px; height: auto"
+          />
         </div>
         <p v-else style="white-space: pre-wrap">{{ block.content?.body }}</p>
       </div>
 
-      <Divider />
-      <h3>Согласовать?</h3>
-      <div v-if="section.can_vote" class="flex flex-column gap-2">
-        <div class="flex gap-2">
-          <Button label="Да" severity="success" @click="vote(section, 'yes')" />
-          <Button label="Нет" severity="danger" outlined @click="rejecting = section.id" />
+      <h3>Согласовать раздел</h3>
+      <div v-if="section.can_vote" class="form-stack">
+        <div class="vote-row">
+          <Button label="Да" @click="vote(section, 'yes')" />
+          <Button label="Нет" outlined severity="danger" @click="rejecting = section.id" />
         </div>
-        <div v-if="rejecting === section.id">
-          <Textarea v-model="comment" placeholder="Почему?" maxlength="500" rows="3" class="w-full" />
+        <div v-if="rejecting === section.id" class="field">
+          <label :for="`comment-${section.id}`">Почему отказываете</label>
+          <Textarea :id="`comment-${section.id}`" v-model="comment" maxlength="500" rows="3" class="w-full" />
           <Button class="mt-2" label="Отправить отказ" @click="vote(section, 'no')" />
         </div>
       </div>
-      <p v-else-if="section.own_vote">Ваш голос: {{ section.own_vote === 'yes' ? 'Да' : 'Нет' }}</p>
-      <p v-else>Голосование недоступно</p>
+      <p v-else-if="section.own_vote">Ваш голос: {{ section.own_vote === 'yes' ? 'да' : 'нет' }}</p>
+      <p v-else class="dossier-meta">Голосование сейчас недоступно.</p>
 
       <div v-if="section.votes?.length" class="mt-3">
-        <h4>Результаты</h4>
+        <h3>Результаты</h3>
         <ul>
           <li v-for="v in section.votes" :key="v.id">
-            {{ v.user?.name }} — {{ v.vote === 'yes' ? 'Да' : 'Нет' }}
-            <span v-if="v.comment"> · {{ v.comment }}</span>
+            {{ v.user?.name }} — {{ v.vote === 'yes' ? 'да' : 'нет' }}
+            <span v-if="v.comment"> ({{ v.comment }})</span>
           </li>
         </ul>
       </div>
-    </Panel>
+    </section>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import Tag from 'primevue/tag'
 import Button from 'primevue/button'
-import Panel from 'primevue/panel'
-import Divider from 'primevue/divider'
 import Textarea from 'primevue/textarea'
 import FileUpload from 'primevue/fileupload'
 import api from '../services/api'
+import { formatDateTime } from '../utils/format'
 
 const route = useRoute()
 const item = ref(null)
@@ -80,10 +103,6 @@ const comment = ref('')
 async function load() {
   const { data } = await api.get(`/api/agreements/${route.params.id}`)
   item.value = data.data
-}
-
-function formatDate(value) {
-  return value ? new Date(value).toLocaleString() : '—'
 }
 
 async function vote(section, choice) {

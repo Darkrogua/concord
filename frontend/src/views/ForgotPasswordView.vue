@@ -1,25 +1,33 @@
 <template>
-  <div class="auth-page">
-    <Card class="auth-card">
-      <template #title>Восстановление пароля</template>
-      <template #content>
-        <form class="flex flex-column gap-3" @submit.prevent="submit">
-          <InputText v-model="email" type="email" placeholder="Email" class="w-full" />
-          <Message v-if="done" severity="success">Если email существует, письмо отправлено.</Message>
-          <Button type="submit" label="Отправить ссылку" :loading="loading" />
-        </form>
-        <router-link to="/login">Назад ко входу</router-link>
-      </template>
-    </Card>
-  </div>
+  <AuthShell title="Сброс пароля" lead="Пришлём ссылку, если такой адрес есть в системе.">
+    <form class="form-stack" @submit.prevent="submit">
+      <div class="field">
+        <label for="email">Email</label>
+        <InputText
+          id="email"
+          v-model="email"
+          type="email"
+          name="email"
+          autocomplete="username"
+          spellcheck="false"
+          class="w-full"
+        />
+      </div>
+      <Message v-if="done" severity="success">Если этот email есть в системе, письмо уже отправлено.</Message>
+      <Button type="submit" label="Отправить ссылку" :loading="loading" :disabled="loading" />
+    </form>
+    <div class="auth-links">
+      <router-link to="/login">Назад ко входу</router-link>
+    </div>
+  </AuthShell>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import AuthShell from '../components/AuthShell.vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()

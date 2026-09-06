@@ -1,37 +1,48 @@
 <template>
-  <div class="auth-page">
-    <Card class="auth-card">
-      <template #title>Вход в Concord</template>
-      <template #content>
-        <form class="flex flex-column gap-3" @submit.prevent="submit">
-          <div>
-            <label>Email</label>
-            <InputText v-model="email" type="email" class="w-full" />
-          </div>
-          <div>
-            <label>Пароль</label>
-            <Password v-model="password" :feedback="false" toggleMask class="w-full" inputClass="w-full" />
-          </div>
-          <Message v-if="error" severity="error">{{ error }}</Message>
-          <Button type="submit" label="Войти" :loading="loading" />
-        </form>
-        <div class="mt-3 flex justify-content-between">
-          <router-link to="/register">Регистрация</router-link>
-          <router-link to="/forgot-password">Забыли пароль?</router-link>
-        </div>
-      </template>
-    </Card>
-  </div>
+  <AuthShell title="Вход" lead="Почта и пароль, которыми вы регистрировались.">
+    <form class="form-stack" @submit.prevent="submit">
+      <div class="field">
+        <label for="email">Email</label>
+        <InputText
+          id="email"
+          v-model="email"
+          type="email"
+          name="email"
+          autocomplete="username"
+          spellcheck="false"
+          class="w-full"
+        />
+      </div>
+      <div class="field">
+        <label for="password">Пароль</label>
+        <Password
+          inputId="password"
+          v-model="password"
+          :feedback="false"
+          toggleMask
+          class="w-full"
+          inputClass="w-full"
+          autocomplete="current-password"
+        />
+      </div>
+      <Message v-if="error" severity="error">{{ error }}</Message>
+      <Button type="submit" label="Войти" :loading="loading" :disabled="loading" />
+    </form>
+    <div class="auth-links">
+      <router-link to="/register">Регистрация</router-link>
+      <router-link to="/forgot-password">Забыли пароль?</router-link>
+    </div>
+  </AuthShell>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import AuthShell from '../components/AuthShell.vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
@@ -49,7 +60,7 @@ async function submit() {
     await auth.login({ email: email.value, password: password.value })
     router.push(route.query.redirect || '/agreements')
   } catch (e) {
-    error.value = e.response?.data?.message || 'Не удалось войти'
+    error.value = e.response?.data?.message || 'Не удалось войти. Проверьте почту и пароль.'
   } finally {
     loading.value = false
   }

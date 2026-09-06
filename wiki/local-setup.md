@@ -7,8 +7,9 @@ docker compose up -d --build
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 docker compose exec app php artisan filament:assets
-cd frontend && npm install && npm run dev
 ```
+
+SPA поднимается контейнером `frontend` вместе с остальным стеком (`http://localhost:5173`). Grafana в compose нет.
 
 Демо-пользователи (пароль `password`):
 

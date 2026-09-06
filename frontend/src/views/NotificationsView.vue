@@ -1,25 +1,29 @@
 <template>
   <div class="page">
-    <div class="flex justify-content-between align-items-center">
-      <h1>Уведомления</h1>
-      <Button label="Прочитать все" text @click="readAll" />
+    <div class="page-head">
+      <div>
+        <h1>Уведомления</h1>
+        <p>Голоса, отказы и запуски по вашим документам.</p>
+      </div>
+      <Button v-if="items.length" label="Прочитать все" text @click="readAll" />
     </div>
-    <div v-for="item in items" :key="item.id" class="mb-2">
-      <Panel :header="item.title">
-        <p>{{ item.message }}</p>
-        <small>{{ new Date(item.created_at).toLocaleString() }}</small>
-        <Button v-if="!item.read_at" size="small" class="ml-2" label="Прочитано" @click="read(item)" />
-      </Panel>
-    </div>
-    <p v-if="!items.length">Нет уведомлений</p>
+    <article v-for="item in items" :key="item.id" class="notice" :class="{ 'is-unread': !item.read_at }">
+      <strong>{{ item.title }}</strong>
+      <p>{{ item.message }}</p>
+      <time>{{ formatDateTime(item.created_at) }}</time>
+      <div v-if="!item.read_at">
+        <Button size="small" text label="Отметить прочитанным" @click="read(item)" />
+      </div>
+    </article>
+    <p v-if="!items.length" class="empty">Новых уведомлений нет.</p>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
 import Button from 'primevue/button'
-import Panel from 'primevue/panel'
 import api from '../services/api'
+import { formatDateTime } from '../utils/format'
 
 const items = ref([])
 

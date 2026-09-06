@@ -75,10 +75,15 @@ Datasource во внешней Grafana: `http://127.0.0.1:3101` или `http://h
 
 Нужен доступ к Docker socket (`/var/run/docker.sock`).
 
+## frontend (`concord-frontend`)
+
+Dev-сервер Vue 3 + Vite. Отдаёт SPA на порту `5173` и проксирует `/api` и `/sanctum` в Nginx (`http://nginx:80`).
+
+Без этого контейнера `http://localhost:5173` не отвечает: бэкенд в Docker SPA не содержит.
+
 ## Что не в compose
 
 | Компонент | Где живёт |
 |-----------|-----------|
-| Vue SPA (Vite) | Хост, `frontend/`, порт `5173` |
 | Grafana | Ваш отдельный контейнер/сервер |
 | PHP на хосте | Не требуется, только Docker |

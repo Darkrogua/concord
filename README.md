@@ -19,7 +19,6 @@ docker compose up -d --build
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 docker compose exec app php artisan filament:assets
-cd frontend && npm install && npm run dev
 ```
 
 - SPA: http://localhost:5173

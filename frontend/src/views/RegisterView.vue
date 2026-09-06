@@ -1,30 +1,63 @@
 <template>
-  <div class="auth-page">
-    <Card class="auth-card">
-      <template #title>Регистрация</template>
-      <template #content>
-        <form class="flex flex-column gap-3" @submit.prevent="submit">
-          <InputText v-model="name" placeholder="Имя" class="w-full" />
-          <InputText v-model="email" type="email" placeholder="Email" class="w-full" />
-          <Password v-model="password" :feedback="false" toggleMask placeholder="Пароль" inputClass="w-full" />
-          <Password v-model="password_confirmation" :feedback="false" toggleMask placeholder="Повтор пароля" inputClass="w-full" />
-          <Message v-if="error" severity="error">{{ error }}</Message>
-          <Button type="submit" label="Создать аккаунт" :loading="loading" />
-        </form>
-        <router-link to="/login">Уже есть аккаунт</router-link>
-      </template>
-    </Card>
-  </div>
+  <AuthShell title="Регистрация" lead="После этого можно создавать согласования и голосовать.">
+    <form class="form-stack" @submit.prevent="submit">
+      <div class="field">
+        <label for="name">Имя</label>
+        <InputText id="name" v-model="name" name="name" autocomplete="name" class="w-full" />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <InputText
+          id="email"
+          v-model="email"
+          type="email"
+          name="email"
+          autocomplete="username"
+          spellcheck="false"
+          class="w-full"
+        />
+      </div>
+      <div class="field">
+        <label for="password">Пароль</label>
+        <Password
+          inputId="password"
+          v-model="password"
+          :feedback="false"
+          toggleMask
+          class="w-full"
+          inputClass="w-full"
+          autocomplete="new-password"
+        />
+      </div>
+      <div class="field">
+        <label for="password_confirmation">Повтор пароля</label>
+        <Password
+          inputId="password_confirmation"
+          v-model="password_confirmation"
+          :feedback="false"
+          toggleMask
+          class="w-full"
+          inputClass="w-full"
+          autocomplete="new-password"
+        />
+      </div>
+      <Message v-if="error" severity="error">{{ error }}</Message>
+      <Button type="submit" label="Создать аккаунт" :loading="loading" :disabled="loading" />
+    </form>
+    <div class="auth-links">
+      <router-link to="/login">Уже есть аккаунт</router-link>
+    </div>
+  </AuthShell>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
+import AuthShell from '../components/AuthShell.vue'
 import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
@@ -48,7 +81,7 @@ async function submit() {
     })
     router.push('/agreements')
   } catch (e) {
-    error.value = Object.values(e.response?.data?.errors || {}).flat().join(' ') || 'Ошибка регистрации'
+    error.value = Object.values(e.response?.data?.errors || {}).flat().join(' ') || 'Не удалось зарегистрироваться.'
   } finally {
     loading.value = false
   }

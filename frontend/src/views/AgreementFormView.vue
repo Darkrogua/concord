@@ -1,67 +1,86 @@
 <template>
   <div class="page">
-    <h1>{{ isEdit ? 'Редактирование' : 'Новое согласование' }}</h1>
-    <Card>
-      <template #content>
-        <form class="flex flex-column gap-3" @submit.prevent="save">
-          <InputText v-model="form.title" placeholder="Название" class="w-full" />
-          <Textarea v-model="form.description" placeholder="Описание" rows="3" autoResize class="w-full" />
-          <label>Дедлайн</label>
-          <DatePicker v-model="form.deadline" showTime hourFormat="24" class="w-full" />
-          <label>Отложенный запуск (необязательно)</label>
-          <DatePicker v-model="form.publish_date" showTime hourFormat="24" class="w-full" showButtonBar />
+    <div class="page-head">
+      <div>
+        <h1>{{ isEdit ? 'Редактирование' : 'Новое согласование' }}</h1>
+        <p>{{ isEdit ? 'Сначала черновик, затем разделы и участники.' : 'Сохраните черновик — разделы появятся на следующем шаге.' }}</p>
+      </div>
+    </div>
+    <div class="sheet">
+        <form class="form-stack" @submit.prevent="save">
+          <div class="field">
+            <label for="title">Название</label>
+            <InputText id="title" v-model="form.title" name="title" autocomplete="off" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="description">Описание</label>
+            <Textarea id="description" v-model="form.description" rows="3" autoResize class="w-full" />
+          </div>
+          <div class="field">
+            <label for="deadline">Дедлайн</label>
+            <DatePicker inputId="deadline" v-model="form.deadline" showTime hourFormat="24" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="publish_date">Отложенный запуск</label>
+            <DatePicker inputId="publish_date" v-model="form.publish_date" showTime hourFormat="24" class="w-full" showButtonBar />
+          </div>
           <Message v-if="error" severity="error">{{ error }}</Message>
-          <div class="flex gap-2">
-            <Button type="submit" label="Сохранить черновик" :loading="loading" />
+          <div class="vote-row">
+            <Button type="submit" label="Сохранить черновик" :loading="loading" :disabled="loading" />
             <Button v-if="isEdit" type="button" outlined label="Запустить" @click="publish" />
           </div>
         </form>
-      </template>
-    </Card>
+    </div>
 
     <div v-if="isEdit" class="mt-4">
-      <div class="flex justify-content-between align-items-center">
+      <div class="page-head">
         <h2>Разделы</h2>
         <Button size="small" label="Добавить раздел" @click="addSection" />
       </div>
-      <div v-for="section in sections" :key="section.id" class="mb-3">
-        <Panel :header="section.name">
-          <div class="flex flex-column gap-2">
-            <InputText v-model="section.name" @change="saveSection(section)" />
-            <div class="flex gap-3">
-              <div class="flex align-items-center gap-2">
-                <Checkbox v-model="section.participants_see_each_other" binary @change="saveSection(section)" />
-                <span>Участники видят друг друга</span>
+      <div v-for="section in sections" :key="section.id" class="sheet">
+          <div class="form-stack">
+            <div class="field">
+              <label :for="`section-${section.id}`">Название раздела</label>
+              <InputText :id="`section-${section.id}`" v-model="section.name" @change="saveSection(section)" />
+            </div>
+            <label class="field" style="flex-direction: row; align-items: center; gap: 0.6rem">
+              <Checkbox v-model="section.participants_see_each_other" binary @change="saveSection(section)" />
+              Участники видят друг друга
+            </label>
+            <label class="field" style="flex-direction: row; align-items: center; gap: 0.6rem">
+              <Checkbox v-model="section.show_results_before_vote" binary @change="saveSection(section)" />
+              Результаты до голоса
+            </label>
+            <h3>Блоки</h3>
+            <div v-for="block in section.blocks" :key="block.id" class="form-stack">
+              <div class="field">
+                <label :for="`block-title-${block.id}`">Заголовок блока</label>
+                <InputText :id="`block-title-${block.id}`" v-model="block.title" class="w-full" @change="saveBlock(block)" />
               </div>
-              <div class="flex align-items-center gap-2">
-                <Checkbox v-model="section.show_results_before_vote" binary @change="saveSection(section)" />
-                <span>Результаты до голоса</span>
+              <div class="field">
+                <label :for="`block-body-${block.id}`">Текст</label>
+                <Textarea :id="`block-body-${block.id}`" v-model="block.content.body" rows="4" class="w-full" @change="saveBlock(block)" />
               </div>
             </div>
-            <h4>Блоки</h4>
-            <div v-for="block in section.blocks" :key="block.id" class="mb-2">
-              <InputText v-model="block.title" placeholder="Заголовок (необязательно)" class="w-full mb-2" @change="saveBlock(block)" />
-              <Textarea v-model="block.content.body" rows="4" class="w-full" placeholder="Текст" @change="saveBlock(block)" />
-            </div>
-            <Select v-model="newBlockType" :options="blockTypes" optionLabel="label" optionValue="value" placeholder="Тип блока" />
+            <Select v-model="newBlockType" :options="blockTypes" optionLabel="label" optionValue="value" aria-label="Тип блока" />
             <Button size="small" label="Добавить блок" @click="addBlock(section)" />
-            <h4>Участники</h4>
+            <h3>Участники</h3>
             <ul>
               <li v-for="p in section.participants" :key="p.id">
                 {{ p.user?.name }} ({{ p.user?.email }})
-                <Button size="small" text icon="pi pi-times" @click="removeParticipant(section, p.user_id)" />
+                <Button size="small" text aria-label="Убрать участника" icon="pi pi-times" @click="removeParticipant(section, p.user_id)" />
               </li>
             </ul>
             <AutoComplete
               v-model="userQuery"
               :suggestions="userSuggestions"
               optionLabel="name"
-              placeholder="Найти пользователя"
+              placeholder="Найти пользователя…"
+              aria-label="Найти пользователя"
               @complete="searchUsers"
               @item-select="(e) => addParticipant(section, e.value)"
             />
           </div>
-        </Panel>
       </div>
     </div>
   </div>
@@ -70,13 +89,11 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import DatePicker from 'primevue/datepicker'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
-import Panel from 'primevue/panel'
 import Checkbox from 'primevue/checkbox'
 import Select from 'primevue/select'
 import AutoComplete from 'primevue/autocomplete'
