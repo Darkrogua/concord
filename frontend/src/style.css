@@ -61,3 +61,61 @@ body {
     display: none !important;
   }
 }
+
+.landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, var(--p-primary-400) 28%, transparent), transparent 60%),
+    var(--p-surface-50);
+}
+
+.app-dark .landing {
+  background:
+    radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, var(--p-primary-400) 18%, transparent), transparent 55%),
+    var(--p-surface-950);
+}
+
+.landing-top {
+  padding: 1.25rem 1.5rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+}
+
+.landing-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 720px;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.landing-kicker {
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+  color: var(--p-primary-600);
+}
+
+.landing-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1.15;
+  font-weight: 650;
+}
+
+.landing-lead {
+  margin: 1.25rem 0 2rem;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  max-width: 38rem;
+  color: var(--p-text-muted-color);
+}
+
+.landing-actions {
+  display: flex;
+  gap: 0.75rem;
+}

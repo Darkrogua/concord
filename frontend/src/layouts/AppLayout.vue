@@ -25,7 +25,7 @@
     </div>
 
     <div class="mobile-nav" style="position:fixed;bottom:0;left:0;right:0;background:var(--p-surface-0);border-top:1px solid var(--p-content-border-color);display:flex;justify-content:space-around;padding:.5rem;z-index:20;">
-      <Button icon="pi pi-inbox" text rounded @click="$router.push('/')" />
+      <Button icon="pi pi-inbox" text rounded @click="$router.push('/agreements')" />
       <Button icon="pi pi-users" text rounded @click="$router.push('/groups')" />
       <Button icon="pi pi-plus" rounded @click="$router.push('/agreements/create')" />
       <Button icon="pi pi-bell" text rounded @click="$router.push('/notifications')" />
@@ -46,7 +46,7 @@ const auth = useAuthStore()
 const router = useRouter()
 
 const items = computed(() => [
-  { label: 'Согласования', icon: 'pi pi-inbox', command: () => router.push('/') },
+  { label: 'Согласования', icon: 'pi pi-inbox', command: () => router.push('/agreements') },
   { label: 'Создать', icon: 'pi pi-plus', command: () => router.push('/agreements/create') },
   { label: 'Группы', icon: 'pi pi-users', command: () => router.push('/groups') },
   { label: 'Уведомления', icon: 'pi pi-bell', command: () => router.push('/notifications') },

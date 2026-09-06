@@ -47,7 +47,7 @@ async function submit() {
   error.value = ''
   try {
     await auth.login({ email: email.value, password: password.value })
-    router.push(route.query.redirect || '/')
+    router.push(route.query.redirect || '/agreements')
   } catch (e) {
     error.value = e.response?.data?.message || 'Не удалось войти'
   } finally {

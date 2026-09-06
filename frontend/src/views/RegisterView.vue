@@ -46,7 +46,7 @@ async function submit() {
       password: password.value,
       password_confirmation: password_confirmation.value,
     })
-    router.push('/')
+    router.push('/agreements')
   } catch (e) {
     error.value = Object.values(e.response?.data?.errors || {}).flat().join(' ') || 'Ошибка регистрации'
   } finally {
